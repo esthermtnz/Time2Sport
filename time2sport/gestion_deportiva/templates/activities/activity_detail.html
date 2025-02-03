@@ -18,14 +18,14 @@
         <!-- Descripción -->
         <p>{{ activity.description }}</p>
 
-        <!-- Selector de bonos -->
+        <!-- Selector de bonos dinámico -->
         <div class="row mt-3">
             <div class="col-md-6">
                 <label for="bonoSelect" class="fw-bold">Seleccione un bono:</label>
                 <select id="bonoSelect" class="form-select">
-                    <option value="10">Bono Única Sesión - 10€</option>
-                    <option value="50">Bono Semestral - 50€</option>
-                    <option value="90">Bono Anual - 90€</option>
+                    {% for bonus in activity.bonuses.all %}
+                        <option value="{{ bonus.price }}">{{ bonus.get_bonus_type_display }} - {{ bonus.price }}€</option>
+                    {% endfor %}
                 </select>
             </div>
         </div>

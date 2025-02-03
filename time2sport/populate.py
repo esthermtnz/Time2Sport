@@ -4,7 +4,7 @@ import os
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'time2sport.settings')
 django.setup()
 
-from gestion_deportiva.models import SportFacility, Activity, Schedule, Photo
+from gestion_deportiva.models import SportFacility, Activity, Schedule, Photo, Bonus
 
 from django.core.files import File
 
@@ -93,8 +93,11 @@ def populate():
         facility.add_photo(facility_photo)
 
     # Add photos to activities
-    # for activity in created_activities:
-    #     activity.add_photo(activity_photo)
+    for activity in created_activities:
+        Bonus.objects.create(activity=activity, bonus_type='annual', price=90.00)
+        Bonus.objects.create(activity=activity, bonus_type='semester', price=55.00)
+        Bonus.objects.create(activity=activity, bonus_type='single', price=10.00)
+        # activity.add_photo(activity_photo)
 
     print("Population completed!")
 

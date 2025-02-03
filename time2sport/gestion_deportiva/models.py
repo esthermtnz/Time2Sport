@@ -85,3 +85,19 @@ class Photo(models.Model):
 
     def __str__(self):
         return f"Photo {self.id}"
+
+
+class Bonus(models.Model):
+    BONUS_TYPE_CHOICES = [
+        ('annual', 'Annual Pass'),
+        ('semester', 'Semester Pass'),
+        ('single', 'Single Session'),
+    ]
+
+    id = models.AutoField(primary_key=True)
+    activity = models.ForeignKey(Activity, on_delete=models.CASCADE, related_name="bonuses")
+    bonus_type = models.CharField(max_length=10, choices=BONUS_TYPE_CHOICES)
+    price = models.DecimalField(max_digits=6, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.get_bonus_type_display()} - {self.activity.name}"
