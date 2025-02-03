@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center">Actividades Disponibles</h2>
+    <div class="row">
+        {% for activity in activities %}
+        <div class="col-12 mb-3">
+            <div class="card p-3" style="background-color: #dbe8db; border-radius: 10px;">
+                <div class="row g-0">
+                    <div class="col-md-3">
+                        {% if activity.photos.all %}
+                            <img src="{{ activity.photos.first.image.url }}" class="img-fluid rounded" alt="... {{ activity.name }}">
+                        {% else %}
+                            <img src="/static/default_activity.jpg" class="img-fluid rounded" alt="Sin imagen">
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 d-flex flex-column justify-content-center">
+                        <h4 class="fw-bold">{{ activity.name }}</h4>
+                        <p><strong>Horario:</strong> 
+                            {% for schedule in activity.schedules.all %}
+                                {{ schedule.get_day_of_week_display }}: {{ schedule.hour_begin|time:"H:i" }} - {{ schedule.hour_end|time:"H:i" }}<br>
+                            {% endfor %}
+                        </p>
+                        <p><strong>Tipo:</strong> {{ activity.get_activity_type_display }}</p>
+                        <p><strong>Lugar:</strong> {{ activity.location }}</p>
+                    </div>
+                    <div class="col-md-3 d-flex align-items-center justify-content-center">
+                        <a href="{% url 'activity_detail' activity.id %}" class="btn btn-success">Reservar</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
