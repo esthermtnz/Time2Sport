@@ -14,9 +14,19 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
+from django.conf import settings
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
+from django.views.generic import RedirectView
+from django.conf.urls.static import static
+from ms_identity_web.django.msal_views_and_urls import MsalViews
+
+msal_urls = MsalViews(settings.MS_IDENTITY_WEB).url_patterns()
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-]
+    path('gestion_deportiva/', include('gestion_deportiva.urls')),
+    path('', RedirectView.as_view(url='/gestion_deportiva/', permanent=True)),
+    path(f'{settings.AAD_CONFIG.django.auth_endpoints.prefix}/', include(msal_urls)),
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

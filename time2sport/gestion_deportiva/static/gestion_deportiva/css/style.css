@@ -1,0 +1,67 @@
+/* Login page background */
+body {
+    background-color: white;
+    margin: 0;
+    padding: 0;
+}
+
+/* Header Bar */
+.header-bar {
+    background-color: rgba(15, 102, 60, 0.52); 
+    width: 100vw; 
+    height: 60px; 
+    display: flex;
+    align-items: center;
+    padding-left: 20px; 
+    position: fixed; 
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+/* Logo styles */
+.logo {
+    position: absolute;
+    left: 20px; 
+    height: 50px; 
+}
+
+
+/* Main container styles */
+.main-container {
+    display: flex;
+    justify-content: center;  
+    align-items: center;      
+    height: 100vh;            
+    padding-top: 60px;        
+}
+
+/* Centered login card */
+.card {
+    width: 80vw;             
+    height: 60vh;            
+    max-width: 700px;        
+    max-height: 500px;       
+    padding: 40px;          
+    border-radius: 15px;     
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); 
+}
+
+/* Login button - Microsoft */
+.btn-custom {
+    background-color: rgba(15, 102, 60, 0.52); 
+    color: white;              
+    border: none;              
+    padding: 12px 24px;        
+    font-size: 18px;           
+    border-radius: 8px;        
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+}
+
+.btn-custom:hover {
+    background-color: #0f663c; 
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); 
+}
+
+
+
