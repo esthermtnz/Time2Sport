@@ -9,7 +9,7 @@
         <!-- Horario y ubicación -->
         <p class="fw-bold"> 
             {% for schedule in activity.schedules.all %}
-                {{ schedule.date|date:"l" }}: {{ schedule.hour_begin|time:"H:i" }} - {{ schedule.hour_end|time:"H:i" }}<br>
+                {{ schedule.get_day_of_week_display }}: {{ schedule.hour_begin|time:"H:i" }} - {{ schedule.hour_end|time:"H:i" }}<br>
             {% endfor %}
         </p>
         <p><strong>{{ activity.location }}</strong></p>
