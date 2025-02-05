@@ -89,9 +89,9 @@ class Photo(models.Model):
 
 class Bonus(models.Model):
     BONUS_TYPE_CHOICES = [
-        ('annual', 'Annual Pass'),
-        ('semester', 'Semester Pass'),
-        ('single', 'Single Session'),
+        ('annual', 'Bono Anual'),
+        ('semester', 'Bono Semestral'),
+        ('single', 'Bono Sesión Única'),
     ]
 
     id = models.AutoField(primary_key=True)
