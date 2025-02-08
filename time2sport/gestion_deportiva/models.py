@@ -37,23 +37,16 @@ class SportFacility(models.Model):
         ('Inside', 'Inside'),
     ]
 
-    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     numberOf_facilities = models.IntegerField()
     description = models.TextField()
     hour_price = models.FloatField()
     facility_type = models.CharField(max_length=10, choices=FACILITY_TYPE_CHOICES)
     schedules = models.ManyToManyField(Schedule, related_name="sport_facilities", blank=True)
-    photos = models.ManyToManyField('Photo', related_name="facilities", blank=True)
 
     def __str__(self):
         return self.name
 
-    def add_schedule(self, schedule):
-        self.schedules.add(schedule)
-
-    def add_photo(self, photo):
-        self.photos.add(photo)
 
 class Activity(models.Model):
     ACTIVITY_TYPE_CHOICES = [
@@ -61,26 +54,19 @@ class Activity(models.Model):
         ('Aquatic', 'Aquatic'),
     ]
 
-    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     location = models.CharField(max_length=255)
     description = models.TextField()
     activity_type = models.CharField(max_length=15, choices=ACTIVITY_TYPE_CHOICES)
     schedules = models.ManyToManyField(Schedule, related_name="activities", blank=True)
-    photos = models.ManyToManyField('Photo', related_name='activities', blank=True)
 
     def __str__(self):
         return self.name
 
-    def add_schedule(self, schedule):
-        self.schedules.add(schedule)
-
-    def add_photo(self, photo):
-        self.photos.add(photo)
 
 class Photo(models.Model):
-    activity = models.ForeignKey("Activity", on_delete=models.CASCADE, null=True, blank=True)
-    facility = models.ForeignKey("SportFacility", on_delete=models.CASCADE, null=True, blank=True)
+    activity = models.ForeignKey("Activity", related_name='photos', on_delete=models.CASCADE, null=True, blank=True)
+    facility = models.ForeignKey("SportFacility", related_name='photos', on_delete=models.CASCADE, null=True, blank=True)
     image = models.ImageField(upload_to=photo_upload_path)
 
     def __str__(self):
