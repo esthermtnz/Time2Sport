@@ -16,3 +16,6 @@ def all_facilities(request):
 def facility_detail(request, facility_id):
     facility = get_object_or_404(SportFacility, pk=facility_id)
     return render(request, 'facilities/facility_detail.html', {'facility': facility})
+
+def home(request):
+    return render(request, 'home.html')
