@@ -10,7 +10,7 @@
                     {% if activity.photos.all %}
                         <img src="{{ activity.photos.first.image.url }}" class="img-fluid rounded" style="width: 120px; height: 80px; object-fit: cover;" alt="{{ activity.name }}">
                     {% else %}
-                        <img src="/static/default_activity.jpg" class="img-fluid rounded" style="width: 120px; height: 80px; object-fit: cover;" alt="Sin imagen">
+                        <img src="/static/default-activity.jpg" class="img-fluid rounded" style="width: 120px; height: 80px; object-fit: cover;" alt="Sin imagen">
                     {% endif %}
                 </div>
                 <div class="flex-grow-1 ms-3">

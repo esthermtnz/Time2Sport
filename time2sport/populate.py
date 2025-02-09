@@ -50,10 +50,10 @@ def populate():
             description=act['description'],
             activity_type=act['activity_type']
         )
-        
+
         # Assign schedules to activities
         activity.schedules.set(created_schedules)
-        
+
         # Associate existing image paths
         activity_images_folder = f'media/activities/{activity.id}'
         image_files = get_images_from_folder(activity_images_folder)
@@ -71,15 +71,15 @@ def populate():
             hour_price=fac['hour_price'],
             facility_type=fac['facility_type']
         )
-        
+
         # Associate existing image paths
         facility_images_folder = f'media/facilities/{facility.id}'
         image_files = get_images_from_folder(facility_images_folder)
-        
+
         for image_file in image_files:
             photo = Photo.objects.create(facility=facility, image=f"facilities/{facility.id}/{image_file}")
             print(f'Added image {photo.image} to facility {facility.name}')
-    
+
     print("Population completed!")
 
 if __name__ == '__main__':
