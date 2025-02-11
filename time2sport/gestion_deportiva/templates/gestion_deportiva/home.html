@@ -1,0 +1,19 @@
+<!-- index.html -->
+{% extends 'gestion_deportiva/base.html' %}
+
+{% block title %}Página de inicio{% endblock %}
+
+{% block content %}
+
+    {% if request.identity_context_data.authenticated%}
+
+        <h2> Bienvenid@ {{ request.identity_context_data.username}}</h2>
+        <p> Has iniciado sesión en Time2Sport</p>
+    
+    {% else %}
+
+        <p> No estas autenticado.</p>
+
+    {% endif%}
+
+{% endblock %}
