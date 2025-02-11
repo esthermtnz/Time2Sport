@@ -1,9 +1,9 @@
 from django.shortcuts import render
 
 # Create your views here.
-def index(request):
+def login(request):
     context = {}
-    return render(request, 'index.html', context)
+    return render(request, 'gestion_deportiva/login.html', context)
 
 from django.conf import settings
 ms_identity_web = settings.MS_IDENTITY_WEB

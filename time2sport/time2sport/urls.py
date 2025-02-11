@@ -26,7 +26,7 @@ msal_urls = MsalViews(settings.MS_IDENTITY_WEB).url_patterns()
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('gestion_deportiva/', include('gestion_deportiva.urls')),
-    path('', RedirectView.as_view(url='/gestion_deportiva/', permanent=True)),
+    path('', include('gestion_deportiva.urls')),
+    path('', RedirectView.as_view(url='/', permanent=True)),
     path(f'{settings.AAD_CONFIG.django.auth_endpoints.prefix}/', include(msal_urls)),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
