@@ -1,6 +1,8 @@
 from django.urls import path
 from .views import all_activities, activity_detail, all_facilities, facility_detail
 from .views import home
+from .views import schedules, facilities_schedule, download_facilities_schedule
+from .views import activities_schedule, download_activities_schedule
 
 urlpatterns = [
     path('activities/', all_activities, name='all_activities'),
@@ -9,5 +11,11 @@ urlpatterns = [
     path('facilities/<int:facility_id>/', facility_detail, name='facility_detail'),
 
     path('', home, name='home'),
+    path('schedules/', schedules, name='schedules'),
+    path('schedules/facilities/', facilities_schedule, name='facilities_schedule'),
+    path('schedules/facilities/download/', download_facilities_schedule, name='download_facilities_schedule'),
+
+    path('schedules/activities/', activities_schedule, name='activities_schedule'),
+    path('schedules/activities/download/', download_activities_schedule, name='download_activities_schedule'),
 
 ]
