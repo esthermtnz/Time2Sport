@@ -15,5 +15,6 @@ from django.conf import settings
 ms_identity_web = settings.MS_IDENTITY_WEB
 
 @ms_identity_web.login_required
-def secret_page(request):
-    return render(request, 'secret.html', {})
+def profile(request):
+    context = {}
+    return render(request, 'gestion_deportiva/profile.html', context)

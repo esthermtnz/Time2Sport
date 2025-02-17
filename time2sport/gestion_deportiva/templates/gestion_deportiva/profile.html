@@ -1,0 +1,11 @@
+<!-- profile.html -->
+{% extends 'gestion_deportiva/base.html' %}
+
+{% block title %}Profile Page {% endblock %}
+
+{% block content %}
+
+
+    <p> Hello {{ request.identity_context_data.username }} </p>
+
+{% endblock %}
