@@ -6,6 +6,6 @@
 {% block content %}
 
 
-    <p> Hello {{ request.identity_context_data.username }} </p>
+    <p> Hello {{ user.first_name }} {{ user.last_name }} </p>
 
 {% endblock %}

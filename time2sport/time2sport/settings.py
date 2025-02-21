@@ -11,9 +11,17 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-from ms_identity_web.configuration import AADConfig
-from ms_identity_web import IdentityWebPython
-import os
+import os, random, string
+from dotenv import load_dotenv
+from identity.django import Auth
+load_dotenv()
+
+AUTH = Auth(
+    os.getenv('CLIENT_ID'),
+    client_credential=os.getenv('CLIENT_SECRET'),
+    redirect_uri=os.getenv('REDIRECT_URI'),
+    authority=os.getenv('AUTHORITY'),
+    )
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -41,7 +49,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
-    'gestion_deportiva'
+    'gestion_deportiva',
+    "identity",
 ]
 
 MIDDLEWARE = [
@@ -54,10 +63,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-AAD_CONFIG = AADConfig.parse_json(file_path='aad.config.json')
-MS_IDENTITY_WEB = IdentityWebPython(AAD_CONFIG)
-ERROR_TEMPLATE = 'auth/{}.html' # for rendering 401 or other errors from msal_middleware
-MIDDLEWARE.append('ms_identity_web.django.middleware.MsalMiddleware')
 
 ROOT_URLCONF = 'time2sport.urls'
 
