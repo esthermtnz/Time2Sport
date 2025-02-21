@@ -1,11 +1,32 @@
-<!-- profile.html -->
 {% extends 'gestion_deportiva/base.html' %}
 
-{% block title %}Profile Page {% endblock %}
+{% block title %}Profile Page{% endblock %}
 
 {% block content %}
+<div style="display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; padding-top: 10vh;">
+    <h1 style="margin-bottom: 20px;">Perfil de Usuario</h1>
 
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; max-width: 400px;">
+        <img src="{{ user.profile.url }}" alt="Foto de perfil" style="max-width: 150px; border-radius: 50%;">
+        
+        <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
+            <input class="form-control" type="text" value="{{ user.first_name }} {{ user.last_name }}" disabled style="width: 100%; text-align: center;">
+            <input class="form-control" type="email" value="{{ user.email }}" disabled style="width: 100%; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            
+            {% if user.email|lower|slice:"-18:" == "@estudiante.uam.es" %}
+                <input class="form-control" type="text" value="Estudiante" disabled style="width: 100%; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            {% else %}
+                <input class="form-control" type="text" value="Personal Administrativo o Docente" disabled style="width: 100%; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            {% endif %}
+        </div>
+    </div>
 
-    <p> Hello {{ user.first_name }} {{ user.last_name }} </p>
-
+    <div class="change-picture-button mt-4">
+        <a href="{% url 'index' %}"
+           class="btn btn-light btn-lg"
+           style="background-color: #67a084; font-size: 16px; padding: 10px 20px; border-radius: 10px; margin-top: 15px;">
+            Cambiar foto de perfil
+        </a>
+    </div>
+</div>
 {% endblock %}

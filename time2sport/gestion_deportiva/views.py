@@ -4,7 +4,7 @@ import json
 from django.conf import settings
 from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 
 __version__ = "0.5.0"
 
@@ -14,6 +14,11 @@ User = get_user_model()
 def log_in(request):
     context = {}
     return render(request, 'gestion_deportiva/log_in.html', context)
+
+@settings.AUTH.login_required
+def log_out(request, *, context):
+    logout(request)
+    return redirect('http://localhost:8000/')  
 
 
 @settings.AUTH.login_required
