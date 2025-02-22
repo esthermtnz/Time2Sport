@@ -64,16 +64,16 @@ def populate():
     }
 
     activities = [
-        {'name': 'Football Match', 'location': 'Football Field', 'description': 'A football match with teams.', 'activity_type': 'Terrestrial'},
-        {'name': 'Tennis Training', 'location': 'Tennis Court', 'description': 'Tennis practice session.', 'activity_type': 'Terrestrial'},
-        {'name': 'Basketball Training', 'location': 'Basketball Court', 'description': 'Basketball skills training.', 'activity_type': 'Terrestrial'},
-        {'name': 'Swimming Lesson', 'location': 'Swimming Pool', 'description': 'Swimming lessons for all levels.', 'activity_type': 'Aquatic'},
-        {'name': 'Running Workout', 'location': 'Running Track', 'description': 'Cardio workout session.', 'activity_type': 'Terrestrial'}
+        {'name': 'Football Match', 'location': 'Football Field', 'description': 'A football match with teams.', 'activity_type': 'Terrestre'},
+        {'name': 'Tennis Training', 'location': 'Tennis Court', 'description': 'Tennis practice session.', 'activity_type': 'Terrestre'},
+        {'name': 'Basketball Training', 'location': 'Basketball Court', 'description': 'Basketball skills training.', 'activity_type': 'Terrestre'},
+        {'name': 'Swimming Lesson', 'location': 'Swimming Pool', 'description': 'Swimming lessons for all levels.', 'activity_type': 'Acuática'},
+        {'name': 'Running Workout', 'location': 'Running Track', 'description': 'Cardio workout session.', 'activity_type': 'Terrestre'}
     ]
 
     facilities = [
-        {'name': 'Football Field', 'numberOf_facilities': 2, 'description': 'A large outdoor football field.', 'hour_price': 50.0, 'facility_type': 'Outside'},
-        {'name': 'Tennis Court', 'numberOf_facilities': 2, 'description': 'A well-maintained tennis court.', 'hour_price': 30.0, 'facility_type': 'Outside'}
+        {'name': 'Football Field', 'numberOf_facilities': 2, 'description': 'A large outdoor football field.', 'hour_price': 50.0, 'facility_type': 'Exterior'},
+        {'name': 'Tennis Court', 'numberOf_facilities': 2, 'description': 'A well-maintained tennis court.', 'hour_price': 30.0, 'facility_type': 'Exterior'}
     ]
 
     # Create activities and assign schedules

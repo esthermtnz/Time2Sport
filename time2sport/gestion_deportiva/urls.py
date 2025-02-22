@@ -3,6 +3,7 @@ from .views import all_activities, activity_detail, all_facilities, facility_det
 from .views import home
 from .views import schedules, facilities_schedule, download_facilities_schedule
 from .views import activities_schedule, download_activities_schedule
+from .views import search_results
 
 urlpatterns = [
     path('activities/', all_activities, name='all_activities'),
@@ -18,4 +19,5 @@ urlpatterns = [
     path('schedules/activities/', activities_schedule, name='activities_schedule'),
     path('schedules/activities/download/', download_activities_schedule, name='download_activities_schedule'),
 
+    path('search/', search_results, name='search_results'),
 ]

@@ -33,8 +33,8 @@ class Schedule(models.Model):
 
 class SportFacility(models.Model):
     FACILITY_TYPE_CHOICES = [
-        ('Outside', 'Outside'),
-        ('Inside', 'Inside'),
+        ('exterior', 'Exterior'),
+        ('interior', 'Interior'),
     ]
 
     name = models.CharField(max_length=255)
@@ -50,8 +50,8 @@ class SportFacility(models.Model):
 
 class Activity(models.Model):
     ACTIVITY_TYPE_CHOICES = [
-        ('Terrestrial', 'Terrestrial'),
-        ('Aquatic', 'Aquatic'),
+        ('terrestre', 'Terrestre'),
+        ('acuática', 'Acuática'),
     ]
 
     name = models.CharField(max_length=255)

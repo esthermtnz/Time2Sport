@@ -166,3 +166,39 @@ def download_activities_schedule(request):
     # Crear el PDF
     doc.build(elements)
     return response
+
+from django.db.models import Q
+
+def search_results(request):
+    facilities = SportFacility.objects.all()
+    activities = Activity.objects.all()
+    category = None
+    query = None
+
+    if request.method == "POST":
+        category = request.POST.get('category', '').strip()
+        query = request.POST.get('q', '').strip()
+
+        if query:
+            facilities = facilities.filter(
+                Q(name__icontains=query)
+            )
+            activities = activities.filter(
+                Q(name__icontains=query)
+            )
+
+        if category:
+            category = category.capitalize()
+            if category in ['Interior', 'Exterior']:
+                facilities = facilities.filter(facility_type=category)
+                activities = None
+            elif category in ['Terrestre', 'Acuática']:
+                activities = activities.filter(activity_type=category)
+                facilities = None
+
+    return render(request, 'search_results.html', {
+        'facilities': facilities,
+        'activities': activities,
+        'query': query,
+        'category': category
+    })

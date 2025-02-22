@@ -31,7 +31,11 @@
         .card a {
             text-decoration: none;
             color: inherit;
-        }        
+        }
+        .custom-select {
+            width: auto;
+            min-width: 120px;
+        }
     </style>
 </head>
 <body>
@@ -43,6 +47,31 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
+
+                    {% comment %} <form class="d-flex" role="search">
+                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                        <button class="btn btn-outline-success" type="submit">Search</button>
+                    </form> {% endcomment %}
+
+                    <form class="d-flex" role="search" method="POST" action="{% url 'search_results' %}">
+                        {% csrf_token %}
+                        <select class="form-select me-2 custom-select" name="category">
+                            <option value="">Todas</option>
+                            <optgroup label="Instalación">
+                                <option value="interior">Interior</option>
+                                <option value="exterior">Exterior</option>
+                            </optgroup>
+                            <optgroup label="Actividad">
+                                <option value="terrestre">Terrestre</option>
+                                <option value="acuática">Acuática</option>
+                            </optgroup>
+                        </select>
+                        <input class="form-control me-2" type="search" name="q" placeholder="Buscar..." aria-label="Buscar">
+                        <button class="btn btn-outline-success" type="submit">Go</button>
+                    </form>
+                    
+                    
+
                     <li class="nav-item"><a class="nav-link text-white" href="#">MIS RESERVAS</a></li>
                     <li class="nav-item"><a class="nav-link text-white" href="{% url 'schedules' %}">HORARIOS</a></li>
                     <li class="nav-item"><a class="nav-link text-white" href="{% url 'all_activities' %}">ACTIVIDADES</a></li>
