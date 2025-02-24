@@ -19,7 +19,11 @@
     <!-- Navbar & logo -->   
     <nav class="navbar navbar-expand-lg navbar-custom">
         <div class="container-fluid">
-            <img src="{% static 'gestion_deportiva/images/logo.png' %}" alt="Logo Time2Sport" class="img-fluid" style="max-width: 150px;">
+
+            <a href="{% url 'index' %}">
+                <img src="{% static 'gestion_deportiva/images/logo.png' %}" alt="Logo Time2Sport" class="img-fluid" style="max-width: 150px;">
+            </a>
+            
             <img src="{% static 'gestion_deportiva/images/notifications_logo.png' %}" alt="Notifications" class="img-fluid me-3" style="max-width: 30px;"> <!-- Añadido el margen -->
             <form class="d-flex" role="search">
                 <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">

@@ -19,6 +19,16 @@
             {% else %}
                 <input class="form-control" type="text" value="Personal Administrativo o Docente" disabled style="width: 100%; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
             {% endif %}
+        
+            <form method="POST" enctype="multipart/form-data" action="{% url 'edit_profile' %}">
+                {% csrf_token %}
+                <div class="input-group">
+                    <input type="file" class="form-control" name="profile_image" required>
+                    <button class="btn btn-outline-secondary" type="submit">Subir foto</button>
+                </div>
+            </form>
+            
+
         </div>
     </div>
     

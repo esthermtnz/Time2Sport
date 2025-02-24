@@ -58,3 +58,10 @@ def index(request, *, context):
 def profile(request, *, context):
     context = {"user": request.user}
     return render(request, 'gestion_deportiva/profile.html', context)
+
+
+@settings.AUTH.login_required
+def edit_profile(request, *, context):
+    if request.method == 'POST' and request.FILES.get('profile_image'):
+        request.user.editProfile(request.FILES['profile_image'])
+    return redirect('profile') 
