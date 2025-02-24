@@ -22,6 +22,11 @@ def log_out(request, *, context):
     logout(request)
     return redirect('http://localhost:8000/')  
 
+# Footer Views
+def aviso_legal(request):
+    context = {}
+    return render(request, 'gestion_deportiva/aviso_legal.html', context)
+
 
 @settings.AUTH.login_required
 def index(request, *, context):
