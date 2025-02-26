@@ -1,0 +1,29 @@
+# Archivos de configuración y bases de datos locales
+db.sqlite3
+
+# Archivos de entorno virtual
+venv/
+env/
+
+# Archivos temporales de Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Archivos generados por Django
+staticfiles/
+
+# Configuración del sistema operativo
+*.DS_Store
+Thumbs.db
+
+# Configuración de IDEs y editores
+.vscode/
+.idea/
+
+# Archivos de logs
+*.log
+
+# Archivos relacionados con el entorno de despliegue
+*.env
+*.local

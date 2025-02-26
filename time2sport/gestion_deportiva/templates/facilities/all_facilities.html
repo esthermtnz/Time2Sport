@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center">Instalaciones Deportivas</h2>
+    <div class="row">
+        {% for facility in facilities %}
+        <div class="col-12 mb-3">
+            <div class="d-flex align-items-center p-3" style="background-color: #dbe8db; border-radius: 10px;">
+                <div style="flex: 0 0 120px; height: 100%; overflow: hidden;">
+                    {% if facility.photos.all %}
+                        <img src="{{ facility.photos.first.image.url }}" class="img-fluid rounded" style="width: 120px; height: 80px; object-fit: cover;" alt="{{ facility.name }}">
+                    {% else %}
+                        <img src="/static/gestion_deportiva/default-facility.png" class="img-fluid rounded" style="width: 120px; height: 80px; object-fit: cover;" alt="Sin imagen">
+                    {% endif %}
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <h4 class="fw-bold mb-1">{{ facility.name }}</h4>
+                    <p class="mb-1"><strong>Tipo:</strong> {{ facility.get_facility_type_display }}</p>
+                    <p class="mb-1"><strong>Precio por hora:</strong> {{ facility.hour_price }}€</p>
+                    <p class="mb-1"><strong>Número de instalaciones:</strong> {{ facility.numberOf_facilities }}</p>
+                    {% for schedule in facility.schedules.all %}
+                        <p class="mb-1"><strong>{{ schedule.get_day_of_week_display }}</strong> {{ schedule.hour_begin|time:"H:i" }} - {{ schedule.hour_end|time:"H:i" }}</p>
+                    {% endfor %}
+                </div>
+                <div>
+                    <a href="{% url 'facility_detail' facility.id %}" class="btn btn-success">Reservar</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

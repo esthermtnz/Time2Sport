@@ -1,7 +1,14 @@
 from django.contrib import admin
+from .models import SportFacility, Activity, Schedule, Photo
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import UserChangeForm
 from .models import User
+
+# Register your models here.
+admin.site.register(SportFacility)
+admin.site.register(Activity)
+admin.site.register(Schedule)
+admin.site.register(Photo)
 
 class CustomUserChangeForm(UserChangeForm):
     class Meta:
