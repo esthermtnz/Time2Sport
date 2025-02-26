@@ -1,0 +1,55 @@
+<!-- index.html -->
+{% extends 'gestion_deportiva/base.html' %}
+
+{% block title %}Página de inicio{% endblock %}
+
+{% block content %}
+
+    {% if request.user.is_authenticated%}
+
+        <div class="container text-center">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div>
+                            <img src="/static/instalaciones.png" alt="Instalaciones">
+                            <h5 class="mt-2">INSTALACIONES</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div>
+                            <img src="/static/actividades.png" alt="Actividades">
+                            <h5 class="mt-2">ACTIVIDADES</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div>
+                            <img src="/static/horarios.png" alt="Horarios">
+                            <h5 class="mt-2">HORARIOS</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div>
+                            <img src="/static/mis-reservas.png" alt="Mis Reservas">
+                            <h5 class="mt-2">MIS RESERVAS</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+    {% else %}
+
+        <p>No estás autenticado.</p>
+
+    {% endif %}
+
+{% endblock %}
