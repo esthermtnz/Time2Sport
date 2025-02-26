@@ -227,6 +227,10 @@ def aviso_legal(request):
     context = {}
     return render(request, 'gestion_deportiva/aviso_legal.html', context)
 
+def politica_privacidad(request):
+    context = {}
+    return render(request, 'gestion_deportiva/politica_privacidad.html', context)
+
 
 @settings.AUTH.login_required
 def index(request, *, context):
