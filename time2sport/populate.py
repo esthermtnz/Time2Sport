@@ -25,55 +25,55 @@ def create_schedule(day, hour_ranges):
 
 def populate():
     activity_schedules = {
-        'Football Match': {
-            'Monday': [('08:00:00', '09:00:00'), ('11:00:00', '12:00:00')],
-            'Tuesday': [('09:00:00', '11:00:00')],
-            'Friday': [('08:00:00', '10:00:00')]
+        'Partido de Fútbol': {
+            'Lunes': [('08:00:00', '09:00:00'), ('11:00:00', '12:00:00')],
+            'Martes': [('09:00:00', '11:00:00')],
+            'Viernes': [('08:00:00', '10:00:00')]
         },
-        'Tennis Training': {
-            'Monday': [('10:00:00', '12:00:00')],
-            'Wednesday': [('14:00:00', '16:00:00')],
-            'Saturday': [('09:00:00', '11:00:00')]
+        'Entrenamiento de Tenis': {
+            'Lunes': [('10:00:00', '12:00:00')],
+            'Miércoles': [('14:00:00', '16:00:00')],
+            'Sábado': [('09:00:00', '11:00:00')]
         },
-        'Basketball Training': {
-            'Thursday': [('17:00:00', '19:00:00')],
-            'Sunday': [('10:00:00', '12:00:00')]
+        'Entrenamiento de Baloncesto': {
+            'Jueves': [('17:00:00', '19:00:00')],
+            'Domingo': [('10:00:00', '12:00:00')]
         },
-        'Swimming Lesson': {
-            'Monday': [('07:00:00', '08:00:00')],
-            'Wednesday': [('15:00:00', '16:00:00')],
-            'Friday': [('18:00:00', '19:30:00')]
+        'Clases de Natación': {
+            'Lunes': [('07:00:00', '08:00:00')],
+            'Miércoles': [('15:00:00', '16:00:00')],
+            'Viernes': [('18:00:00', '19:30:00')]
         },
-        'Running Workout': {
-            'Tuesday': [('06:00:00', '07:00:00'), ('19:00:00', '20:00:00')],
-            'Thursday': [('08:00:00', '09:00:00')]
+        'Entrenamiento de Carrera': {
+            'Martes': [('06:00:00', '07:00:00'), ('19:00:00', '20:00:00')],
+            'Jueves': [('08:00:00', '09:00:00')]
         }
     }
 
     facility_schedules = {
-        'Football Field': {
-            'Monday': [('07:00:00', '10:00:00')],
-            'Wednesday': [('12:00:00', '15:00:00')],
-            'Saturday': [('10:00:00', '12:00:00')]
+        'Campo de Fútbol': {
+            'Lunes': [('07:00:00', '10:00:00')],
+            'Miércoles': [('12:00:00', '15:00:00')],
+            'Sábado': [('10:00:00', '12:00:00')]
         },
-        'Tennis Court': {
-            'Tuesday': [('08:00:00', '10:00:00')],
-            'Thursday': [('16:00:00', '18:00:00')],
-            'Sunday': [('09:00:00', '11:00:00')]
+        'Pista de Tenis': {
+            'Martes': [('08:00:00', '10:00:00')],
+            'Jueves': [('16:00:00', '18:00:00')],
+            'Domingo': [('09:00:00', '11:00:00')]
         }
     }
 
     activities = [
-        {'name': 'Football Match', 'location': 'Football Field', 'description': 'A football match with teams.', 'activity_type': 'Terrestre'},
-        {'name': 'Tennis Training', 'location': 'Tennis Court', 'description': 'Tennis practice session.', 'activity_type': 'Terrestre'},
-        {'name': 'Basketball Training', 'location': 'Basketball Court', 'description': 'Basketball skills training.', 'activity_type': 'Terrestre'},
-        {'name': 'Swimming Lesson', 'location': 'Swimming Pool', 'description': 'Swimming lessons for all levels.', 'activity_type': 'Acuática'},
-        {'name': 'Running Workout', 'location': 'Running Track', 'description': 'Cardio workout session.', 'activity_type': 'Terrestre'}
+        {'name': 'Partido de Fútbol', 'location': 'Campo de Fútbol', 'description': 'Un partido de fútbol con equipos.', 'activity_type': 'Terrestre'},
+        {'name': 'Entrenamiento de Tenis', 'location': 'Pista de Tenis', 'description': 'Sesión de entrenamiento de tenis.', 'activity_type': 'Terrestre'},
+        {'name': 'Entrenamiento de Baloncesto', 'location': 'Cancha de Baloncesto', 'description': 'Entrenamiento de habilidades de baloncesto.', 'activity_type': 'Terrestre'},
+        {'name': 'Clases de Natación', 'location': 'Piscina', 'description': 'Clases de natación para todos los niveles.', 'activity_type': 'Acuática'},
+        {'name': 'Entrenamiento de Carrera', 'location': 'Pista de Atletismo', 'description': 'Sesión de entrenamiento cardiovascular.', 'activity_type': 'Terrestre'}
     ]
 
     facilities = [
-        {'name': 'Football Field', 'numberOf_facilities': 2, 'description': 'A large outdoor football field.', 'hour_price': 50.0, 'facility_type': 'Exterior'},
-        {'name': 'Tennis Court', 'numberOf_facilities': 2, 'description': 'A well-maintained tennis court.', 'hour_price': 30.0, 'facility_type': 'Exterior'}
+        {'name': 'Campo de Fútbol', 'numberOf_facilities': 2, 'description': 'Un gran campo de fútbol al aire libre.', 'hour_price': 50.0, 'facility_type': 'Exterior'},
+        {'name': 'Pista de Tenis', 'numberOf_facilities': 2, 'description': 'Una pista de tenis bien mantenida.', 'hour_price': 30.0, 'facility_type': 'Exterior'}
     ]
 
     # Create activities and assign schedules
