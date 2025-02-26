@@ -231,6 +231,10 @@ def politica_privacidad(request):
     context = {}
     return render(request, 'gestion_deportiva/politica_privacidad.html', context)
 
+def contacto(request):
+    context = {}
+    return render(request, 'gestion_deportiva/contacto.html', context)
+
 
 @settings.AUTH.login_required
 def index(request, *, context):
