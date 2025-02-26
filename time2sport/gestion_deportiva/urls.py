@@ -4,14 +4,26 @@ from .views import home
 from .views import schedules, facilities_schedule, download_facilities_schedule
 from .views import activities_schedule, download_activities_schedule
 from .views import search_results
+from . import views
+from django.contrib import admin
+from django.conf import settings
 
 urlpatterns = [
+    settings.AUTH.urlpattern,
+    path('', views.log_in, name='log_in'),
+    path('log_out/', views.log_out, name='log_out'),
+    path('home/', views.index, name='index'),
+    path('profile/', views.profile, name='profile'),
+    path('edit-profile/', views.edit_profile, name='edit_profile'),
+    path('aviso-legal/', views.aviso_legal, name='aviso_legal'),
+]
+
+urlpatterns += [
     path('activities/', all_activities, name='all_activities'),
     path('activities/<int:activity_id>/', activity_detail, name='activity_detail'),
     path('facilities/', all_facilities, name='all_facilities'),
     path('facilities/<int:facility_id>/', facility_detail, name='facility_detail'),
 
-    path('', home, name='home'),
     path('schedules/', schedules, name='schedules'),
     path('schedules/facilities/', facilities_schedule, name='facilities_schedule'),
     path('schedules/facilities/download/', download_facilities_schedule, name='download_facilities_schedule'),
