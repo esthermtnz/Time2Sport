@@ -21,29 +21,26 @@ User = get_user_model()
 
 def all_activities(request):
     activities = Activity.objects.prefetch_related('photos').all()
-    return render(request, 'activities/all_activities.html', {'activities': activities})
+    return render(request, 'gestion_deportiva/activities/all_activities.html', {'activities': activities})
 
 def activity_detail(request, activity_id):
     activity = get_object_or_404(Activity, pk=activity_id)
-    return render(request, 'activities/activity_detail.html', {'activity': activity})
+    return render(request, 'gestion_deportiva/activities/activity_detail.html', {'activity': activity})
 
 def all_facilities(request):
     facilities = SportFacility.objects.prefetch_related('photos').all()
-    return render(request, 'facilities/all_facilities.html', {'facilities': facilities})
+    return render(request, 'gestion_deportiva/facilities/all_facilities.html', {'facilities': facilities})
 
 def facility_detail(request, facility_id):
     facility = get_object_or_404(SportFacility, pk=facility_id)
-    return render(request, 'facilities/facility_detail.html', {'facility': facility})
-
-def home(request):
-    return render(request, 'home.html')
+    return render(request, 'gestion_deportiva/facilities/facility_detail.html', {'facility': facility})
 
 def schedules(request):
-    return render(request, 'schedules/schedules.html')
+    return render(request, 'gestion_deportiva/schedules/schedules.html')
 
 def facilities_schedule(request):
     facilities = SportFacility.objects.prefetch_related('schedules').all()
-    return render(request, 'schedules/facilities_schedule.html', {'facilities': facilities})
+    return render(request, 'gestion_deportiva/schedules/facilities_schedule.html', {'facilities': facilities})
 
 def download_facilities_schedule(request):
     response = HttpResponse(content_type='application/pdf')
@@ -118,7 +115,7 @@ def activities_schedule(request):
             "schedules": formatted_schedules
         })
 
-    return render(request, "schedules/activities_schedule.html", {"activities": grouped_schedules})
+    return render(request, "gestion_deportiva/schedules/activities_schedule.html", {"activities": grouped_schedules})
 
 def download_activities_schedule(request):
     response = HttpResponse(content_type='application/pdf')
@@ -209,7 +206,7 @@ def search_results(request):
                 activities = activities.filter(activity_type=category)
                 facilities = None
 
-    return render(request, 'search_results.html', {
+    return render(request, 'gestion_deportiva/search_results.html', {
         'facilities': facilities,
         'activities': activities,
         'query': query,

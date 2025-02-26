@@ -1,6 +1,5 @@
 from django.urls import path
 from .views import all_activities, activity_detail, all_facilities, facility_detail
-from .views import home
 from .views import schedules, facilities_schedule, download_facilities_schedule
 from .views import activities_schedule, download_activities_schedule
 from .views import search_results

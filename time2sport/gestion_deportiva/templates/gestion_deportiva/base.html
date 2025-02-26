@@ -27,6 +27,11 @@
             flex-direction: column;
         }
 
+        .content-wrapper {
+            flex-grow: 1;
+            margin-top: 100px;
+        }
+
         .footer {
             margin-top: auto; 
         }
@@ -38,24 +43,39 @@
     <nav class="navbar navbar-expand-lg navbar-custom">
         <div class="container-fluid">
 
+            <!-- Time2Sport Logo --> 
             <a href="{% url 'index' %}">
                 <img src="{% static 'gestion_deportiva/images/logo.png' %}" alt="Logo Time2Sport" class="img-fluid" style="max-width: 150px;">
             </a>
             
+            <!-- Notifications bell -->  
             <img src="{% static 'gestion_deportiva/images/notifications_logo.png' %}" alt="Notifications" class="img-fluid me-3" style="max-width: 30px;"> 
-            <form class="d-flex" role="search">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success" type="submit">Search</button>
+            
+            <!-- Search bar -->  
+            <form class="d-flex" role="search" method="POST" action="{% url 'search_results' %}">
+                {% csrf_token %}
+                <select class="form-select me-2 custom-select" name="category">
+                    <option value="">Todas</option>
+                    <optgroup label="Instalación">
+                        <option value="interior">Interior</option>
+                        <option value="exterior">Exterior</option>
+                    </optgroup>
+                    <optgroup label="Actividad">
+                        <option value="terrestre">Terrestre</option>
+                        <option value="acuática">Acuática</option>
+                    </optgroup>
+                </select>
+                <input class="form-control me-2" type="search" name="q" placeholder="Buscar..." aria-label="Buscar">
+                <button class="btn btn-outline-success" type="submit">Go</button>
             </form>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+
+            <!-- Menu Options --> 
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link text-white" href="#">MIS RESERVAS</a></li>
-                    <li class="nav-item"><a class="nav-link text-white" href="#">HORARIOS</a></li>
-                    <li class="nav-item"><a class="nav-link text-white" href="#">ACTIVIDADES</a></li>
-                    <li class="nav-item"><a class="nav-link text-white" href="#">INSTALACIONES</a></li>
+                    <li class="nav-item"><a class="nav-link text-white" href="{% url 'schedules' %}">HORARIOS</a></li>
+                    <li class="nav-item"><a class="nav-link text-white" href="{% url 'all_activities' %}">ACTIVIDADES</a></li>
+                    <li class="nav-item"><a class="nav-link text-white" href="{% url 'all_facilities' %}">INSTALACIONES</a></li>
                     <li class="nav-item">
 
                         {% if request.user.is_authenticated %}
@@ -71,8 +91,10 @@
     </nav>
 
     <!-- Variable content -->
-    {% block content %}
-    {% endblock %}
+    <div class="content-wrapper">
+        {% block content %}
+        {% endblock %}
+    </div>
 
     <!-- Footer -->
     <footer class="navbar navbar-expand-lg navbar-custom mt-auto">
