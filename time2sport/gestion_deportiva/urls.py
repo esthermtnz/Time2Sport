@@ -14,7 +14,6 @@ urlpatterns = [
     path('home/', views.index, name='index'),
     path('profile/', views.profile, name='profile'),
     path('edit-profile/', views.edit_profile, name='edit_profile'),
-    path('contacto/', views.contacto, name='contacto'),
     path('aviso-legal/', views.aviso_legal, name='aviso_legal'),
     path('politica-privacidad/', views.politica_privacidad, name='politica_privacidad'),
     

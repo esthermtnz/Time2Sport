@@ -1,0 +1,62 @@
+{% extends 'gestion_deportiva/base.html' %}
+
+{% block title %}Contacto{% endblock %}
+
+{% block content %}
+
+    <div class="container d-flex justify-content-center mt-5">
+        <div class="card shadow-lg p-4 contacto">
+            <div class="card-body">
+
+
+                <h1 class="text-center">Contacto</h1>
+
+                {% if "valido" in request.GET%}
+
+                    <p> Información enviada correctamente. ¡Gracias!</p>
+
+                {% elif "invalido" in request.GET %}
+                    <p> Error en el envio. Prueba de nuevo </p>
+                {% else %}
+
+                    <form class="formulario" action="" method="POST" style="text-align: center;">
+                        {% csrf_token %}
+                        <table style= "margin: 20px auto">{{ contactForm.as_table }}</table>
+
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary mb-3">Enviar</button>
+                        </div>
+                    </form>
+
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+
+
+<style>
+    .contacto {
+        max-width: 800px;
+        background-color: white;
+        border-radius: 25px;
+    }
+
+    .contacto h1 {
+        color: #67a084;
+    }
+
+    .contacto h2 {
+        margin-top: 20px;
+        color: #67a084;
+        font-size: 1.3em;
+    }
+    
+    .contacto p {
+        text-align: justify;
+    }
+
+</style>

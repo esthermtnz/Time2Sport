@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
     'gestion_deportiva',
+    'contacto',
     "identity",
 ]
 
@@ -143,5 +144,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = "time2sportuam@gmail.com"
+EMAIL_HOST_PASSWORD = "gdfh lewp qego shjm"
 
 AUTH_USER_MODEL = "gestion_deportiva.User"
