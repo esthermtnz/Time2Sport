@@ -83,16 +83,19 @@
                          style="max-width: 500px;">
                 </div>
 
-                <!-- Button - Microsoft -->
+                <!-- Button - Google -->
                 <div class="login-button mt-4">
                     {% if not request.user.is_authenticated %}
-                        <a href="{% url 'index' %}"
-                           class="btn btn-light btn-lg"
-                           style="background-color: white; font-size: 16px; padding: 10px 20px; border-radius: 10px;">
-                            Iniciar sesión con ID-UAM
+                        <a href="{% url 'account_login' %}"
+                        class="btn btn-light btn-lg d-flex align-items-center"
+                        style="background-color: white; font-size: 16px; padding: 10px 20px; border-radius: 10px; gap: 10px; text-decoration: none;">
+                            <img src="{% static 'gestion_deportiva/images/google_icon.png' %}" alt="Google" width="24" height="24">
+                            Iniciar sesión con Google
                         </a>
                     {% endif %}
                 </div>
+
+
             </div>
         </div>
     </div>
