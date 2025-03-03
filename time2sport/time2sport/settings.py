@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.microsoft',
 ]
 
 SITE_ID = 1
@@ -91,6 +92,10 @@ AUTHENTICATION_BACKENDS = [
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
+        'APP': {
+            'client_id': '95558776011-9eilkg62967t65c8albnujouenqssemj.apps.googleusercontent.com',
+            'secret': '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',
+        },
         'SCOPE': [
             'profile',
             'email',
@@ -99,7 +104,30 @@ SOCIALACCOUNT_PROVIDERS = {
             'access_type': 'online',
         },
         'OAUTH_PKCE_ENABLED': True,
-    }
+    },
+
+    "microsoft": {
+        "APP": 
+            {
+            "client_id": "9f1246d9-e550-4039-86b7-f4dfb8856278",
+            "secret": "nhA8Q~GkU3ehOpDsUzZbv-rPoowFep1wO2XVwbCU",
+            "settings": {
+                    "tenant": "consumers",
+                    # Optional: override URLs (use base URLs without path)
+                    "login_url": "https://login.microsoftonline.com",
+                    "graph_url": "https://graph.microsoft.com",
+                }
+            },
+        'SCOPE': ['User.Read'],
+        'AUTH_PARAMS': {
+            'prompt': 'select_account',
+        },
+        'INIT_PARAMS': {
+            'prompt': 'select_account',
+        },
+        'callback_url': 'http://localhost:8000/accounts/microsoft/login/callback/',
+    },
+
 }
 
 

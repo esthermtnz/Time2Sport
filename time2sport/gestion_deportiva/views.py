@@ -20,6 +20,50 @@ __version__ = "0.5.0"
 
 User = get_user_model()
 
+
+#-- Login and Logout
+
+def log_in(request):
+    context = {}
+    return render(request, 'gestion_deportiva/log_in.html', context)
+
+
+@login_required
+def log_out(request):
+    logout(request)
+    return redirect('http://localhost:8000/')  
+
+#-- Footer Views
+def aviso_legal(request):
+    context = {}
+    return render(request, 'gestion_deportiva/aviso_legal.html', context)
+
+def politica_privacidad(request):
+    context = {}
+    return render(request, 'gestion_deportiva/politica_privacidad.html', context)
+
+#-- Home page
+@login_required
+def index(request):
+
+    return render(request, 'gestion_deportiva/home.html')
+
+#-- Edit profile
+@login_required
+def profile(request):
+    context = {"user": request.user}
+    return render(request, 'gestion_deportiva/profile.html', context)
+
+
+@login_required
+def edit_profile(request):
+    if request.method == 'POST' and request.FILES.get('profile_image'):
+        request.user.editProfile(request.FILES['profile_image'])
+    return redirect('profile') 
+
+
+
+
 def all_activities(request):
     activities = Activity.objects.prefetch_related('photos').all()
     return render(request, 'gestion_deportiva/activities/all_activities.html', {'activities': activities})
@@ -214,41 +258,3 @@ def search_results(request):
         'category': category
     })
 
-def log_in(request):
-    context = {}
-    return render(request, 'gestion_deportiva/log_in.html', context)
-
-def redirect_to_google_login(request):
-    return redirect('/accounts/google/login/?process=login')
-
-@login_required
-def log_out(request):
-    logout(request)
-    return redirect('http://localhost:8000/')  
-
-# Footer Views
-def aviso_legal(request):
-    context = {}
-    return render(request, 'gestion_deportiva/aviso_legal.html', context)
-
-def politica_privacidad(request):
-    context = {}
-    return render(request, 'gestion_deportiva/politica_privacidad.html', context)
-
-
-@login_required
-def index(request):
-
-    return render(request, 'gestion_deportiva/home.html')
-
-@login_required
-def profile(request):
-    context = {"user": request.user}
-    return render(request, 'gestion_deportiva/profile.html', context)
-
-
-@login_required
-def edit_profile(request):
-    if request.method == 'POST' and request.FILES.get('profile_image'):
-        request.user.editProfile(request.FILES['profile_image'])
-    return redirect('profile') 

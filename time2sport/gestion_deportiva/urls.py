@@ -6,7 +6,6 @@ from .views import search_results
 from . import views
 from django.contrib import admin
 from django.conf import settings
-from .views import redirect_to_google_login
 
 
 urlpatterns = [
@@ -17,7 +16,6 @@ urlpatterns = [
     path('edit-profile/', views.edit_profile, name='edit_profile'),
     path('aviso-legal/', views.aviso_legal, name='aviso_legal'),
     path('politica-privacidad/', views.politica_privacidad, name='politica_privacidad'),
-    path('accounts/login/', redirect_to_google_login, name='account_login'),
     
 ]
 

@@ -84,9 +84,9 @@
                 </div>
 
                 <!-- Button - Google -->
-                <div class="login-button mt-4">
+                <div class="login-button mt-2">
                     {% if not request.user.is_authenticated %}
-                        <a href="{% url 'account_login' %}"
+                        <a href="/accounts/google/login/?process=login"
                         class="btn btn-light btn-lg d-flex align-items-center"
                         style="background-color: white; font-size: 16px; padding: 10px 20px; border-radius: 10px; gap: 10px; text-decoration: none;">
                             <img src="{% static 'gestion_deportiva/images/google_icon.png' %}" alt="Google" width="24" height="24">
@@ -94,6 +94,20 @@
                         </a>
                     {% endif %}
                 </div>
+
+                <!-- Button - Microsoft -->
+                <div class="login-button mt-3"> 
+                    {% if not request.user.is_authenticated %}
+                        <a href="/accounts/microsoft/login/?process=login"
+                        class="btn btn-light btn-lg d-flex align-items-center"
+                        style="background-color: white; font-size: 16px; padding: 10px 20px; border-radius: 10px; gap: 10px; text-decoration: none;"
+                        title="Solo se permiten cuentas personales de Microsoft (@outlook.com, @hotmail.com).">
+                            <img src="{% static 'gestion_deportiva/images/microsoft_logo.png' %}" alt="Microsoft" width="20" height="20">
+                            Iniciar sesión con Microsoft
+                        </a>
+                    {% endif %}
+                </div>
+
 
 
             </div>
