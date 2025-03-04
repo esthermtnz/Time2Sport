@@ -1,0 +1,23 @@
+{% extends "gestion_deportiva/base.html" %}
+
+{% load i18n %}
+{% load allauth account %}
+
+{% block head_title %}
+    {% trans "Iniciar Sesión" %}
+{% endblock head_title %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card shadow-lg p-4 text-center" style="max-width: 400px; width: 100%;">
+        <h2 class="mb-4">{% trans "Iniciar Sesión" %}</h2>
+
+        {% if SOCIALACCOUNT_ENABLED %}
+            <p class="text-muted">{% trans "Accede con una cuenta social:" %}</p>
+            {% include "socialaccount/snippets/login.html" with page_layout="entrance" %}
+        {% else %}
+            <p class="text-danger">{% trans "No hay opciones de login social configuradas." %}</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock content %}
