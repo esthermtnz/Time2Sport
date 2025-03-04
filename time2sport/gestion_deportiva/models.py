@@ -92,6 +92,13 @@ class Bonus(models.Model):
         return f"{self.get_bonus_type_display()} - {self.activity.name}"
 
 class User(AbstractUser):
+    USER_TYPE_CHOICES = [
+        ('notUAM', 'Usuario no perteneciente a la UAM'),
+        ('student', 'Estudiante UAM'),
+        ('professor', 'Personal docente o investigador UAM'),
+        ('administrative', 'Personal Administrativo UAM'),
+        ('alumni', 'Ex-alumno de la UAM'),
+    ]
 
     def user_directory_path(instance, filename):
         """Generates a unique filename in users"""
@@ -101,6 +108,8 @@ class User(AbstractUser):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, help_text="Unique id for the user")
     profile = models.ImageField(default='default_profile.png', upload_to=user_directory_path)
+    is_uam = models.BooleanField(null=True, blank=True)
+    user_type = models.CharField(null=True, max_length=30, choices=USER_TYPE_CHOICES)
 
     def save(self, *args, **kwargs):
         if not self.password:  

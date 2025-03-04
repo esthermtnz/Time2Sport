@@ -17,6 +17,8 @@ urlpatterns = [
     path('aviso-legal/', views.aviso_legal, name='aviso_legal'),
     path('politica-privacidad/', views.politica_privacidad, name='politica_privacidad'),
     path('contacto/', views.contacto, name='contacto'),
+    path('uam-verification/', views.uam_verification, name='uam_verification'),
+    path('verificar-codigo-uam/', views.verificar_codigo_uam, name='verificar_codigo_uam'),
     
 ]
 

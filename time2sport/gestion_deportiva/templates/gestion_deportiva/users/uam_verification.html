@@ -1,0 +1,71 @@
+<!-- student.html -->
+{% extends 'gestion_deportiva/base.html' %}
+{% load static %}
+
+{% block title %}Student Verification Page{% endblock %}
+
+{% block content %}
+
+<div class="container d-flex justify-content-center mt-5">
+    <div class="card shadow-lg p-4 uam-verification">
+        <div class="card-body">
+
+
+            <div class="d-flex justify-content-center mb-3">
+                <img src="{% static 'gestion_deportiva/images/uam_color_logo.png' %}" alt="Logo UAM" 
+                     class="img-fluid" style="max-width: 130px;">
+            </div>
+            
+            
+            <h1 class="text-center mb-4">¿Eres de la UAM?</h1>
+
+            {% if "invalido" in request.GET %}
+                <div class="alert alert-danger">Error en el envío. Prueba de nuevo.</div>
+            {% endif %}
+
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="{{ form.user_choice.id_for_label }}">{{ form.user_choice.label }}</label>
+                    {{ form.user_choice }}
+                    <div class="text-danger">
+                        {{ form.user_choice.errors }}
+                    </div>
+                </div>
+            
+                <div class="mb-3">
+                    <label for="{{ form.email_uam.id_for_label }}">{{ form.email_uam.label }}</label>
+                    {{ form.email_uam }}
+                    <div class="text-danger">
+                        {{ form.email_uam.errors }}
+                    </div>
+                </div>
+            
+                <button type="submit" class="btn btn-primary px-5 py-2">Enviar</button>
+            </form>
+            
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    const userChoice = document.getElementById("user_choice");
+                    const emailUam = document.getElementById("email_uam");
+                
+                    function toggleEmailField() {
+                        if (["2", "3", "4", "5"].includes(userChoice.value)) {
+                            emailUam.removeAttribute("disabled");
+                        } else {
+                            emailUam.setAttribute("disabled", "disabled");
+                        }
+                    }
+                
+                    userChoice.addEventListener("change", toggleEmailField);
+                    toggleEmailField();
+                });
+            </script>
+                
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+

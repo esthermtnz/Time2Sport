@@ -14,11 +14,8 @@
             <input class="form-control" type="text" value="{{ user.first_name }} {{ user.last_name }}" disabled style="width: 100%; text-align: center;">
             <input class="form-control" type="email" value="{{ user.email }}" disabled style="width: 100%; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
             
-            {% if user.email|lower|slice:"-18:" == "@estudiante.uam.es" %}
-                <input class="form-control" type="text" value="Estudiante" disabled style="width: 100%; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-            {% else %}
-                <input class="form-control" type="text" value="Personal Administrativo o Docente" disabled style="width: 100%; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-            {% endif %}
+            <input class="form-control" type="user_type" value="{{ user_type }}" disabled style="width: 100%; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            
         
             <form method="POST" enctype="multipart/form-data" action="{% url 'edit_profile' %}">
                 {% csrf_token %}
@@ -27,6 +24,13 @@
                     <button class="btn btn-outline-secondary" type="submit">Subir foto</button>
                 </div>
             </form>
+
+            <!-- Enlace de verificación UAM -->
+            {% if not user.is_uam %}
+                <a href="{% url 'uam_verification' %}" class="btn btn-primary" style="margin-top: 20px;">¿Eres de la UAM? Verifícate</a>
+            {% endif %}
+
+
             
 
         </div>

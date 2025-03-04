@@ -6,6 +6,9 @@ from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 from .models import Activity, SportFacility
 
+import random
+import string
+
 import os
 import json
 
@@ -16,7 +19,7 @@ from django.contrib import messages
 from django.core.files.storage import default_storage
 from django.contrib.auth.decorators import login_required
 
-from .forms import ContactForm
+from .forms import ContactForm, UAMForm
 from django.core.mail import EmailMessage
 
 __version__ = "0.5.0"
@@ -28,7 +31,7 @@ User = get_user_model()
 
 def log_in(request):
     context = {}
-    return render(request, 'gestion_deportiva/log_in.html', context)
+    return render(request, 'gestion_deportiva/users/log_in.html', context)
 
 
 @login_required
@@ -87,16 +90,110 @@ def contacto(request):
 
 
 #-- Home page
+
+@login_required
+def uam_verification(request):
+    form = UAMForm()
+
+    if request.method == "POST":
+        form = UAMForm(data=request.POST)
+
+        if form.is_valid():
+            user_choice = request.POST.get("user_choice")
+            email = request.POST.get("email_uam")
+            usuario = request.user
+
+            user_type_map = {
+                "1": "notUAM",
+                "2": "student",
+                "3": "professor",
+                "4": "administrative",
+                "5": "alumni",
+            }
+            usuario.user_type = user_type_map.get(user_choice)
+
+            if usuario.user_type == "notUAM":
+                usuario.is_uam = False
+                usuario.save()
+                return redirect('index')
+            else: 
+                usuario.save()
+
+                codigo = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+
+                request.session["codigo_verificacion"] = codigo
+                request.session["email_verificacion"] = email
+
+                mensaje = f"""
+                    Hola,
+
+                    Por favor, introduce el siguiente código en la aplicación para verificar tu cuenta UAM:
+
+                    {codigo}
+
+                    Este código es de un solo uso.
+                """
+
+                emailMessage = EmailMessage(
+                    subject="Verificación Credenciales UAM - Time2Sport",
+                    body=mensaje,
+                    from_email="time2sportuam@gmail.com",
+                    to=[email],
+                )
+
+                try:
+                    emailMessage.send()
+                    return redirect("/verificar-codigo-uam/")
+                except:
+                    return redirect("/uam-verification/?invalido")
+
+
+    return render(request, 'gestion_deportiva/users/uam_verification.html', {"form": form})
+
+@login_required
+def verificar_codigo_uam(request):
+    if request.method == "POST":
+        codigo_form = request.POST.get("codigo")
+
+        codigo_correcto = request.session.get("codigo_verificacion")
+        email = request.session.get("email_verificacion")
+
+        if codigo_form == codigo_correcto:
+            usuario = request.user
+            usuario.is_uam = True  
+            usuario.save()
+
+            del request.session["codigo_verificacion"]
+            del request.session["email_verificacion"]
+
+            return redirect("/home")
+        else:
+            return render(request, "gestion_deportiva/users/verificar_codigo_uam.html", {"error": "Código incorrecto"})
+
+    return render(request, "gestion_deportiva/users/verificar_codigo_uam.html")
+
 @login_required
 def index(request):
-
+    if request.session.pop('first_login', False): 
+        return redirect('uam_verification') 
+    
     return render(request, 'gestion_deportiva/home.html')
 
 #-- Edit profile
 @login_required
 def profile(request):
-    context = {"user": request.user}
-    return render(request, 'gestion_deportiva/profile.html', context)
+
+    user_types = {
+        "notUAM": "No pertenece a la UAM",
+        "student": "Estudiante UAM",
+        "professor": "Profesional docente o investigador UAM",
+        "administrative": "Profesional administrativo UAM",
+        "alumni": "Antiguo Alumno de la UAM",
+    }
+    user_type = user_types.get(request.user.user_type, "Desconocido")
+    
+    context = {"user": request.user, "user_type": user_type}
+    return render(request, 'gestion_deportiva/users/profile.html', context)
 
 
 @login_required
