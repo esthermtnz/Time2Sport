@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
     'gestion_deportiva',
-    'contacto',
 
     'allauth',
     'allauth.account',

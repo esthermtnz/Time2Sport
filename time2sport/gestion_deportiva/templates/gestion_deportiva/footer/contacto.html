@@ -12,7 +12,7 @@
                 <h1 class="text-center">Contacto</h1>
 
                 {% if "valido" in request.GET%}
-                    <div class="alert alert-success">Información enviada correctamente. ¡Gracias!</div>
+                    <div class="alert alert-success">Se ha enviado un correo al administrador con tu petición correctamente. ¡Gracias!</div>
                 {% elif "invalido" in request.GET %}
                     <div class="alert alert-danger">Error en el envío. Prueba de nuevo.</div>
                 {% else %}
