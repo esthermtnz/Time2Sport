@@ -11,7 +11,13 @@
         <img src="{{ user.profile.url }}" alt="Foto de perfil" style="max-width: 150px; border-radius: 50%;">
         
         <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
-            <input class="form-control" type="text" value="{{ user.first_name }} {{ user.last_name }}" disabled style="width: 100%; text-align: center;">
+
+            
+            {% if request.user.is_authenticated and request.user.first_name != '' %}
+                <input class="form-control" type="text" value="{{ user.first_name }} {{ user.last_name }}" disabled style="width: 100%; text-align: center;">
+            {% elif request.user.is_authenticated and request.user.first_name == ''%}
+                <input class="form-control" type="text" value="{{ user.username }}" disabled style="width: 100%; text-align: center;">
+            {% endif%}
             <input class="form-control" type="email" value="{{ user.email }}" disabled style="width: 100%; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
             
             <input class="form-control" type="user_type" value="{{ user_type }}" disabled style="width: 100%; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">

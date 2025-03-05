@@ -179,6 +179,7 @@ def index(request):
     
     return render(request, 'gestion_deportiva/home.html')
 
+
 #-- Edit profile
 @login_required
 def profile(request):
