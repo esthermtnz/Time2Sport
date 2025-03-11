@@ -8,6 +8,7 @@ from .models import Activity, SportFacility
 
 import random
 import string
+import time
 
 import os
 import json
@@ -18,6 +19,8 @@ from django.contrib.auth import login, logout
 from django.contrib import messages
 from django.core.files.storage import default_storage
 from django.contrib.auth.decorators import login_required
+from datetime import datetime, timedelta
+from django.utils.timezone import now
 
 from .forms import ContactForm, UAMForm
 from django.core.mail import EmailMessage
@@ -120,9 +123,11 @@ def uam_verification(request):
                 usuario.save()
 
                 codigo = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+                expiration_time = now() + timedelta(minutes=10)
 
                 request.session["codigo_verificacion"] = codigo
                 request.session["email_verificacion"] = email
+                request.session["codigo_expiracion"] = expiration_time.timestamp()
 
                 mensaje = f"""
                     Hola,
@@ -131,7 +136,7 @@ def uam_verification(request):
 
                     {codigo}
 
-                    Este código es de un solo uso.
+                    Este código es de un solo uso. El código expirará en 10 minutos.
                 """
 
                 emailMessage = EmailMessage(
@@ -156,7 +161,17 @@ def verificar_codigo_uam(request):
         codigo_form = request.POST.get("codigo")
 
         codigo_correcto = request.session.get("codigo_verificacion")
+        tiempo_expiracion = request.session.get("codigo_expiracion")
         email = request.session.get("email_verificacion")
+
+        if not codigo_correcto or not tiempo_expiracion:
+            return redirect("/uam-verification/?expirado")
+        
+        if now().timestamp() > tiempo_expiracion:
+            del request.session["codigo_verificacion"]
+            del request.session["codigo_expiracion"]
+            del request.session["email_verificacion"]
+            return redirect("/uam-verification/?expirado")
 
         if codigo_form == codigo_correcto:
             usuario = request.user
@@ -164,6 +179,7 @@ def verificar_codigo_uam(request):
             usuario.save()
 
             del request.session["codigo_verificacion"]
+            del request.session["codigo_expiracion"]
             del request.session["email_verificacion"]
 
             return redirect("/home")

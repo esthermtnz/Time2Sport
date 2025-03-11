@@ -5,6 +5,7 @@ chardet==5.2.0
 charset-normalizer==3.4.1
 cryptography==44.0.1
 Django==5.1.6
+django-allauth==65.4.1
 django-extensions==3.2.3
 idna==3.10
 ms-identity-python @ https://github.com/azure-samples/ms-identity-python/archive/refs/heads/0.9.zip

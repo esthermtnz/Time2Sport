@@ -1,4 +1,4 @@
-<!-- student.html -->
+<!-- uam_verification.html -->
 {% extends 'gestion_deportiva/base.html' %}
 {% load static %}
 
@@ -21,6 +21,12 @@
 
             {% if "invalido" in request.GET %}
                 <div class="alert alert-danger">Error en el envío. Prueba de nuevo.</div>
+            {% endif %}
+
+            {% if "expirado" in request.GET %}
+                <div class="alert alert-warning">
+                    El código de verificación ha expirado. Solicita uno nuevo.
+                </div>
             {% endif %}
 
             <form method="POST">
