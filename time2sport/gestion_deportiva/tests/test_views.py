@@ -274,33 +274,106 @@ class ViewsTestCase(TestCase):
             self.assertContains(response, schedule.hour_begin.strftime("%H:%M"))
             self.assertContains(response, schedule.hour_end.strftime("%H:%M"))
 
-    def test_search_results_view(self):
-        #-- View verification --
-        response = self.client.post(reverse('search_results'), {'q': self.activity.name})
-        
-        #Check that the search_results template is correctly loaded
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'gestion_deportiva/search_results.html')
-
-        #-- Template verification --
-        
 
     def test_download_facilities_schedule_view(self):
-        #-- View verification --
+        #CHeck that the download_facilities_schedule is called correctly
         response = self.client.get(reverse('download_facilities_schedule'))
-
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response['Content-Type'], 'application/pdf')
 
-        #-- Template verification --
+        #Check that it generates a correct pdf document
+        self.assertEqual(response['Content-Type'], 'application/pdf')
+        self.assertIn('attachment; filename="facilities_schedule.pdf"', response['Content-Disposition'])
 
 
     def test_download_activities_schedule_view(self):
-        #-- View verification --
+        #Check that the download_activities_schedule is called correctly
         response = self.client.get(reverse('download_activities_schedule'))
-
-
         self.assertEqual(response.status_code, 200)
+
+
         self.assertEqual(response['Content-Type'], 'application/pdf')
+        self.assertIn('attachment; filename="activities_schedule.pdf"', response['Content-Disposition'])
+
+
+    def test_search_results_view_1(self):
+        """Searching an activity with filters"""
+        #-- View verification --
+
+        #Post the query searching for an activity
+        response = self.client.post(reverse('search_results'), {'q': self.activity.name, 'category': self.activity.activity_type})
+        
+        #Check that the query is posted to search_results template
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'gestion_deportiva/search_results.html')
+
+        self.assertContains(response, f'Searching "{self.activity.name}"')
+
+        #Get the template search_results searching for an activity
+        response = self.client.get(reverse('search_results'))
+        #Check that the query is gotten to search_results template
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'gestion_deportiva/search_results.html')
+
+        #Check that the activity is in the template
+        self.assertIn(self.activity, response.context['activities'])
 
         #-- Template verification --
+        self.assertContains(response, "Actividades")
+        self.assertContains(response, f'{self.activity.name} - {self.activity.description}')
+
+    def test_search_results_view_2(self):
+        """Searching a sport facility with filters"""
+        #-- View verification --
+
+        #(POST) - Post the query searching for a sport facility
+        response = self.client.post(reverse('search_results'), {'q': self.sport_facility.name, 'category': self.sport_facility.facility_type})
+        
+        #Check that the query is posted to search_results template
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'gestion_deportiva/search_results.html')
+
+        self.assertContains(response, f'Searching "{self.sport_facility.name}"')
+
+        #(GET) - Get the template search_results searching for an sport facility
+        response = self.client.get(reverse('search_results'))
+        #Check that the query is gotten to search_results template
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'gestion_deportiva/search_results.html')
+
+        #Check that the sport facility is in the template
+        self.assertIn(self.sport_facility, response.context['facilities'])
+
+        #-- Template verification --
+        self.assertContains(response, "Instalaciones")
+        self.assertContains(response, f'{self.sport_facility.name} - {self.sport_facility.description}')
+        
+    def test_search_results_view_3(self):
+            """Searching an empty query without filters"""
+            #-- View verification --
+
+            #(POST) - Post the query searching for a sport facility
+            response = self.client.post(reverse('search_results'), {'q': ""})
+            
+            #Check that the query is posted to search_results template
+            self.assertEqual(response.status_code, 200)
+            self.assertTemplateUsed(response, 'gestion_deportiva/search_results.html')
+
+            self.assertContains(response, f'Searching ""')
+
+            #(GET) - Get the template search_results searching for an sport facility
+            response = self.client.get(reverse('search_results'))
+            #Check that the query is gotten to search_results template
+            self.assertEqual(response.status_code, 200)
+            self.assertTemplateUsed(response, 'gestion_deportiva/search_results.html')
+
+            #Check that the sport facility is in the template
+            self.assertIn(self.sport_facility, response.context['facilities'])
+            self.assertIn(self.activity, response.context['activities'])
+
+            #-- Template verification --
+            self.assertContains(response, "Instalaciones")
+            self.assertContains(response, f'{self.sport_facility.name} - {self.sport_facility.description}')
+            
+            self.assertContains(response, "Actividades")
+            self.assertContains(response, f'{self.activity.name} - {self.activity.description}')
+            
