@@ -22,7 +22,7 @@ class ViewsTestCase(TestCase):
         # Create a sport facility
         self.sport_facility = SportFacility.objects.create(
             name = "Campo de Fútbol",
-            numberOf_facilities = 2,
+            number_of_facilities = 2,
             description = "Campo de fútbol sala para fútbol 5",
             hour_price = 25.0,
             facility_type = "exterior"
@@ -130,7 +130,7 @@ class ViewsTestCase(TestCase):
         self.assertContains(response, self.sport_facility.name)
         self.assertContains(response, self.sport_facility.get_facility_type_display())
         self.assertContains(response, self.sport_facility.hour_price)
-        self.assertContains(response, self.sport_facility.numberOf_facilities)
+        self.assertContains(response, self.sport_facility.number_of_facilities)
 
         #Check that the facility schedule is displayed
         for schedule in self.sport_facility.schedules.all():
@@ -161,7 +161,7 @@ class ViewsTestCase(TestCase):
         self.assertContains(response, self.sport_facility.name)
         self.assertContains(response, self.sport_facility.get_facility_type_display())
         self.assertContains(response, self.sport_facility.hour_price)
-        self.assertContains(response, self.sport_facility.numberOf_facilities)
+        self.assertContains(response, self.sport_facility.number_of_facilities)
 
         #Check that the facility schedule is displayed
         for schedule in self.sport_facility.schedules.all():

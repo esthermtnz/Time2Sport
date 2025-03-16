@@ -220,8 +220,6 @@ def edit_profile(request):
     return redirect('profile') 
 
 
-
-
 def all_activities(request):
     activities = Activity.objects.prefetch_related('photos').all()
     return render(request, 'gestion_deportiva/activities/all_activities.html', {'activities': activities})
