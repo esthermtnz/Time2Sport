@@ -4,17 +4,21 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-
+"""
+UAMFormTestCase class which contains the tests for the UAM form
+"""
 class UAMFormTestCase(TestCase):
-    # Opción 0
-    def test_opcion_no_valida(self):
-        # Debe fallar si la opción seleccionada es 'Selecciona una opción'
+    # Option 0
+    def test_no_valid_option(self):
+        """ It should fail if the selected option is 'Selecciona una opción' """
+
         form = UAMForm(data={"user_choice": "0", "email_uam": ""})
         self.assertFalse(form.is_valid())
         self.assertIn("user_choice", form.errors)
 
-    def test_opcion_uam_sin_correo(self):
-        # Debe fallar si se elige una opción UAM pero no se ingresa correo
+    def test_uam_option_without_email(self):
+        """ It should fail if a UAM option is selected but no email is entered """
+
         form = UAMForm(data={"user_choice": "2", "email_uam": ""})
         self.assertFalse(form.is_valid())
         self.assertIn("email_uam", form.errors)
@@ -31,64 +35,73 @@ class UAMFormTestCase(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn("email_uam", form.errors)
 
-    # Opción 1
-    def test_usuario_externo(self):
-        # Debe pasar si el usuario elige 'No soy de la UAM'
+    # Option 1
+    def test_external_user_without_email(self):
+        """ It should pass if the user selects 'No soy de la UAM' """
+
         form = UAMForm(data={"user_choice": "1", "email_uam": ""})
         self.assertTrue(form.is_valid())
 
-    # Opción 2
-    def test_estudiante_con_correo_valido(self):
-        # Debe pasar si el estudiante usa un correo @estudiante.uam.es
-        form = UAMForm(data={"user_choice": "2", "email_uam": "usuario@estudiante.uam.es"})
+    # Option 2
+    def test_student_with_valid_email(self):
+        """ It should pass if the student uses an @estudiante.uam.es email """
+
+        form = UAMForm(data={"user_choice": "2", "email_uam": "user@estudiante.uam.es"})
         self.assertTrue(form.is_valid())
 
-    def test_estudiante_con_correo_invalido(self):
-        # Debe fallar si un estudiante usa un correo incorrecto
-        form = UAMForm(data={"user_choice": "2", "email_uam": "usuario@uam.es"})
+    def test_student_with_invalid_email(self):
+        """ It should fail if a student uses an incorrect email """
+
+        form = UAMForm(data={"user_choice": "2", "email_uam": "user@uam.es"})
         self.assertFalse(form.is_valid())
 
-    # Opción 3
-    def test_docente_investigador_con_correo_valido(self):
-        # Debe pasar si el docente o investigador usa un correo @uam.es
-        form = UAMForm(data={"user_choice": "3", "email_uam": "usuario@uam.es"})
+        form = UAMForm(data={"user_choice": "2", "email_uam": "user@gmail.com"})
+        self.assertFalse(form.is_valid())
+
+    # Option 3
+    def test_professor_researcher_with_valid_email(self):
+        """ It should pass if the professor or researcher uses an @uam.es email """
+
+        form = UAMForm(data={"user_choice": "3", "email_uam": "user@uam.es"})
         self.assertTrue(form.is_valid())
 
-    def test_docente_investigador_con_correo_invalido(self):
-        # Debe fallar si el docente o investigador usa un correo de estudiante
-        form = UAMForm(data={"user_choice": "3", "email_uam": "usuario@estudiante.uam.es"})
+    def test_professor_researcher_with_invalid_email(self):
+        """ It should fail if the professor or researcher uses an incorrect email """
+
+        form = UAMForm(data={"user_choice": "3", "email_uam": "user@estudiante.uam.es"})
         self.assertFalse(form.is_valid())
 
-        # Debe fallar si el docente o investigador ingresa un correo externo
-        form = UAMForm(data={"user_choice": "3", "email_uam": "usuario@gmail.com"})
+        form = UAMForm(data={"user_choice": "3", "email_uam": "user@gmail.com"})
         self.assertFalse(form.is_valid())
 
-    # Opción 4
-    def test_personal_administrativo_con_correo_valido(self):
-        # Debe pasar si el personal administrativo usa un correo @uam.es
-        form = UAMForm(data={"user_choice": "4", "email_uam": "usuario@uam.es"})
+    # Option 4
+    def test_administrative_staff_with_valid_email(self):
+        """ It should pass if the administrative staff uses an @uam.es email """
+
+        form = UAMForm(data={"user_choice": "4", "email_uam": "user@uam.es"})
         self.assertTrue(form.is_valid())
 
-    def test_personal_administrativo_con_correo_invalido(self):
-        # Debe fallar si un personal administrativo usa un correo de estudiante
-        form = UAMForm(data={"user_choice": "4", "email_uam": "usuario@estudiante.uam.es"})
+    def test_administrative_staff_with_invalid_email(self):
+        """ It should fail if the administrative staff uses an incorrect email """
+
+        form = UAMForm(data={"user_choice": "4", "email_uam": "user@estudiante.uam.es"})
         self.assertFalse(form.is_valid())
 
-        # Debe fallar si el personal administrativo ingresa un correo externo
-        form = UAMForm(data={"user_choice": "4", "email_uam": "usuario@gmail.com"})
+        form = UAMForm(data={"user_choice": "4", "email_uam": "user@gmail.com"})
         self.assertFalse(form.is_valid())
 
-    # Opción 5
-    def test_antiguo_alumno_con_correo_valido(self):
-        # Debe pasar si el antiguo alumno usa un correo @uam.es
-        form = UAMForm(data={"user_choice": "5", "email_uam": "usuario@uam.es"})
+    # Option 5
+    def test_old_student_with_valid_email(self):
+        """ It should pass if the former student uses an @uam.es email """
+
+        form = UAMForm(data={"user_choice": "5", "email_uam": "user@uam.es"})
         self.assertTrue(form.is_valid())
 
-    def test_antiguo_alumno_con_correo_invalido(self):
-        # Debe fallar si el antiguo alumno usa un correo de estudiante
-        form = UAMForm(data={"user_choice": "5", "email_uam": "usuario@estudiante.uam.es"})
+    def old_student_with_invalid_email(self):
+        """ It should fail if the former student uses an incorrect email """
+
+        form = UAMForm(data={"user_choice": "5", "email_uam": "user@estudiante.uam.es"})
         self.assertFalse(form.is_valid())
 
-        # Debe fallar si el antiguo alumno ingresa un correo externo
-        form = UAMForm(data={"user_choice": "5", "email_uam": "usuario@gmail.com"})
+        form = UAMForm(data={"user_choice": "5", "email_uam": "user@gmail.com"})
         self.assertFalse(form.is_valid())
