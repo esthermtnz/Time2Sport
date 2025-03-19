@@ -196,7 +196,7 @@ def index(request):
     return render(request, 'gestion_deportiva/home.html')
 
 
-#-- Edit profile
+#Edit profile
 @login_required
 def profile(request):
 
@@ -213,36 +213,45 @@ def profile(request):
     return render(request, 'gestion_deportiva/users/profile.html', context)
 
 
+
 @login_required
 def edit_profile(request):
     if request.method == 'POST' and request.FILES.get('profile_image'):
         request.user.editProfile(request.FILES['profile_image'])
     return redirect('profile') 
 
+# -- SBAI
 
+@login_required
 def all_activities(request):
     activities = Activity.objects.prefetch_related('photos').all()
     return render(request, 'gestion_deportiva/activities/all_activities.html', {'activities': activities})
 
+@login_required
 def activity_detail(request, activity_id):
     activity = get_object_or_404(Activity, pk=activity_id)
     return render(request, 'gestion_deportiva/activities/activity_detail.html', {'activity': activity})
 
+@login_required
 def all_facilities(request):
     facilities = SportFacility.objects.prefetch_related('photos').all()
     return render(request, 'gestion_deportiva/facilities/all_facilities.html', {'facilities': facilities})
 
+@login_required
 def facility_detail(request, facility_id):
     facility = get_object_or_404(SportFacility, pk=facility_id)
     return render(request, 'gestion_deportiva/facilities/facility_detail.html', {'facility': facility})
 
+@login_required
 def schedules(request):
     return render(request, 'gestion_deportiva/schedules/schedules.html')
 
+@login_required
 def facilities_schedule(request):
     facilities = SportFacility.objects.prefetch_related('schedules').all()
     return render(request, 'gestion_deportiva/schedules/facilities_schedule.html', {'facilities': facilities})
 
+@login_required
 def download_facilities_schedule(request):
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="facilities_schedule.pdf"'
@@ -286,6 +295,7 @@ def download_facilities_schedule(request):
     # Devolver el PDF
     return response
 
+@login_required
 def activities_schedule(request):
     activities = Activity.objects.all()
 
@@ -318,6 +328,7 @@ def activities_schedule(request):
 
     return render(request, "gestion_deportiva/schedules/activities_schedule.html", {"activities": grouped_schedules})
 
+@login_required
 def download_activities_schedule(request):
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="activities_schedule.pdf"'
@@ -380,6 +391,7 @@ def download_activities_schedule(request):
 
 from django.db.models import Q
 
+@login_required
 def search_results(request):
     facilities = SportFacility.objects.all()
     activities = Activity.objects.all()

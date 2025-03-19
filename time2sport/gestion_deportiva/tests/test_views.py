@@ -1,6 +1,6 @@
 from django.test import TestCase, Client
 from django.urls import reverse
-from gestion_deportiva.models import Activity, SportFacility, Schedule, Bonus
+from gestion_deportiva.models import Activity, SportFacility, Schedule, Bonus, User
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 class ViewsTestCase(TestCase):
@@ -45,7 +45,17 @@ class ViewsTestCase(TestCase):
             price=100.00
         )
 
+        #Create a user
+        self.user = User.objects.create_user(
+            username = "username",
+            password = "password",
+            is_uam = True,
+            user_type = "student"
+        )
+
     def test_all_activities_view(self):
+        self.client.force_login(self.user)
+
         #-- View verification --
         response = self.client.get(reverse('all_activities'))
 
@@ -80,6 +90,9 @@ class ViewsTestCase(TestCase):
             self.assertContains(response, '/static/gestion_deportiva/default-activity.jpg')
     
     def test_activity_detail_view(self):
+        self.client.force_login(self.user)
+
+
         #-- View verification --
         response = self.client.get(reverse('activity_detail', args=[self.activity.id]))
         
@@ -115,6 +128,10 @@ class ViewsTestCase(TestCase):
             self.assertNotContains(response, '<img src="', html=True)
         
     def test_all_facilities_view(self):
+
+        self.client.force_login(self.user)
+
+        
         #-- View verification --
         response = self.client.get(reverse('all_facilities'))
 
@@ -149,6 +166,10 @@ class ViewsTestCase(TestCase):
             self.assertContains(response, '/static/gestion_deportiva/default-facility.png')
 
     def test_facility_detail_view(self):
+
+        self.client.force_login(self.user)
+
+
         #-- View verification --
         response = self.client.get(reverse('facility_detail', args=[self.sport_facility.id]))
         
@@ -182,6 +203,10 @@ class ViewsTestCase(TestCase):
             self.assertNotContains(response, '<img src="', html=True)
 
     def test_schedules_view(self):
+
+        self.client.force_login(self.user)
+
+
         #-- View verification --
         response = self.client.get(reverse('schedules'))
 
@@ -202,6 +227,10 @@ class ViewsTestCase(TestCase):
         self.assertContains(response, 'Horarios Instalaciones', html=True)
 
     def test_facilities_schedule_view(self):
+
+        self.client.force_login(self.user)
+
+
         #-- View verification --
         response = self.client.get(reverse('facilities_schedule'))
 
@@ -231,6 +260,10 @@ class ViewsTestCase(TestCase):
             self.assertContains(response, schedule.hour_end.strftime("%H:%M"))
 
     def test_activities_schedule_view(self):
+
+        self.client.force_login(self.user)
+
+
         #-- View verification --
         response = self.client.get(reverse('activities_schedule'))
 
@@ -276,6 +309,10 @@ class ViewsTestCase(TestCase):
 
 
     def test_download_facilities_schedule_view(self):
+
+        self.client.force_login(self.user)
+
+
         #CHeck that the download_facilities_schedule is called correctly
         response = self.client.get(reverse('download_facilities_schedule'))
         self.assertEqual(response.status_code, 200)
@@ -286,6 +323,10 @@ class ViewsTestCase(TestCase):
 
 
     def test_download_activities_schedule_view(self):
+
+        self.client.force_login(self.user)
+
+
         #Check that the download_activities_schedule is called correctly
         response = self.client.get(reverse('download_activities_schedule'))
         self.assertEqual(response.status_code, 200)
@@ -297,6 +338,10 @@ class ViewsTestCase(TestCase):
 
     def test_search_results_view_1(self):
         """Searching an activity with filters"""
+
+        self.client.force_login(self.user)
+
+
         #-- View verification --
 
         #Post the query searching for an activity
@@ -323,6 +368,10 @@ class ViewsTestCase(TestCase):
 
     def test_search_results_view_2(self):
         """Searching a sport facility with filters"""
+
+        self.client.force_login(self.user)
+
+
         #-- View verification --
 
         #(POST) - Post the query searching for a sport facility
@@ -348,32 +397,35 @@ class ViewsTestCase(TestCase):
         self.assertContains(response, f'{self.sport_facility.name} - {self.sport_facility.description}')
         
     def test_search_results_view_3(self):
-            """Searching an empty query without filters"""
-            #-- View verification --
+        """Searching an empty query without filters"""
 
-            #(POST) - Post the query searching for a sport facility
-            response = self.client.post(reverse('search_results'), {'q': ""})
-            
-            #Check that the query is posted to search_results template
-            self.assertEqual(response.status_code, 200)
-            self.assertTemplateUsed(response, 'gestion_deportiva/search_results.html')
+        self.client.force_login(self.user)
+    
+        #-- View verification --
 
-            self.assertContains(response, f'Searching ""')
+        #(POST) - Post the query searching for a sport facility
+        response = self.client.post(reverse('search_results'), {'q': ""})
+        
+        #Check that the query is posted to search_results template
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'gestion_deportiva/search_results.html')
 
-            #(GET) - Get the template search_results searching for an sport facility
-            response = self.client.get(reverse('search_results'))
-            #Check that the query is gotten to search_results template
-            self.assertEqual(response.status_code, 200)
-            self.assertTemplateUsed(response, 'gestion_deportiva/search_results.html')
+        self.assertContains(response, f'Searching ""')
 
-            #Check that the sport facility is in the template
-            self.assertIn(self.sport_facility, response.context['facilities'])
-            self.assertIn(self.activity, response.context['activities'])
+        #(GET) - Get the template search_results searching for an sport facility
+        response = self.client.get(reverse('search_results'))
+        #Check that the query is gotten to search_results template
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'gestion_deportiva/search_results.html')
 
-            #-- Template verification --
-            self.assertContains(response, "Instalaciones")
-            self.assertContains(response, f'{self.sport_facility.name} - {self.sport_facility.description}')
-            
-            self.assertContains(response, "Actividades")
-            self.assertContains(response, f'{self.activity.name} - {self.activity.description}')
-            
+        #Check that the sport facility is in the template
+        self.assertIn(self.sport_facility, response.context['facilities'])
+        self.assertIn(self.activity, response.context['activities'])
+
+        #-- Template verification --
+        self.assertContains(response, "Instalaciones")
+        self.assertContains(response, f'{self.sport_facility.name} - {self.sport_facility.description}')
+        
+        self.assertContains(response, "Actividades")
+        self.assertContains(response, f'{self.activity.name} - {self.activity.description}')
+        

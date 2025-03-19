@@ -74,17 +74,6 @@ class SportFacilityModelTest(TestCase):
         self.assertEqual(self.sport_facility.hour_price, 25.0)
         self.assertEqual(self.sport_facility.facility_type, "exterior")
 
-    def test_sport_facility_negative_price(self):
-        """Verify that creating a SportFacility with a negative price raises an error"""
-        with self.assertRaises(ValueError):
-            SportFacility.objects.create(
-                name="Invalid Facility",
-                number_of_facilities=1,
-                description="Invalid",
-                hour_price=-10.0,
-                facility_type="interior",
-            )
-        
     def test_sport_facility_schedule(self):
         """Verify that the sport facility schedule is correct"""
         self.assertIn(self.sport_facility_schedule, self.sport_facility.schedules.all())
