@@ -120,7 +120,7 @@ def uam_verification(request):
                 usuario.save()
                 return redirect('index')
             else: 
-                usuario.save()
+                # usuario.save()
 
                 codigo = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
                 expiration_time = now() + timedelta(minutes=10)
@@ -128,6 +128,7 @@ def uam_verification(request):
                 request.session["codigo_verificacion"] = codigo
                 request.session["email_verificacion"] = email
                 request.session["codigo_expiracion"] = expiration_time.timestamp()
+                request.session["user_type"] = usuario.user_type
 
                 mensaje = f"""
                     Hola,
@@ -163,6 +164,7 @@ def verificar_codigo_uam(request):
         codigo_correcto = request.session.get("codigo_verificacion")
         tiempo_expiracion = request.session.get("codigo_expiracion")
         email = request.session.get("email_verificacion")
+        user_type = request.session.get("user_type")
 
         if not codigo_correcto or not tiempo_expiracion:
             return redirect("/uam-verification/?expirado")
@@ -176,6 +178,7 @@ def verificar_codigo_uam(request):
         if codigo_form == codigo_correcto:
             usuario = request.user
             usuario.is_uam = True  
+            usuario.user_type = user_type
             usuario.save()
 
             del request.session["codigo_verificacion"]
