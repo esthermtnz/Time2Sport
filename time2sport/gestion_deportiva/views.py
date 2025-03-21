@@ -98,6 +98,10 @@ def contacto(request):
 def uam_verification(request):
     form = UAMForm()
 
+    # If user is already from UAM, redirect to home
+    if request.user.is_uam:
+        return redirect('index')
+
     if request.method == "POST":
         form = UAMForm(data=request.POST)
 
@@ -158,6 +162,10 @@ def uam_verification(request):
 
 @login_required
 def verificar_codigo_uam(request):
+    # If user is already from UAM, redirect to home
+    if request.user.is_uam:
+        return redirect('index')
+
     if request.method == "POST":
         codigo_form = request.POST.get("codigo")
 
