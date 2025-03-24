@@ -47,11 +47,15 @@ class SchedulesViewTestCase(TestCase):
             user_type = "student"
         )
 
+    def test_redirect_for_unauthenticated_users(self):
+        "Verifies that the user is logged in if it is not, redirects to login"
+        response = self.client.get(reverse('schedules'))
+        self.assertNotEqual(response.status_code, 200)
+        self.assertRedirects(response, f"/accounts/login/?next={reverse('schedules')}")
 
     def test_schedules_view(self):
-
+        "Ensures that the content of the schedules template is correct"
         self.client.force_login(self.user)
-
 
         #-- View verification --
         response = self.client.get(reverse('schedules'))
@@ -71,6 +75,8 @@ class SchedulesViewTestCase(TestCase):
         #Check fecility schedules is correctly displayed
         self.assertContains(response, reverse('facilities_schedule'))
         self.assertContains(response, 'Horarios Instalaciones', html=True)
+
+
 
 class FacilitiesScheduleViewTestCase(TestCase):
 
@@ -101,11 +107,15 @@ class FacilitiesScheduleViewTestCase(TestCase):
             user_type = "student"
         )
 
+    def test_redirect_for_unauthenticated_users(self):
+        "Verifies that the user is logged in if it is not, redirects to login"
+        response = self.client.get(reverse('facilities_schedule'))
+        self.assertNotEqual(response.status_code, 200)
+        self.assertRedirects(response, f"/accounts/login/?next={reverse('facilities_schedule')}")
 
     def test_facilities_schedule_view(self):
-
+        "Ensures that the facilities schedules view is correctly displayed"
         self.client.force_login(self.user)
-
 
         #-- View verification --
         response = self.client.get(reverse('facilities_schedule'))
@@ -136,6 +146,7 @@ class FacilitiesScheduleViewTestCase(TestCase):
             self.assertContains(response, schedule.hour_end.strftime("%H:%M"))
 
 
+
 class ActivitiesScheduleViewTestCase(TestCase):
 
     @classmethod
@@ -164,11 +175,15 @@ class ActivitiesScheduleViewTestCase(TestCase):
             user_type = "student"
         )
 
+    def test_redirect_for_unauthenticated_users(self):
+        "Verifies that the user is logged in if it is not, redirects to login"
+        response = self.client.get(reverse('schedules'))
+        self.assertNotEqual(response.status_code, 200)
+        self.assertRedirects(response, f"/accounts/login/?next={reverse('schedules')}")
 
     def test_activities_schedule_view(self):
-
+        "Ensures that the activities schedules view is ocrrectly displayed"
         self.client.force_login(self.user)
-
 
         #-- View verification --
         response = self.client.get(reverse('activities_schedule'))
@@ -212,6 +227,7 @@ class ActivitiesScheduleViewTestCase(TestCase):
             self.assertContains(response, schedule.get_day_of_week_display())
             self.assertContains(response, schedule.hour_begin.strftime("%H:%M"))
             self.assertContains(response, schedule.hour_end.strftime("%H:%M"))
+
 
 class DownloadsViewTestCase(TestCase):
 
