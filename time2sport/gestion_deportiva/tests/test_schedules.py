@@ -3,7 +3,6 @@ from django.urls import reverse
 from gestion_deportiva.models import Activity, SportFacility, Schedule, User
 
 class SchedulesViewTestCase(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         # Create a sport facility schedule
@@ -79,7 +78,6 @@ class SchedulesViewTestCase(TestCase):
 
 
 class FacilitiesScheduleViewTestCase(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         # Create a sport facility schedule
@@ -148,7 +146,6 @@ class FacilitiesScheduleViewTestCase(TestCase):
 
 
 class ActivitiesScheduleViewTestCase(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         # Create an activity schedule
@@ -230,7 +227,6 @@ class ActivitiesScheduleViewTestCase(TestCase):
 
 
 class DownloadsViewTestCase(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         # Create a sport facility schedule
@@ -274,9 +270,8 @@ class DownloadsViewTestCase(TestCase):
             user_type = "student"
         )
 
-
     def test_download_facilities_schedule_view(self):
-
+        "Ensures that the facilities schedules pdf is generated"
         self.client.force_login(self.user)
 
 
@@ -288,11 +283,9 @@ class DownloadsViewTestCase(TestCase):
         self.assertEqual(response['Content-Type'], 'application/pdf')
         self.assertIn('attachment; filename="facilities_schedule.pdf"', response['Content-Disposition'])
 
-
     def test_download_activities_schedule_view(self):
-
+        "Ensures that the activity schedules pdf is generated"
         self.client.force_login(self.user)
-
 
         #Check that the download_activities_schedule is called correctly
         response = self.client.get(reverse('download_activities_schedule'))

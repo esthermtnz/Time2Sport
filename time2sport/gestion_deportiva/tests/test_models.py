@@ -4,7 +4,6 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from gestion_deportiva.models import Schedule, SportFacility, Activity, Photo, Bonus
 
 class ScheduleModelTest(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         # Create a sport facility schedule
@@ -46,7 +45,6 @@ class ScheduleModelTest(TestCase):
 
     
 class SportFacilityModelTest(TestCase):
-    
     @classmethod
     def setUpTestData(cls):
         # Create a sport facility schedule
@@ -84,7 +82,6 @@ class SportFacilityModelTest(TestCase):
 
 
 class ActivityModelTest(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         # Create an activity schedule
@@ -120,7 +117,6 @@ class ActivityModelTest(TestCase):
 
 
 class BonusModelTest(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         # Create an activity
@@ -150,7 +146,6 @@ class BonusModelTest(TestCase):
 
 
 class PhotoModelTest(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         # Create an activity

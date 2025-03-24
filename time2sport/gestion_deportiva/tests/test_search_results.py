@@ -62,11 +62,9 @@ class SearchResultsViewTestCase(TestCase):
 
     def test_search_results_view_1(self):
         """Searching an activity with filters"""
-
         self.client.force_login(self.user)
 
         #-- View verification --
-
         #(POST) - Post the query searching for an activity
         response = self.client.post(reverse('search_results'), {'q': self.activity.name, 'category': self.activity.activity_type})
         
@@ -91,11 +89,9 @@ class SearchResultsViewTestCase(TestCase):
 
     def test_search_results_view_2(self):
         """Searching a sport facility with filters"""
-
         self.client.force_login(self.user)
 
         #-- View verification --
-
         #(POST) - Post the query searching for a sport facility
         response = self.client.post(reverse('search_results'), {'q': self.sport_facility.name, 'category': self.sport_facility.facility_type})
         
@@ -120,11 +116,9 @@ class SearchResultsViewTestCase(TestCase):
         
     def test_search_results_view_3(self):
         """Searching an empty query without filters"""
-
         self.client.force_login(self.user)
     
         #-- View verification --
-
         #(POST) - Post the query searching for a sport facility
         response = self.client.post(reverse('search_results'), {'q': ""})
         
