@@ -19,7 +19,7 @@ class AllActivitiesViewTestCase(TestCase):
             name = "Zumba",
             location = "Sala 4",
             description = "Zumba coreografiada para jóvenes",
-            activity_type = "terrestre",
+            activity_type = "Terrestre",
         )
         cls.activity.schedules.add(cls.activity_schedule)
 
@@ -28,7 +28,7 @@ class AllActivitiesViewTestCase(TestCase):
             name="Yoga",
             location="Sala 2",
             description="Clase de Yoga",
-            activity_type="terrestre",
+            activity_type="Terrestre",
         )
 
         #Create a user
@@ -177,7 +177,7 @@ class ActivityDetailViewTestCase(TestCase):
             name = "Zumba",
             location = "Sala 4",
             description = "Zumba coreografiada para jóvenes",
-            activity_type = "terrestre",
+            activity_type = "Terrestre",
         )
         cls.activity.schedules.add(cls.activity_schedule)
 
@@ -186,7 +186,7 @@ class ActivityDetailViewTestCase(TestCase):
             name="Yoga",
             location="Sala 2",
             description="Clase de Yoga",
-            activity_type="terrestre",
+            activity_type="Terrestre",
         )
 
         cls.bonus1 = Bonus.objects.create(

@@ -237,7 +237,7 @@ class DownloadsViewTestCase(TestCase):
             number_of_facilities = 2,
             description = "Campo de fútbol sala para fútbol 5",
             hour_price = 25.0,
-            facility_type = "exterior"
+            facility_type = "Exterior"
         )
         cls.sport_facility.schedules.add(cls.sport_facility_schedule)
 
@@ -246,7 +246,7 @@ class DownloadsViewTestCase(TestCase):
             name = "Zumba",
             location = "Sala 4",
             description = "Zumba coreografiada para jóvenes",
-            activity_type = "terrestre",
+            activity_type = "Terrestre",
         )
         cls.activity.schedules.add(cls.activity_schedule)
 

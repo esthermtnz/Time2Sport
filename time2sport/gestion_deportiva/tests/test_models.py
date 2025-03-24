@@ -62,7 +62,7 @@ class SportFacilityModelTest(TestCase):
             number_of_facilities = 2,
             description = "Campo de fútbol sala para fútbol 5",
             hour_price = 25.0,
-            facility_type = "exterior"
+            facility_type = "Exterior"
         )
         cls.sport_facility.schedules.add(cls.sport_facility_schedule)
 
@@ -72,7 +72,7 @@ class SportFacilityModelTest(TestCase):
         self.assertEqual(self.sport_facility.number_of_facilities, 2)
         self.assertEqual(self.sport_facility.description, "Campo de fútbol sala para fútbol 5")
         self.assertEqual(self.sport_facility.hour_price, 25.0)
-        self.assertEqual(self.sport_facility.facility_type, "exterior")
+        self.assertEqual(self.sport_facility.facility_type, "Exterior")
 
     def test_sport_facility_schedule(self):
         """Verify that the sport facility schedule is correct"""
@@ -99,7 +99,7 @@ class ActivityModelTest(TestCase):
             name = "Zumba",
             location = "Sala 4",
             description = "Zumba coreografiada para jóvenes",
-            activity_type = "terrestre",
+            activity_type = "Terrestre",
         )
         cls.activity.schedules.add(cls.activity_schedule)
 
@@ -108,7 +108,7 @@ class ActivityModelTest(TestCase):
         self.assertEqual(self.activity.name, "Zumba")
         self.assertEqual(self.activity.location, "Sala 4")
         self.assertEqual(self.activity.description, "Zumba coreografiada para jóvenes")
-        self.assertEqual(self.activity.activity_type, "terrestre")
+        self.assertEqual(self.activity.activity_type, "Terrestre")
 
     def test_activity_schedule(self):
         """Verify that the sport facility schedule is correct"""
@@ -128,7 +128,7 @@ class BonusModelTest(TestCase):
             name = "Zumba",
             location = "Sala 4",
             description = "Zumba coreografiada para jóvenes",
-            activity_type = "terrestre",
+            activity_type = "Terrestre",
         )
 
         #Create a bonus
@@ -158,7 +158,7 @@ class PhotoModelTest(TestCase):
             name = "Zumba",
             location = "Sala 4",
             description = "Zumba coreografiada para jóvenes",
-            activity_type = "terrestre",
+            activity_type = "Terrestre",
         )
 
         image = SimpleUploadedFile("test_image.jpg", b"file_content", content_type="image/jpeg")
