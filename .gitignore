@@ -27,3 +27,6 @@ Thumbs.db
 # Archivos relacionados con el entorno de despliegue
 *.env
 *.local
+
+# Excluir migraciones
+migrations/

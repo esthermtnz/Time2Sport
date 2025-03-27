@@ -1,9 +1,0 @@
-from django.apps import AppConfig
-
-
-class GestionDeportivaConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'gestion_deportiva'
-
-    def ready(self):
-        import gestion_deportiva.signals  

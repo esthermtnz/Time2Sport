@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.staticfiles',
     'django_extensions',
-    'gestion_deportiva',
+    'sgu',
+    'sbai',
 
     'allauth',
     'allauth.account',
@@ -68,7 +69,7 @@ ROOT_URLCONF = 'time2sport.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "gestion_deportiva/templates"],
+        'DIRS': [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -180,7 +181,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "gestion_deportiva/static"),
+    os.path.join(BASE_DIR, "static"),
 ]
 
 # Default primary key field type
@@ -213,4 +214,4 @@ ACCOUNT_UNIQUE_EMAIL = True
 SOCIALACCOUNT_LOGIN_ON_GET=True
 
 # New user model
-AUTH_USER_MODEL = "gestion_deportiva.User"
+AUTH_USER_MODEL = "sgu.User"

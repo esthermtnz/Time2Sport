@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card p-4">
+        <!-- Título de la instalación -->
+        <h2 class="fw-bold">{{ facility.name }}</h2>
+
+        <!-- Tipo, precio por hora y cantidad -->
+        <p><strong>Tipo:</strong> {{ facility.get_facility_type_display }}</p>
+        <p><strong>Número de instalaciones:</strong> {{ facility.number_of_facilities }}</p>
+        <p><strong>Precio por hora:</strong> {{ facility.hour_price }}€</p>
+
+        <!-- Horario de disponibilidad -->
+        <p class="fw-bold">
+            {% for schedule in facility.schedules.all %}
+                {{ schedule.get_day_of_week_display }}: {{ schedule.hour_begin|time:"H:i" }} - {{ schedule.hour_end|time:"H:i" }}<br>
+            {% endfor %}
+        </p>
+
+        <!-- Descripción -->
+        <p>{{ facility.description }}</p>
+
+        <!-- Botón de reserva -->
+        <div class="mt-3">
+            <button class="btn btn-success btn-lg">RESERVAR</button>
+            <p class="mt-2">
+                Al reservar la instalación, podrá utilizarla durante el tiempo seleccionado. Asegúrese de verificar la disponibilidad antes de proceder.
+            </p>
+        </div>
+
+        <!-- Galería de imágenes -->
+        <div class="row mt-4">
+            {% for photo in facility.photos.all %}
+                <div class="col-md-4">
+                    <img src="{{ photo.image.url }}" class="img-fluid rounded shadow-sm" alt="Imagen de {{ facility.name }}">
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

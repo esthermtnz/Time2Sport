@@ -1,0 +1,44 @@
+<!-- student.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}UAM Code Verification{% endblock %}
+
+{% block content %}
+
+<div class="container d-flex justify-content-center mt-5">
+    <div class="card shadow-lg p-4 verification-code">
+        <div class="card-body">
+
+
+            <div class="d-flex justify-content-center mb-3">
+                <img src="{% static 'images/uam_color_logo.png' %}" alt="Logo UAM" 
+                     class="img-fluid" style="max-width: 130px;">
+            </div>
+            
+            
+            <h1 class="text-center mb-4">Introduce tu código</h1>
+
+            <p class="text-center mb-4"> Se ha enviado un correo a tu cuenta institucional con un código de un solo uso. Por favor introduzca el código: </p>
+
+            {% if error %}
+            <p class="text-danger text-center">{{ error }}</p>
+            {% endif %}
+
+        
+            <form method="POST">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="codigo" class="form-label">Introduce el código de verificación</label>
+                    <input type="text" id="codigo" name="codigo" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Verificar</button>
+            </form>
+
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+

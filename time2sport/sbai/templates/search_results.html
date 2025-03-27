@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+        <h2>Searching "{{ query }}"</h2>
+
+        {% if facilities is not None %}
+            {% if facilities %}
+                <h3>Instalaciones</h3>
+                <ul>
+                    {% for facility in facilities %}
+                        <li>{{ facility.name }} - {{ facility.description }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No se encontraron instalaciones.</p>
+            {% endif %}
+        {% endif %}
+
+        {% if activities is not None %}
+            {% if activities %}
+                <h3>Actividades</h3>
+                <ul>
+                    {% for activity in activities %}
+                        <li>{{ activity.name }} - {{ activity.description }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No se encontraron actividades.</p>
+            {% endif %}
+        {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% load allauth socialaccount static %}
+{% get_providers as socialaccount_providers %}
+{% if socialaccount_providers %}
+    <div class="d-flex flex-column gap-2">
+        {% for provider in socialaccount_providers %}
+            {% provider_login_url provider process=process scope=scope auth_params=auth_params as href %}
+            <a href="{{ href }}" class="btn btn-light w-100 d-flex align-items-center justify-content-center gap-2"
+                {% if provider.id == "microsoft" %}
+                   title="Solo se permiten cuentas personales de Microsoft (@outlook.com, @hotmail.com)."
+               {% endif %}>
+               
+                {% if provider.id == "google" %}
+                    <img src="{% static 'images/google_icon.png' %}" alt="Google" width="24" height="24">
+                {% elif provider.id == "microsoft" %}
+                    <img src="{% static 'images/microsoft_logo.png' %}" alt="Microsoft" width="20" height="20">
+                {% endif %}
+                Iniciar sesión con {{ provider.name }}
+            </a>
+        {% endfor %}
+    </div>
+{% endif %}
