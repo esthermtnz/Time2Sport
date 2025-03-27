@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+import imghdr
 import uuid
 import os
 
@@ -117,6 +118,13 @@ class User(AbstractUser):
         super().save(*args, **kwargs)
 
     def editProfile(self,image):
+        # Valid image extensions
+        valid_extensions = {'jpeg', 'jpg', 'png'}
+
+        # Verify that the image is a valid image
+        if not image or imghdr.what(image) not in valid_extensions:
+            return
+
         if self.profile and self.profile.name != 'default_profile.png':
             self.profile.delete(save=False)
 

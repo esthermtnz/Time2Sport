@@ -69,7 +69,11 @@ class UAMForm(forms.Form):
             self.add_error("email_uam", "Los estudiantes deben usar un correo @estudiante.uam.es.")
         elif user_choice == "5" and email_uam and not re.match(alumni_pattern, email_uam):
             self.add_error("email_uam", "Los ex-alumnos deben usar un correo @alumni.uam.es.")
+<<<<<<< HEAD
         elif user_choice in ["3", "4", "5"] and email_uam and not re.match(staff_pattern, email_uam):
+=======
+        elif user_choice in ["3", "4"] and email_uam and not re.match(staff_pattern, email_uam):
+>>>>>>> SGU
             self.add_error("email_uam", "Debes usar un correo @uam.es.")
 
         return cleaned_data
