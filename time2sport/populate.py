@@ -72,8 +72,8 @@ def populate():
     ]
 
     facilities = [
-        {'name': 'Campo de Fútbol', 'numberOf_facilities': 2, 'description': 'Un gran campo de fútbol al aire libre.', 'hour_price': 50.0, 'facility_type': 'Exterior'},
-        {'name': 'Pista de Tenis', 'numberOf_facilities': 2, 'description': 'Una pista de tenis bien mantenida.', 'hour_price': 30.0, 'facility_type': 'Exterior'}
+        {'name': 'Campo de Fútbol', 'number_of_facilities': 2, 'description': 'Un gran campo de fútbol al aire libre.', 'hour_price': 50.0, 'facility_type': 'Exterior'},
+        {'name': 'Pista de Tenis', 'number_of_facilities': 2, 'description': 'Una pista de tenis bien mantenida.', 'hour_price': 30.0, 'facility_type': 'Exterior'}
     ]
 
     # Create activities and assign schedules
@@ -103,7 +103,7 @@ def populate():
     for fac in facilities:
         facility = SportFacility.objects.create(
             name=fac['name'],
-            numberOf_facilities=fac['numberOf_facilities'],
+            number_of_facilities=fac['number_of_facilities'],
             description=fac['description'],
             hour_price=fac['hour_price'],
             facility_type=fac['facility_type']

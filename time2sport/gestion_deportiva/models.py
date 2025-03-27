@@ -42,7 +42,7 @@ class SportFacility(models.Model):
     ]
 
     name = models.CharField(max_length=255)
-    numberOf_facilities = models.IntegerField()
+    number_of_facilities = models.IntegerField()
     description = models.TextField()
     hour_price = models.FloatField()
     facility_type = models.CharField(max_length=10, choices=FACILITY_TYPE_CHOICES)
