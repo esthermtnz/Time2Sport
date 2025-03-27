@@ -94,13 +94,16 @@ class UAMFormTestCase(TestCase):
     def test_old_student_with_valid_email(self):
         """ Should pass if the former student uses an @uam.es email """
 
-        form = UAMForm(data={"user_choice": "5", "email_uam": "user@uam.es"})
+        form = UAMForm(data={"user_choice": "5", "email_uam": "user@alumni.uam.es"})
         self.assertTrue(form.is_valid())
 
     def old_student_with_invalid_email(self):
         """ Should fail if the former student uses an incorrect email """
 
         form = UAMForm(data={"user_choice": "5", "email_uam": "user@estudiante.uam.es"})
+        self.assertFalse(form.is_valid())
+
+        form = UAMForm(data={"user_choice": "5", "email_uam": "user@uam.es"})
         self.assertFalse(form.is_valid())
 
         form = UAMForm(data={"user_choice": "5", "email_uam": "user@gmail.com"})

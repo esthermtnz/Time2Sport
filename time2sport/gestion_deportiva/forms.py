@@ -33,7 +33,7 @@ class UAMForm(forms.Form):
         ("1", "No soy de la UAM"),
         ("2", "Soy estudiante de la UAM"),
         ("3", "Soy personal docente o investigador de la UAM"),
-        ("4", "Soy personal administrativo de la UAM"),
+        ("4", "Soy PTGAS de la UAM"),
         ("5", "Soy antiguo alumno de la UAM"),
     ]
 
@@ -62,11 +62,14 @@ class UAMForm(forms.Form):
 
         #Filtering if students and staff follow the uam email format
         student_pattern = r"^[a-zA-Z0-9._%+-]+@estudiante\.uam\.es$"
+        alumni_pattern = r"^[a-zA-Z0-9._%+-]+@alumni\.uam\.es$"
         staff_pattern = r"^[a-zA-Z0-9._%+-]+@uam\.es$"
 
         if user_choice == "2" and email_uam and not re.match(student_pattern, email_uam):
             self.add_error("email_uam", "Los estudiantes deben usar un correo @estudiante.uam.es.")
-        elif user_choice in ["3", "4", "5"] and email_uam and not re.match(staff_pattern, email_uam):
+        elif user_choice == "5" and email_uam and not re.match(alumni_pattern, email_uam):
+            self.add_error("email_uam", "Los ex-alumnos deben usar un correo @alumni.uam.es.")
+        elif user_choice in ["3", "4"] and email_uam and not re.match(staff_pattern, email_uam):
             self.add_error("email_uam", "Debes usar un correo @uam.es.")
 
         return cleaned_data
