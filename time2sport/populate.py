@@ -5,7 +5,7 @@ import random
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'time2sport.settings')
 django.setup()
 
-from sbai.models import SportFacility, Activity, Schedule, Photo
+from sbai.models import SportFacility, Activity, Schedule, Photo, Bonus
 
 def get_images_from_folder(folder_path):
     if not os.path.exists(folder_path):
@@ -76,6 +76,12 @@ def populate():
         {'name': 'Pista de Tenis', 'number_of_facilities': 2, 'description': 'Una pista de tenis bien mantenida.', 'hour_price': 30.0, 'facility_type': 'Exterior'}
     ]
 
+    bonuses = [
+        {'bonus_type': 'annual', 'price': 200.0},
+        {'bonus_type': 'semester', 'price': 25.0},
+        {'bonus_type': 'single', 'price': 5.0},
+    ]
+
     # Create activities and assign schedules
     for act in activities:
         activity = Activity.objects.create(
@@ -98,6 +104,14 @@ def populate():
         for image_file in image_files:
             photo = Photo.objects.create(activity=activity, image=f"activities/{activity.id}/{image_file}")
             print(f'Added image {photo.image} to activity {activity.name}')
+
+        for bon in bonuses:
+            bonus = Bonus.objects.create(
+                activity = activity,
+                bonus_type = bon['bonus_type'],
+                price = bon['price'],
+            )
+            print(bonus)
 
     # Create facilities and assign schedules
     for fac in facilities:
