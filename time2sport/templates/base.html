@@ -48,9 +48,22 @@
                 <img src="{% static 'images/logo.png' %}" alt="Logo Time2Sport" class="img-fluid" style="max-width: 150px;">
             </a>
             
-            <!-- Notifications bell -->  
-            <img src="{% static 'images/notifications_logo.png' %}" alt="Notifications" class="img-fluid me-3" style="max-width: 30px;"> 
-            
+            <!-- Notifications bell --> 
+            <a href="{% url 'notifications' %}"  class="position-relative d-inline-block me-3"> 
+                <img src="{% static 'images/notifications_logo.png' %}" alt="Notifications" class="img-fluid" style="max-width: 30px;"> 
+                
+                <span class="position-absolute" style="
+                    top: -4px;
+                    right: -4px;
+                    width: 16px;
+                    height: 16px;
+                    background-color: red;
+                    border: 2px solid grey;
+                    border-radius: 50%;
+                    z-index: 10;">
+                </span>
+            </a>
+
             <!-- Search bar -->  
             <form class="d-flex" role="search" method="POST" action="{% url 'search_results' %}">
                 {% csrf_token %}

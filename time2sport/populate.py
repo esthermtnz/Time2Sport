@@ -6,6 +6,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'time2sport.settings')
 django.setup()
 
 from sbai.models import SportFacility, Activity, Schedule, Photo, Bonus
+from slegpn.models import Notification
 
 def get_images_from_folder(folder_path):
     if not os.path.exists(folder_path):
