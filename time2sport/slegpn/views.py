@@ -10,10 +10,10 @@ from django.shortcuts import get_object_or_404
 def notifications(request):
 
     #REMOVE LATER -- just for testing
-    if not request.user.notifications.filter(title='¡Clase nueva!').exists():
+    if not request.user.notifications.filter(title='Notificacion de prueba 2').exists():
         Notification.objects.create(
-            title='¡Clase nueva!',
-            content='Tu clase de pilates ha sido creada por un admin.',
+            title='Notificacion de prueba 2',
+            content='Esta es una notificacion de prueba 2.',
             user=request.user
         )
 
