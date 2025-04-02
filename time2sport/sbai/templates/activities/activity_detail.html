@@ -18,7 +18,44 @@
         <!-- Descripción -->
         <p>{{ activity.description }}</p>
 
-        <!-- Selector de bonos dinámico -->
+        <!-- Quitar el not para cuando se deje comprar bono -->
+        {% if not has_bono %}
+        <!-- Mostrar tabla de sesiones si tiene bono -->
+        <h3 class="mt-4">Sesiones disponibles</h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Día</th>
+                    <th>Fecha</th>
+                    <th>Horario</th>
+                    <th>Plazas disponibles</th>
+                    <th>Reservar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for session in sessions %}
+                <tr>
+                    <td>{{ session.schedule.get_day_of_week_display }}</td>
+                    <td>{{ session.date|date:"d/m/Y" }}</td>
+                    <td>{{ session.schedule.hour_begin|time:"H:i" }} - {{ session.schedule.hour_end|time:"H:i" }}</td>
+                    <td>{{ session.free_places }}</td>
+                    <td>
+                        {% if session.free_places > 0 %}
+                        <button class="btn btn-primary reserve-btn" data-session-id="{{ session.id }}">Reservar</button>
+                        {% else %}
+                        <span class="text-danger">No hay plazas</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Mensaje de éxito o error de la reserva -->
+        {% comment %} <div id="reservation-message" class="mt-3"></div> {% endcomment %}
+        
+        {% else %}
+        <!-- Mostrar opción de compra de bono si no tiene bono -->
         <div class="row mt-3">
             <div class="col-md-6">
                 <label for="bonoSelect" class="fw-bold">Seleccione un bono:</label>
@@ -38,6 +75,7 @@
                 Es necesario apuntarse a cada sesión individualmente; sin apuntarse previamente, no se podrá asistir.
             </p>
         </div>
+        {% endif %}
 
         <!-- Galería de imágenes -->
         <div class="row mt-4">

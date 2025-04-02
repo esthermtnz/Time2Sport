@@ -1,11 +1,14 @@
 import django
 import os
 import random
+from datetime import datetime, timedelta
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'time2sport.settings')
 django.setup()
 
 from sbai.models import SportFacility, Activity, Schedule, Photo, Bonus
+from src.models import Session, Reservation
+from django.contrib.auth.models import User
 
 def get_images_from_folder(folder_path):
     if not os.path.exists(folder_path):
@@ -22,6 +25,57 @@ def create_schedule(day, hour_ranges):
         )
         schedules.append(schedule)
     return schedules
+
+
+
+
+
+def create_sessions(schedules, activity=None, facility=None):
+    if (activity and facility) or (not activity and not facility):
+        return []
+
+    sessions = []
+    today = datetime.today()
+
+    for schedule in schedules:
+
+        day_of_week = schedule.day_of_week
+        days_of_week = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+        target_day_index = days_of_week.index(day_of_week)
+        today_day_index = today.weekday() # 0 for Monday, 6 for Sunday
+
+        days_diff = target_day_index - today_day_index
+        if days_diff <= 0:
+            days_diff += 7 # If the day has already passed, we need to add 7 days
+
+        # Calculate the date of the first session
+        first_session_date = today + timedelta(days=days_diff)
+
+        for i in range(4): # Create sessions for the following month (4 weeks)
+            session_date = first_session_date + timedelta(weeks=i)
+
+            # Check if a session already exists for this schedule
+            existing_session = Session.objects.filter(schedule=schedule, 
+                                                      activity=activity if activity else None, 
+                                                      facility=facility if facility else None).first()
+
+            if not existing_session:
+                session = Session.objects.create(
+                    activity=activity if activity else None,
+                    facility=facility if facility else None,
+                    schedule=schedule,
+                    date=session_date,
+                    capacity=10,
+                    free_places=10,
+                )
+                sessions.append(session)
+            else:
+                print(f"Session already exists for {activity.name if activity else facility.name} with schedule {schedule.id}")
+                
+    return sessions
+
+
+
 
 def populate():
     activity_schedules = {
@@ -113,6 +167,8 @@ def populate():
             )
             print(bonus)
 
+        sessions_act = create_sessions(schedules, activity)
+
     # Create facilities and assign schedules
     for fac in facilities:
         facility = SportFacility.objects.create(
@@ -136,6 +192,12 @@ def populate():
         for image_file in image_files:
             photo = Photo.objects.create(facility=facility, image=f"facilities/{facility.id}/{image_file}")
             print(f'Added image {photo.image} to facility {facility.name}')
+
+        sesions_fac = create_sessions(schedules, facility=facility)
+
+
+    print(sessions_act)
+    print(sesions_fac)
 
     print("Population completed!")
 

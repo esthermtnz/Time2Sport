@@ -23,11 +23,9 @@ from datetime import datetime, timedelta
 from django.utils.timezone import now
 
 from django.core.mail import EmailMessage
-
-
-
 from django.db.models import Q
 
+from src.models import Session
 
 @login_required
 def all_activities(request):
@@ -37,7 +35,16 @@ def all_activities(request):
 @login_required
 def activity_detail(request, activity_id):
     activity = get_object_or_404(Activity, pk=activity_id)
-    return render(request, 'activities/activity_detail.html', {'activity': activity})
+
+    sessions = Session.objects.filter(activity_id=activity_id)
+
+    # order by date and time
+    ordered_sessions = sessions.order_by("date", "schedule__hour_begin")
+
+    return render(request, 'activities/activity_detail.html', {
+        'activity': activity,
+        'sessions': ordered_sessions
+    })
 
 @login_required
 def all_facilities(request):

@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'sgu',
     'sbai',
+    'src',
 
     'allauth',
     'allauth.account',
