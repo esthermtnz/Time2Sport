@@ -17,17 +17,29 @@
         </div>
 
         <hr class="my-3">
-        
-        <!-- Price -->
+
+        <!-- Hour Price -->
         <h5 class="mb-3">Precio</h5>
         <div class="d-flex justify-content-between">
-            <span>Precio base:</span>
-            <span>{{ bonus_price }} €</span>
+            <span>Precio base </span>
+            <span>{{ base_price }} €</span>
+        </div>
+        <!-- Num hours -->
+        <div class="d-flex justify-content-between">
+            <span>Nº horas </span>
+            <span>{{ num_hours }}</span>
         </div>
 
+        <hr class="my-2" style="all: unset; display: block; width: 100%; height: 1px; border-top: 1px dashed #ccc; margin: 0.5rem 0;">
+
+        <!-- Renting price -->
+        <div class="d-flex justify-content-between">
+            <span>Precio total alquiler </span>
+            <span>{{ renting_price }}€</span>
+        </div>
         <!-- Discount -->
         {% if uam_discount > 0 %}
-            <div class="d-flex justify-content-between">
+            <div class="d-flex justify-content-between my-2">
                 <span>Descuento UAM</span>
                 <span>-{{ uam_discount }} €</span>
             </div>

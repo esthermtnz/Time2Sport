@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from slegpn .models import Notification
 from django.shortcuts import get_object_or_404
-from sbai.models import Bonus, Activity
+from sbai.models import Bonus, Activity, SportFacility
 from django.utils import timezone
 from decimal import Decimal, ROUND_HALF_UP
 
@@ -65,3 +65,29 @@ def invoice_activity(request, activity_id):
     
 
     return render(request, 'activities/activity_detail.html', {'activity': activity})
+
+# CHANGE THIS FUNCTION TO SRC RESERVAR PISTA ------- IMPORTANT!!!!
+@login_required
+def invoice_facility(request, facility_id):
+    facility = get_object_or_404(SportFacility, pk=facility_id)
+
+    hour_price = facility.hour_price 
+    num_hours = 1 #CHANGE LATER!!!!!
+    total = num_hours * hour_price
+    renting_price = num_hours * hour_price
+    discount = (total * 0.10)
+
+    if request.user.is_uam:
+        total = total - discount
+    context = {
+        'concept': facility.name,
+        'date': timezone.localtime(),
+        'base_price':hour_price,
+        'num_hours': num_hours,
+        'renting_price': renting_price,
+        'uam_discount': discount,
+        'total':total,
+    }
+
+    return render(request, 'payments/invoice_facility.html', context)
+    
