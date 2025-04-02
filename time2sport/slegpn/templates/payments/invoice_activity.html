@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow rounded-4 p-4">
+        <h2 class="text-center mb-4">Factura</h2>
+
+        <!-- Concept -->
+        <div class="mb-3 d-flex justify-content-between">
+            <strong>Concepto:</strong>
+            <span>{{ concept }}</span>
+        </div>
+        <!-- Date -->
+        <div class="mb-3 d-flex justify-content-between">
+            <strong>Fecha:</strong>
+            <span>{{ date|date:"H:i  d/m/Y" }}</span>
+        </div>
+
+        <hr class="my-3">
+        
+        <!-- Price -->
+        <h5 class="mb-3">Precio</h5>
+        <div class="d-flex justify-content-between">
+            <span>{{ bonus_name }}</span>
+            <span>{{ bonus_price }} €</span>
+        </div>
+
+        <!-- Discount -->
+        {% if uam_discount > 0 %}
+            <div class="d-flex justify-content-between">
+                <span>Descuento UAM</span>
+                <span>-{{ uam_discount }} €</span>
+            </div>
+        {% endif%}
+
+        <hr class="my-4">
+        
+        <!-- Total -->
+        <div class="d-flex justify-content-between fw-bold fs-5 my-5">
+            <span>Total</span>
+            <span>{{ total }} €</span>
+        </div>
+    </div>
+</div>
+
+<!-- PayPal Button -->
+<!--     TODO      -->
+{% endblock %}
