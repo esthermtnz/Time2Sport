@@ -53,6 +53,7 @@ def invoice_activity(request, activity_id):
         if request.user.is_uam:
             total = bonus.price - discount
         context = {
+            'bonus_id': bonus_id,
             'concept': activity.name,
             'date': timezone.localtime(),
             'bonus_price':bonus.price,
@@ -66,7 +67,20 @@ def invoice_activity(request, activity_id):
 
     return render(request, 'activities/activity_detail.html', {'activity': activity})
 
+    
+@login_required
+def paymentSuccesful(request, product_id):
+    context = {}
+    return render(request, 'payments/payment-success.html', context)
+
+@login_required
+def paymentFailed(request, product_id):
+    context = {}
+    return render(request, 'payments/payment-failed.html', context)
+
+
 # CHANGE THIS FUNCTION TO SRC RESERVAR PISTA ------- IMPORTANT!!!!
+"""
 @login_required
 def invoice_facility(request, facility_id):
     facility = get_object_or_404(SportFacility, pk=facility_id)
@@ -90,4 +104,4 @@ def invoice_facility(request, facility_id):
     }
 
     return render(request, 'payments/invoice_facility.html', context)
-    
+"""
