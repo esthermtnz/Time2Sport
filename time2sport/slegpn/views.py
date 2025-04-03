@@ -8,7 +8,8 @@ from sbai.models import Bonus, Activity, SportFacility
 from slegpn.models import ProductBonus
 from django.utils import timezone
 from datetime import date
-from decimal import Decimal, ROUND_HALF_UP
+from .utils import get_bonus_name, get_discount, get_total
+
 from paypal.standard.forms import PayPalPaymentsForm
 from django.conf import settings
 import uuid
@@ -17,14 +18,6 @@ import uuid
 
 @login_required
 def notifications(request):
-
-    #REMOVE LATER -- just for testing
-    if not request.user.notifications.filter(title='Notificacion de prueba 2').exists():
-        Notification.objects.create(
-            title='Notificacion de prueba 2',
-            content='Esta es una notificacion de prueba 2.',
-            user=request.user
-        )
 
     notifications = request.user.notifications.order_by('read', '-timestamp')
     context = {'notifications' : notifications}
@@ -45,19 +38,9 @@ def invoice_activity(request, activity_id):
     if request.method == 'POST':
         bonus_id = request.POST.get('bonus_id')
         bonus = get_object_or_404(Bonus, id=bonus_id)
-        total = bonus.price 
-        discount = (bonus.price * Decimal('0.1')).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-
-        bonus_type_map = {
-                    "annual": "Bono Anual",
-                    "semester": "Bono Semestral",
-                    "single": "Bono Sesión Única",
-                }
-        
-        bonus_name = bonus_type_map.get(bonus.bonus_type)
-
-        if request.user.is_uam:
-            total = bonus.price - discount
+        bonus_name = get_bonus_name(bonus.bonus_type)
+        discount = get_discount(bonus.price, request.user.is_uam)
+        total = get_total(bonus.price, request.user.is_uam)
 
         host = request.get_host()
 
@@ -68,15 +51,15 @@ def invoice_activity(request, activity_id):
             'invoice': uuid.uuid4(),
             'currency_code': 'EUR',
             'notify_url': f"http://{host}{reverse('paypal-ipn')}",
-            'return_url': f"http://{host}{reverse('complete_inscription', kwargs = {'bonus_id': bonus_id})}",
-            'cancel_url': f"http://{host}{reverse('payment-failed')}",
+            'return_url': f"http://{host}{reverse('complete_enrollment', kwargs = {'bonus_id': bonus_id})}",
+            'cancel_url': f"http://{host}{reverse('payment-activity-failed', kwargs = {'bonus_id': bonus_id})}",
         }
 
         paypal_payment = PayPalPaymentsForm(initial=paypal_checkout)
 
         context = {
             'bonus_id': bonus_id,
-            'concept': activity.name,
+            'concept': f'Inscripción {activity.name}',
             'date': timezone.localtime(),
             'bonus_price':bonus.price,
             'bonus_name': bonus_name,
@@ -89,6 +72,66 @@ def invoice_activity(request, activity_id):
     
 
     return render(request, 'activities/activity_detail.html', {'activity': activity})
+
+@login_required
+def payment_activity_successful(request, bonus_id):
+    bonus = get_object_or_404(Bonus, id=bonus_id)
+    total = get_total(bonus.price, request.user.is_uam)
+
+    context = {
+        'concept': f'Inscripción {bonus.activity.name}',
+        'total': total,
+        'fecha': timezone.localtime(),
+    }
+    return render(request, 'payments/payment-activity-success.html', context)
+
+@login_required
+def payment_activity_failed(request, bonus_id):
+    context={}
+    return render(request, 'payments/payment-activity-failed.html', context)
+
+@login_required
+def complete_enrollment(request, bonus_id):
+    bonus = get_object_or_404(Bonus, id=bonus_id)
+    user = request.user
+    date_now = date.today()
+    year_now = date_now.year
+    month_now = date_now.month
+
+    if not ProductBonus.objects.filter(user=user, bonus=bonus).exists():
+        title = "Pago realizado correctamente"
+        content = f"Gracias por inscribirte a {bonus.activity}. Has pagado {get_total(bonus.price, user.is_uam)}€ en un bono de tipo {get_bonus_name(bonus.bonus_type)}."
+
+        if bonus.bonus_type == 'single':
+            content += " Válido para una única reserva de la actividad."
+            ProductBonus.objects.create(user=user, bonus=bonus, one_use_available=True)
+            Notification.objects.create(user=user, title=title, content=content)
+        elif bonus.bonus_type == 'semester':
+            # ENE - JUN → Second Semester
+            if 1 <= month_now <= 6:
+                inicio = date(year_now, 1, 1)
+                fin = date(year_now, 6, 30)
+
+            # JUL - DIC → First Semester
+            elif 7 <= month_now <= 12:
+                inicio = date(year_now, 9, 1)
+                fin = date(year_now, 12, 31)
+
+            content += f" Válido de {inicio.strftime('%d/%m/%Y')} - {fin.strftime('%d/%m/%Y')}."
+            ProductBonus.objects.create(user=user, bonus=bonus, date_begin=inicio, date_end=fin)
+            Notification.objects.create(user=user, title=title, content=content)
+        elif bonus.bonus_type == 'annual':
+            inicio = date(year_now, 9, 1)
+            fin = date((year_now+1), 6, 30)
+            content += f" Válido de {inicio.strftime('%d/%m/%Y')} - {fin.strftime('%d/%m/%Y')}."
+
+            ProductBonus.objects.create(user=user, bonus=bonus, date_begin=inicio, date_end=fin)
+            Notification.objects.create(user=user, title=title, content=content)
+
+        return redirect('payment-activity-success', bonus_id=bonus_id)
+    
+    return redirect('index')
+
 
 # CHANGE THIS FUNCTION TO SRC RESERVAR PISTA ------- IMPORTANT!!!!
 
@@ -104,10 +147,9 @@ def invoice_facility(request, facility_id):
 
     if request.user.is_uam:
         total = total - discount
-
     
     context = {
-        'concept': facility.name,
+        'concept': f'Alquiler {facility.name}',
         'date': timezone.localtime(),
         'base_price':hour_price,
         'num_hours': num_hours,
@@ -117,45 +159,3 @@ def invoice_facility(request, facility_id):
     }
 
     return render(request, 'payments/invoice_facility.html', context)
-
-@login_required
-def payment_successful(request):
-    context={}
-    return render(request, 'payments/payment-success.html', context)
-
-@login_required
-def payment_failed(request):
-    context={}
-    return render(request, 'payments/payment-failed.html', context)
-
-@login_required
-def complete_inscription(request, bonus_id):
-    bonus = get_object_or_404(Bonus, id=bonus_id)
-    user = request.user
-    date_now = date.today()
-    year_now = date_now.year
-    month_now = date_now.month
-
-    if not ProductBonus.objects.filter(user=user, bonus=bonus).exists():
-        if bonus.bonus_type == 'single':
-            product_bonus = ProductBonus.objects.create(user=user, bonus=bonus, one_use_available=True)
-        elif bonus.bonus_type == 'semester':
-
-            # ENE - JUN → Second Semester
-            if 1 <= month_now <= 6:
-                inicio = date(year_now, 1, 1)
-                fin = date(year_now, 6, 30)
-
-            # JUL - DIC → First Semester
-            elif 7 <= month_now <= 12:
-                inicio = date(year_now, 9, 1)
-                fin = date(year_now, 12, 31)
-
-            product_bonus = ProductBonus.objects.create(user=user, bonus=bonus, date_begin=inicio, date_end=fin)
-        elif bonus.bonus_type == 'annual':
-            product_bonus = ProductBonus.objects.create(user=user, bonus=bonus, date_begin=date(year_now, 9, 1), date_end=date((year_now+1), 6, 30))
-
-        print(product_bonus)
-        return redirect('payment-success')
-    
-    return redirect('home')

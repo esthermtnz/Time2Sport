@@ -11,9 +11,9 @@ urlpatterns = [
     path('activities/<int:activity_id>/invoice/', views.invoice_activity, name='invoice_activity'),
     path('facilities/<int:facility_id>/invoice/', views.invoice_facility, name='invoice_facility'),
 
-    path('payment-success/<int:bonus_id>/', views.complete_inscription, name='complete_inscription'),
-    path('payment-success', views.payment_successful, name='payment-success'),
-    path('payment-failed', views.payment_failed, name='payment-failed'),
+    path('enrollment/<int:bonus_id>/', views.complete_enrollment, name='complete_enrollment'),
+    path('payment-success/<int:bonus_id>/', views.payment_activity_successful, name='payment-activity-success'),
+    path('payment-failed/<int:bonus_id>/', views.payment_activity_failed, name='payment-activity-failed'),
 
     path('', include('paypal.standard.ipn.urls')),
 ]
