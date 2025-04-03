@@ -18,12 +18,24 @@ class Session(models.Model):
 
     def add_reservation(self, user):
 
-        if not self.is_full():
-            reservation = Reservation.objects.create(user=user, session=self, status=ReservationStatus.VALID.value)
-            self.free_places -= 1
-            self.save()
-            return reservation
-        return None
+        bono = True # user.has_valid_bono_for_activity(self.activity)
+
+        if not bono:
+            return None
+
+        if self.is_full():
+            return None
+
+        reservation = Reservation.objects.create(user=user, session=self, status=ReservationStatus.VALID.value)
+        self.free_places -= 1
+        
+        # If bonus is single use
+        # if bono.type == 'single':
+        #     bono.valid = False
+        #     bono.save()
+
+        self.save()
+        return reservation
 
     def __str__(self):
         if self.activity is None:

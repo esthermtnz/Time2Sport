@@ -26,6 +26,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('sgu.urls')),
     path('', include('sbai.urls')),
+    path('', include('src.urls')),
     path('', RedirectView.as_view(url='/', permanent=True)),
     path('accounts/', include('allauth.urls')),
 ] 
