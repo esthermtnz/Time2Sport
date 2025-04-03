@@ -36,17 +36,17 @@ def all_activities(request):
 def activity_detail(request, activity_id):
     activity = get_object_or_404(Activity, pk=activity_id)
 
-    has_bono = True # request.user.has_valid_bono_for_activity(activity)
+    has_bono = request.user.has_valid_bono_for_activity(activity)
 
     if not has_bono:
         return render(request, 'activities/activity_detail.html', {
             'activity': activity,
-            'has_bono': has_bono
+            'has_bono': has_bono,
+            'bonuses': activity.bonuses.all()
         })
 
     sessions = Session.objects.filter(activity_id=activity_id)
 
-    # order by date and time
     ordered_sessions = sessions.order_by("date", "schedule__hour_begin")
 
     return render(request, 'activities/activity_detail.html', {

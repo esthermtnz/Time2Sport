@@ -7,8 +7,8 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'time2sport.settings')
 django.setup()
 
 from sbai.models import SportFacility, Activity, Schedule, Photo, Bonus
-from src.models import Session, Reservation
-from django.contrib.auth.models import User
+from src.models import Session, Reservation, ProductBonus
+from sgu.models import User
 
 def get_images_from_folder(folder_path):
     if not os.path.exists(folder_path):
@@ -25,10 +25,6 @@ def create_schedule(day, hour_ranges):
         )
         schedules.append(schedule)
     return schedules
-
-
-
-
 
 def create_sessions(schedules, activity=None, facility=None):
     if (activity and facility) or (not activity and not facility):
@@ -73,8 +69,6 @@ def create_sessions(schedules, activity=None, facility=None):
                 print(f"Session already exists for {activity.name if activity else facility.name} with schedule {schedule.id}")
                 
     return sessions
-
-
 
 
 def populate():
@@ -198,6 +192,42 @@ def populate():
 
     print(sessions_act)
     print(sesions_fac)
+
+
+    users = [
+        {'name': 'Juan García', 'email': 'juan@gmail.com'},
+        {'name': 'María Rodríguez', 'email': 'maria@gmail.com'},
+        {'name': 'Carlos Fernández', 'email': 'carlos@gmail.com'},
+        {'name': 'Ana Martínez', 'email': 'ana@gmail.com'},
+        {'name': 'Luis González', 'email': 'luis@gmail.com'},
+        {'name': 'Laura Díaz', 'email': 'laura@gmail.com'},
+        {'name': 'Pedro Gómez', 'email': 'pedro@gmail.com'},
+        {'name': 'Sofía Álvarez', 'email': 'sofia@gmail.com'},
+        {'name': 'Javier Romero', 'email': 'javier@gmail.com'},
+        {'name': 'Isabel Gutiérrez', 'email': 'isabel@gmail.com'},
+    ]
+
+    for user_data in users:
+        user = User.objects.create_user(
+            username=user_data['email'],
+            email=user_data['email'],
+            first_name=user_data['name'].split()[0],
+            last_name=user_data['name'].split()[1],
+            password='12345678'
+        )
+        user.is_uam = random.choice([True, False])
+        if user.is_uam:
+            user.user_type = random.choice(['student', 'professor', 'administrative', 'alumni'])
+        user.save()
+
+        # Assign bonus to user
+        for act in activities[:3]:
+            activity = Activity.objects.get(name=act['name'])
+            bonus = Bonus.objects.filter(activity=activity, bonus_type='single').first()
+            if bonus:
+                ProductBonus.objects.create(user=user, bonus=bonus)
+                print(f"Assigned {bonus} to {user.username}")
+
 
     print("Population completed!")
 
