@@ -223,4 +223,4 @@ AUTH_USER_MODEL = "sgu.User"
 #PayPal Configuration
 PAYPAL_TEST = True
 PAYPAL_RECEIVER_EMAIL = 'sb-ruupa38090694@business.example.com' #Paypal Receiver Account
-PAYPAL_BUY_BUTTON_IMAGE = 'https://i.postimg.cc/MKZ1H5v5/buy-now-paypal-1.png'
+PAYPAL_BUY_BUTTON_IMAGE = 'https://i.postimg.cc/tJwc9N6N/paypal-pay-button.png'

@@ -74,20 +74,34 @@ def invoice_activity(request, activity_id):
     return render(request, 'activities/activity_detail.html', {'activity': activity})
 
 @login_required
-def payment_activity_successful(request, bonus_id):
-    bonus = get_object_or_404(Bonus, id=bonus_id)
+def payment_activity_successful(request, product_bonus_id):
+    product_bonus = get_object_or_404(ProductBonus, id=product_bonus_id)
+    bonus = get_object_or_404(Bonus, id=product_bonus.bonus.id)
     total = get_total(bonus.price, request.user.is_uam)
+
+    if bonus.bonus_type in ["annual","semester"]:
+        validity = f"{product_bonus.date_begin.strftime('%d/%m/%Y')} - {product_bonus.date_end.strftime('%d/%m/%Y')}"
+    else:
+        validity = "1 reserva"
 
     context = {
         'concept': f'Inscripción {bonus.activity.name}',
         'total': total,
-        'fecha': timezone.localtime(),
+        'date': timezone.localtime(),
+        'validity': validity,
     }
     return render(request, 'payments/payment-activity-success.html', context)
 
 @login_required
 def payment_activity_failed(request, bonus_id):
-    context={}
+    product_bonus = get_object_or_404(ProductBonus, id=bonus_id)
+    bonus = get_object_or_404(Bonus, id=product_bonus.bonus.id)
+    total = get_total(bonus.price, request.user.is_uam)
+    context={
+        'concept': f'Inscripción {bonus.activity.name}',
+        'total': total,
+        'date': timezone.localtime(),
+    }
     return render(request, 'payments/payment-activity-failed.html', context)
 
 @login_required
@@ -104,7 +118,7 @@ def complete_enrollment(request, bonus_id):
 
         if bonus.bonus_type == 'single':
             content += " Válido para una única reserva de la actividad."
-            ProductBonus.objects.create(user=user, bonus=bonus, one_use_available=True)
+            product_bonus = ProductBonus.objects.create(user=user, bonus=bonus, one_use_available=True)
             Notification.objects.create(user=user, title=title, content=content)
         elif bonus.bonus_type == 'semester':
             # ENE - JUN → Second Semester
@@ -118,17 +132,17 @@ def complete_enrollment(request, bonus_id):
                 fin = date(year_now, 12, 31)
 
             content += f" Válido de {inicio.strftime('%d/%m/%Y')} - {fin.strftime('%d/%m/%Y')}."
-            ProductBonus.objects.create(user=user, bonus=bonus, date_begin=inicio, date_end=fin)
+            product_bonus = ProductBonus.objects.create(user=user, bonus=bonus, date_begin=inicio, date_end=fin)
             Notification.objects.create(user=user, title=title, content=content)
         elif bonus.bonus_type == 'annual':
             inicio = date(year_now, 9, 1)
             fin = date((year_now+1), 6, 30)
             content += f" Válido de {inicio.strftime('%d/%m/%Y')} - {fin.strftime('%d/%m/%Y')}."
 
-            ProductBonus.objects.create(user=user, bonus=bonus, date_begin=inicio, date_end=fin)
+            product_bonus = ProductBonus.objects.create(user=user, bonus=bonus, date_begin=inicio, date_end=fin)
             Notification.objects.create(user=user, title=title, content=content)
 
-        return redirect('payment-activity-success', bonus_id=bonus_id)
+        return redirect('payment-activity-success', product_bonus_id=product_bonus.id)
     
     return redirect('index')
 
