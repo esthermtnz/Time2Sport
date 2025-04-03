@@ -52,6 +52,17 @@
             <span>Total</span>
             <span>{{ total }} €</span>
         </div>
+
+        <!-- PayPal Button -->
+        <div class="paypal-button-wrapper text-center">
+            {{ paypal.render }}
+        </div>
+        <style>
+            .paypal-button-wrapper input[type="image"] {
+                max-width: 500px !important;
+                height: auto !important;
+            }
+            </style>
     </div>
 </div>
 

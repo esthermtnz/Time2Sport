@@ -73,6 +73,90 @@ def invoice_activity(request, activity_id):
 
     return render(request, 'activities/activity_detail.html', {'activity': activity})
 
+# CHANGE THIS FUNCTION TO SRC RESERVAR PISTA ------- IMPORTANT!!!!
+@login_required
+def invoice_facility(request, facility_id):
+    facility = get_object_or_404(SportFacility, pk=facility_id)
+
+    facility_id = facility.id
+    hour_price = facility.hour_price 
+    num_hours = 1 #CHANGE LATER!!!!!
+    renting_price = num_hours * hour_price
+    discount = get_discount(num_hours * hour_price, request.user.is_uam)
+    total = get_total(num_hours * hour_price, request.user.is_uam)
+
+
+    host = request.get_host()
+
+    paypal_checkout = {
+            'business': settings.PAYPAL_RECEIVER_EMAIL,
+            'amount': total,
+            'item_name': facility.name,
+            'invoice': uuid.uuid4(),
+            'currency_code': 'EUR',
+            'notify_url': f"http://{host}{reverse('paypal-ipn')}",
+            'return_url': f"http://{host}{reverse('payment-facility-success', kwargs = {'facility_id': facility_id})}",
+            'cancel_url': f"http://{host}{reverse('payment-facility-failed', kwargs = {'facility_id': facility_id})}",
+        }
+
+    paypal_payment = PayPalPaymentsForm(initial=paypal_checkout)
+    
+    context = {
+        'concept': f'Alquiler {facility.name}',
+        'date': timezone.localtime(),
+        'base_price':hour_price,
+        'num_hours': num_hours,
+        'renting_price': renting_price,
+        'uam_discount': discount,
+        'total':total,
+        'paypal': paypal_payment,
+    }
+
+    return render(request, 'payments/invoice_facility.html', context)
+
+@login_required
+def complete_enrollment(request, bonus_id):
+    bonus = get_object_or_404(Bonus, id=bonus_id)
+    user = request.user
+    date_now = date.today()
+    year_now = date_now.year
+    month_now = date_now.month
+
+    if not ProductBonus.objects.filter(user=user, bonus=bonus).exists():
+        title = "Pago realizado correctamente"
+        content = f"Gracias por inscribirte a {bonus.activity}. "
+        content += f"Has pagado {get_total(bonus.price, user.is_uam)}€ en un bono de tipo {get_bonus_name(bonus.bonus_type)}."
+
+        if bonus.bonus_type == 'single':
+            content += " Válido para una única reserva de la actividad."
+            product_bonus = ProductBonus.objects.create(user=user, bonus=bonus, one_use_available=True)
+            Notification.objects.create(user=user, title=title, content=content)
+        elif bonus.bonus_type == 'semester':
+            # ENE - JUN : Second Semester
+            if 1 <= month_now <= 6:
+                inicio = date(year_now, 1, 1)
+                fin = date(year_now, 6, 30)
+
+            # JUL - DIC : First Semester
+            elif 7 <= month_now <= 12:
+                inicio = date(year_now, 9, 1)
+                fin = date(year_now, 12, 31)
+
+            content += f" Válido de {inicio.strftime('%d/%m/%Y')} - {fin.strftime('%d/%m/%Y')}."
+            product_bonus = ProductBonus.objects.create(user=user, bonus=bonus, date_begin=inicio, date_end=fin)
+            Notification.objects.create(user=user, title=title, content=content)
+        elif bonus.bonus_type == 'annual':
+            inicio = date(year_now, 9, 1)
+            fin = date((year_now+1), 6, 30)
+            content += f" Válido de {inicio.strftime('%d/%m/%Y')} - {fin.strftime('%d/%m/%Y')}."
+
+            product_bonus = ProductBonus.objects.create(user=user, bonus=bonus, date_begin=inicio, date_end=fin)
+            Notification.objects.create(user=user, title=title, content=content)
+
+        return redirect('payment-activity-success', product_bonus_id=product_bonus.id)
+    
+    return redirect('index')
+
 @login_required
 def payment_activity_successful(request, product_bonus_id):
     product_bonus = get_object_or_404(ProductBonus, id=product_bonus_id)
@@ -104,72 +188,15 @@ def payment_activity_failed(request, bonus_id):
     }
     return render(request, 'payments/payment-activity-failed.html', context)
 
-@login_required
-def complete_enrollment(request, bonus_id):
-    bonus = get_object_or_404(Bonus, id=bonus_id)
-    user = request.user
-    date_now = date.today()
-    year_now = date_now.year
-    month_now = date_now.month
-
-    if not ProductBonus.objects.filter(user=user, bonus=bonus).exists():
-        title = "Pago realizado correctamente"
-        content = f"Gracias por inscribirte a {bonus.activity}. Has pagado {get_total(bonus.price, user.is_uam)}€ en un bono de tipo {get_bonus_name(bonus.bonus_type)}."
-
-        if bonus.bonus_type == 'single':
-            content += " Válido para una única reserva de la actividad."
-            product_bonus = ProductBonus.objects.create(user=user, bonus=bonus, one_use_available=True)
-            Notification.objects.create(user=user, title=title, content=content)
-        elif bonus.bonus_type == 'semester':
-            # ENE - JUN → Second Semester
-            if 1 <= month_now <= 6:
-                inicio = date(year_now, 1, 1)
-                fin = date(year_now, 6, 30)
-
-            # JUL - DIC → First Semester
-            elif 7 <= month_now <= 12:
-                inicio = date(year_now, 9, 1)
-                fin = date(year_now, 12, 31)
-
-            content += f" Válido de {inicio.strftime('%d/%m/%Y')} - {fin.strftime('%d/%m/%Y')}."
-            product_bonus = ProductBonus.objects.create(user=user, bonus=bonus, date_begin=inicio, date_end=fin)
-            Notification.objects.create(user=user, title=title, content=content)
-        elif bonus.bonus_type == 'annual':
-            inicio = date(year_now, 9, 1)
-            fin = date((year_now+1), 6, 30)
-            content += f" Válido de {inicio.strftime('%d/%m/%Y')} - {fin.strftime('%d/%m/%Y')}."
-
-            product_bonus = ProductBonus.objects.create(user=user, bonus=bonus, date_begin=inicio, date_end=fin)
-            Notification.objects.create(user=user, title=title, content=content)
-
-        return redirect('payment-activity-success', product_bonus_id=product_bonus.id)
-    
-    return redirect('index')
-
-
-# CHANGE THIS FUNCTION TO SRC RESERVAR PISTA ------- IMPORTANT!!!!
 
 @login_required
-def invoice_facility(request, facility_id):
-    facility = get_object_or_404(SportFacility, pk=facility_id)
+def payment_facility_successful(request, facility_id):
+    facility = get_object_or_404(SportFacility, id=facility_id)
+    context = {}
+    return render(request, 'payments/payment-facility-success.html', context)
 
-    hour_price = facility.hour_price 
-    num_hours = 1 #CHANGE LATER!!!!!
-    total = num_hours * hour_price
-    renting_price = num_hours * hour_price
-    discount = (total * 0.10)
-
-    if request.user.is_uam:
-        total = total - discount
-    
-    context = {
-        'concept': f'Alquiler {facility.name}',
-        'date': timezone.localtime(),
-        'base_price':hour_price,
-        'num_hours': num_hours,
-        'renting_price': renting_price,
-        'uam_discount': discount,
-        'total':total,
-    }
-
-    return render(request, 'payments/invoice_facility.html', context)
+@login_required
+def payment_facility_failed(request, facility_id):
+    facility = get_object_or_404(SportFacility, id=facility_id)
+    context={}
+    return render(request, 'payments/payment-facility-failed.html', context)
