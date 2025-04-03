@@ -49,6 +49,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.microsoft',
+
+    'paypal.standard.ipn'
 ]
 
 SITE_ID = 1
@@ -217,3 +219,8 @@ SOCIALACCOUNT_LOGIN_ON_GET=True
 
 # New user model
 AUTH_USER_MODEL = "sgu.User"
+
+#PayPal Configuration
+PAYPAL_TEST = True
+PAYPAL_RECEIVER_EMAIL = 'sb-ruupa38090694@business.example.com' #Paypal Receiver Account
+PAYPAL_BUY_BUTTON_IMAGE = 'https://i.postimg.cc/MKZ1H5v5/buy-now-paypal-1.png'
