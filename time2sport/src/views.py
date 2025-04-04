@@ -6,6 +6,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from sbai.models import Bonus
 from .models import ProductBonus
+from django.utils.timezone import now
+from datetime import datetime
 
 @login_required
 def reserve_activity_session(request, session_id):
@@ -38,7 +40,7 @@ def purchase_bonus(request, bonus_id):
 
     # Specify date begin, date end and if of single use
     # If single use
-    if bonoPurchase.bonus.bonus_type == "single_use":
+    if bonoPurchase.bonus.bonus_type == "single":
         bonoPurchase.one_use_available = True
     else:
         bonoPurchase.one_use_available = False
@@ -68,3 +70,21 @@ def purchase_bonus(request, bonus_id):
     messages.success(request, "Bono comprado con éxito!")
     return redirect('activity_detail', activity_id=activity.id)
 
+
+@login_required
+def reserve_facility_session(request, sessions_id):
+    sessions = []
+    for session_id in sessions_id:
+        session = get_object_or_404(Session, id=session_id)
+        if session is None:
+            return redirect('all_facilities')
+        sessions.append(session)
+
+    user = request.user
+    reservation = session.add_reservation_facility(user)
+    if reservation:
+        messages.success(request, "Reserva realizada con éxito.")
+    else:
+        messages.error(request, "Error al realizar la reserva.")
+
+    return redirect('facility_detail', facility_id=session.sport_facility.id)

@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'time2sport.settings')
 django.setup()
 
-from sbai.models import SportFacility, Activity, Schedule, Photo, Bonus
+from sbai.models import SportFacility, Activity, Schedule, Photo, Bonus, DayOfWeek
 from src.models import Session, Reservation, ProductBonus
 from sgu.models import User
 
@@ -19,7 +19,7 @@ def create_schedule(day, hour_ranges):
     schedules = []
     for hour_begin, hour_end in hour_ranges:
         schedule = Schedule.objects.create(
-            day_of_week=day,
+            day_of_week=DayOfWeek(int(day)).value,
             hour_begin=hour_begin,
             hour_end=hour_end
         )
@@ -37,7 +37,7 @@ def create_sessions(schedules, activity=None, facility=None):
 
         day_of_week = schedule.day_of_week
         days_of_week = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
-        target_day_index = days_of_week.index(day_of_week)
+        target_day_index = int(day_of_week)
         today_day_index = today.weekday() # 0 for Monday, 6 for Sunday
 
         days_diff = target_day_index - today_day_index
@@ -74,40 +74,40 @@ def create_sessions(schedules, activity=None, facility=None):
 def populate():
     activity_schedules = {
         'Partido de Fútbol': {
-            'Lunes': [('08:00:00', '09:00:00'), ('11:00:00', '12:00:00')],
-            'Martes': [('09:00:00', '11:00:00')],
-            'Viernes': [('08:00:00', '10:00:00')]
+            '0': [('08:00:00', '09:00:00'), ('11:00:00', '12:00:00')],
+            '1': [('09:00:00', '11:00:00')],
+            '4': [('08:00:00', '10:00:00')]
         },
         'Entrenamiento de Tenis': {
-            'Lunes': [('10:00:00', '12:00:00')],
-            'Miércoles': [('14:00:00', '16:00:00')],
-            'Sábado': [('09:00:00', '11:00:00')]
+            '0': [('10:00:00', '12:00:00')],
+            '2': [('14:00:00', '16:00:00')],
+            '5': [('09:00:00', '11:00:00')]
         },
         'Entrenamiento de Baloncesto': {
-            'Jueves': [('17:00:00', '19:00:00')],
-            'Domingo': [('10:00:00', '12:00:00')]
+            '3': [('17:00:00', '19:00:00')],
+            '6': [('10:00:00', '12:00:00')]
         },
         'Clases de Natación': {
-            'Lunes': [('07:00:00', '08:00:00')],
-            'Miércoles': [('15:00:00', '16:00:00')],
-            'Viernes': [('18:00:00', '19:30:00')]
+            '0': [('07:00:00', '08:00:00')],
+            '2': [('15:00:00', '16:00:00')],
+            '4': [('18:00:00', '19:30:00')]
         },
         'Entrenamiento de Carrera': {
-            'Martes': [('06:00:00', '07:00:00'), ('19:00:00', '20:00:00')],
-            'Jueves': [('08:00:00', '09:00:00')]
+            '1': [('06:00:00', '07:00:00'), ('19:00:00', '20:00:00')],
+            '3': [('08:00:00', '09:00:00')]
         }
     }
 
     facility_schedules = {
         'Campo de Fútbol': {
-            'Lunes': [('07:00:00', '10:00:00')],
-            'Miércoles': [('12:00:00', '15:00:00')],
-            'Sábado': [('10:00:00', '12:00:00')]
+            '0': [('07:00:00', '10:00:00')],
+            '2': [('12:00:00', '15:00:00')],
+            '5': [('10:00:00', '12:00:00')]
         },
         'Pista de Tenis': {
-            'Martes': [('08:00:00', '10:00:00')],
-            'Jueves': [('16:00:00', '18:00:00')],
-            'Domingo': [('09:00:00', '11:00:00')]
+            '1': [('08:00:00', '10:00:00')],
+            '3': [('16:00:00', '18:00:00')],
+            '6': [('09:00:00', '11:00:00')]
         }
     }
 

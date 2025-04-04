@@ -4,7 +4,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
-from .models import Activity, SportFacility
+from .models import Activity, SportFacility, DayOfWeek, Schedule
 
 import random
 import string
@@ -21,6 +21,7 @@ from django.core.files.storage import default_storage
 from django.contrib.auth.decorators import login_required
 from datetime import datetime, timedelta
 from django.utils.timezone import now
+from django.utils import timezone
 
 from django.core.mail import EmailMessage
 from django.db.models import Q
@@ -57,13 +58,60 @@ def activity_detail(request, activity_id):
 
 @login_required
 def all_facilities(request):
-    facilities = SportFacility.objects.prefetch_related('photos').all()
+    facilities = SportFacility.objects.prefetch_related('photos').filter(number_of_facilities__gt=0)
     return render(request, 'facilities/all_facilities.html', {'facilities': facilities})
+
+
+def divide_hours_into_blocks(schedule):
+    blocks = []
+    start = schedule.hour_begin
+    end = schedule.hour_end
+    while start < end:
+        siguiente = (datetime.combine(datetime.today(), start) + timedelta(hours=1)).time()
+        blocks.append({'start': start, 'end': siguiente})
+        start = siguiente
+    return blocks
+
 
 @login_required
 def facility_detail(request, facility_id):
+    # Get the facility by id
     facility = get_object_or_404(SportFacility, pk=facility_id)
-    return render(request, 'facilities/facility_detail.html', {'facility': facility})
+
+    # Check if the facility has multiple instances
+    if facility.number_of_facilities == 1:
+        facilities = facility
+    else:
+        facilities = SportFacility.objects.filter(name__regex=f"^{facility.name} [0-9]+$").prefetch_related('photos')
+
+    # Get the next 7 days
+    today = timezone.now().date()
+    next_7_days = [today + timedelta(days=i) for i in range(7)]
+
+    # Get the schedules for the next 7 days
+    schedules_next_7_days = []
+    for day in next_7_days:
+        day_of_week = day.weekday() # Get the day of the week (0 is Monday ... 6 is Sunday)
+
+        # Get the daily schedules matching the day of the week
+        daily_schedules = facility.schedules.filter(day_of_week=day_of_week)
+
+        # Divide the schedules into hourly blocks
+        daily_schedules_divided = []
+        for schedule in daily_schedules:
+            daily_schedules_divided.extend(divide_hours_into_blocks(schedule))
+
+        schedules_next_7_days.append({
+            'date': day,
+            'schedules': daily_schedules_divided
+        })
+
+    return render(request, 'facilities/facility_detail.html', {
+        'facility': facility,
+        'instances': facilities,
+        'next_7_days': next_7_days,
+        'schedules_next_7_days': schedules_next_7_days
+    })
 
 @login_required
 def schedules(request):

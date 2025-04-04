@@ -47,6 +47,23 @@ class Session(models.Model):
         self.save()
         return reservation
 
+    def add_reservation_facility(self, user):
+        # Check if the session is full
+        if self.is_full():
+            return None
+
+        # Check if the user has already reserved for this session
+        if Reservation.objects.filter(user=user, session=self).exists():
+            return None
+
+        # Make reservation
+        reservation = Reservation.objects.create(user=user, session=self, status=ReservationStatus.VALID.value)
+        self.free_places -= 1
+
+        reservation.save()
+
+        self.save()
+        return reservation
 
     def __str__(self):
         if self.activity is None:
@@ -97,6 +114,7 @@ class ProductBonus(models.Model):
         type = self.bonus.bonus_type
 
         if type == 'single':
+            print("Single use bonus", self.one_use_available)
             return self.one_use_available  
         elif type in ['annual', 'semester']:
             return self.date_begin and self.date_end and self.date_begin <= date_now <= self.date_end

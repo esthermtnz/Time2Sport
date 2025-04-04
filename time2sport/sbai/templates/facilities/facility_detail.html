@@ -6,12 +6,12 @@
         <!-- Título de la instalación -->
         <h2 class="fw-bold">{{ facility.name }}</h2>
 
-        <!-- Tipo, precio por hora y cantidad -->
+        <!-- Información de la instalación -->
         <p><strong>Tipo:</strong> {{ facility.get_facility_type_display }}</p>
         <p><strong>Número de instalaciones:</strong> {{ facility.number_of_facilities }}</p>
         <p><strong>Precio por hora:</strong> {{ facility.hour_price }}€</p>
 
-        <!-- Horario de disponibilidad -->
+        <!-- Horarios de la instalación -->
         <p class="fw-bold">
             {% for schedule in facility.schedules.all %}
                 {{ schedule.get_day_of_week_display }}: {{ schedule.hour_begin|time:"H:i" }} - {{ schedule.hour_end|time:"H:i" }}<br>
@@ -21,13 +21,45 @@
         <!-- Descripción -->
         <p>{{ facility.description }}</p>
 
-        <!-- Botón de reserva -->
         <div class="mt-3">
             <button class="btn btn-success btn-lg">RESERVAR</button>
             <p class="mt-2">
                 Al reservar la instalación, podrá utilizarla durante el tiempo seleccionado. Asegúrese de verificar la disponibilidad antes de proceder.
             </p>
         </div>
+
+        <!-- Horario disponible para los próximos 7 días -->
+        <h3>Horarios disponibles para los próximos 7 días</h3>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Instalación</th>
+                    <th>Horas Disponibles</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for day_schedule in schedules_next_7_days %}
+                {% for instance in instances %}
+                    <tr>
+                        <td>{{ day_schedule.date|date:"d/m/Y" }}</td>
+                        <td>{{ instance.name }}</td>
+                        <td>
+                            {% if day_schedule.schedules %}
+                                {% for block in day_schedule.schedules %}
+                                    <button class="btn btn-primary">
+                                        {{ block.start|time:"H:i" }} - {{ block.end|time:"H:i" }}
+                                    </button>
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-muted">Este día permanece cerrado</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endfor %}            
+            </tbody>
+        </table>
 
         <!-- Galería de imágenes -->
         <div class="row mt-4">

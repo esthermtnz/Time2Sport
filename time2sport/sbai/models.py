@@ -1,5 +1,6 @@
 from django.db import models
 import os
+from enum import Enum
 
 def photo_upload_path(instance, filename):
     # Si la imagen pertenece a una actividad, guardarla en "activities/{id}"
@@ -13,18 +14,18 @@ def photo_upload_path(instance, filename):
     # Si no pertenece a ninguna, guardarla en "photos"
     return f"photos/{filename}"
 
-class Schedule(models.Model):
-    DAYS_OF_WEEK = [
-        ('Monday', 'Monday'),
-        ('Tuesday', 'Tuesday'),
-        ('Wednesday', 'Wednesday'),
-        ('Thursday', 'Thursday'),
-        ('Friday', 'Friday'),
-        ('Saturday', 'Saturday'),
-        ('Sunday', 'Sunday'),
-    ]
 
-    day_of_week = models.CharField(max_length=10, choices=DAYS_OF_WEEK)
+class DayOfWeek(Enum):
+    Lunes = 0
+    Martes = 1
+    Miércoles = 2
+    Jueves = 3
+    Viernes = 4
+    Sábado = 5
+    Domingo = 6
+
+class Schedule(models.Model):
+    day_of_week = models.IntegerField(choices=[(day.value, day.name) for day in DayOfWeek])
     hour_begin = models.TimeField()
     hour_end = models.TimeField()
 
@@ -55,7 +56,7 @@ class SportFacility(models.Model):
             for i in range(1, self.number_of_facilities + 1):
                 instance = SportFacility(
                     name=f"{base_name} {i}",
-                    number_of_facilities=1,
+                    number_of_facilities=0,
                     description=self.description,
                     hour_price=self.hour_price,
                     facility_type=self.facility_type
