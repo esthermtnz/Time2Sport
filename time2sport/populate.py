@@ -193,42 +193,6 @@ def populate():
     print(sessions_act)
     print(sesions_fac)
 
-
-    users = [
-        {'name': 'Juan García', 'email': 'juan@gmail.com'},
-        {'name': 'María Rodríguez', 'email': 'maria@gmail.com'},
-        {'name': 'Carlos Fernández', 'email': 'carlos@gmail.com'},
-        {'name': 'Ana Martínez', 'email': 'ana@gmail.com'},
-        {'name': 'Luis González', 'email': 'luis@gmail.com'},
-        {'name': 'Laura Díaz', 'email': 'laura@gmail.com'},
-        {'name': 'Pedro Gómez', 'email': 'pedro@gmail.com'},
-        {'name': 'Sofía Álvarez', 'email': 'sofia@gmail.com'},
-        {'name': 'Javier Romero', 'email': 'javier@gmail.com'},
-        {'name': 'Isabel Gutiérrez', 'email': 'isabel@gmail.com'},
-    ]
-
-    for user_data in users:
-        user = User.objects.create_user(
-            username=user_data['email'],
-            email=user_data['email'],
-            first_name=user_data['name'].split()[0],
-            last_name=user_data['name'].split()[1],
-            password='12345678'
-        )
-        user.is_uam = random.choice([True, False])
-        if user.is_uam:
-            user.user_type = random.choice(['student', 'professor', 'administrative', 'alumni'])
-        user.save()
-
-        # Assign bonus to user
-        for act in activities[:3]:
-            activity = Activity.objects.get(name=act['name'])
-            bonus = Bonus.objects.filter(activity=activity, bonus_type='single').first()
-            if bonus:
-                ProductBonus.objects.create(user=user, bonus=bonus)
-                print(f"Assigned {bonus} to {user.username}")
-
-
     print("Population completed!")
 
 if __name__ == '__main__':

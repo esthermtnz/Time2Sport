@@ -45,6 +45,26 @@ class SportFacility(models.Model):
     facility_type = models.CharField(max_length=10, choices=FACILITY_TYPE_CHOICES)
     schedules = models.ManyToManyField(Schedule, related_name="sport_facilities", blank=True)
 
+    def save(self, *args, **kwargs):
+        if not self.pk and self.number_of_facilities > 1 and not kwargs.pop("skip_duplication", False):
+            super().save(*args, **kwargs)
+
+            base_name = self.name
+            schedules_copy = list(self.schedules.all())
+
+            for i in range(1, self.number_of_facilities + 1):
+                instance = SportFacility(
+                    name=f"{base_name} {i}",
+                    number_of_facilities=1,
+                    description=self.description,
+                    hour_price=self.hour_price,
+                    facility_type=self.facility_type
+                )
+                instance.save()
+                instance.schedules.set(schedules_copy)
+        else:
+            super().save(*args, **kwargs)
+
     def __str__(self):
         return self.name
 

@@ -18,26 +18,35 @@ class Session(models.Model):
     def is_full(self):
         return self.free_places == 0
 
-    def add_reservation(self, user):
-
-        bono = user.has_valid_bono_for_activity(self.activity)
-
-        if not bono:
-            return None
-
+    def add_reservation_activity(self, user):
+        # Check if the session is full
         if self.is_full():
             return None
 
+        # Check if the user has a valid bonus for the activity
+        if not user.has_valid_bono_for_activity(self.activity):
+            return None
+
+        # Check if the user has already reserved for this session
+        if Reservation.objects.filter(user=user, session=self).exists():
+            return None
+
+        # Get bonus instance if single
+        bonus_is_single = ProductBonus.objects.filter(user=user, bonus__activity=self.activity, one_use_available=True).first()
+
+        # Make reservation
         reservation = Reservation.objects.create(user=user, session=self, status=ReservationStatus.VALID.value)
         self.free_places -= 1
-        
-        # If bonus is single use
-        # if bono.type == 'single':
-        #     bono.valid = False
-        #     bono.save()
+
+        # If bonus is single-use, mark it as used
+        if bonus_is_single:
+            bonus_is_single.use_single_use()
+
+        reservation.save()
 
         self.save()
         return reservation
+
 
     def __str__(self):
         if self.activity is None:
@@ -105,28 +114,3 @@ class ProductBonus(models.Model):
 
     def belongs_to_activity(self, activity):
         return self.bonus.activity == activity
-
-
-    def save(self, *args, **kwargs):
-        # Set dates based on bonus type
-        if not self.bonus.bonus_type == 'single':
-            self.date_begin = self.purchase_date.date()
-
-            # Calculate date_end (next January 31 or June 30, whichever comes first)
-            current_year = self.purchase_date.year
-            jan31 = date(current_year + 1, 1, 31)
-            jun30 = date(current_year, 6, 30)
-
-            # If purchase date is after June 30, use next January 31
-            if self.purchase_date.date() > jun30:
-                self.date_end = jan31
-            else:
-                self.date_end = jun30
-
-            self.one_use_available = False
-        else:
-            self.date_begin = None
-            self.date_end = None
-            self.one_use_available = True
-
-        super().save(*args, **kwargs)
