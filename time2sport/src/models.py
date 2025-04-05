@@ -140,11 +140,10 @@ class Session(models.Model):
         return sessions
 
 
-
     def __str__(self):
         if self.activity is None:
-            return f"{self.facility.name} - {self.schedule} ({self.free_places}/{self.capacity} disponibles)"
-        return f"{self.activity.name} - {self.schedule} ({self.free_places}/{self.capacity} disponibles)"
+            return f"{self.facility.name} - {self.date.strftime('%d/%m/%Y')} {self.start_time.strftime('%H:%M')}:{self.end_time.strftime('%H:%M')} ({self.free_places}/{self.capacity} disponibles)"
+        return f"{self.activity.name} - {self.date.strftime('%d/%m/%Y')} {self.start_time}-{self.end_time} ({self.free_places}/{self.capacity} disponibles)"
 
 class ReservationStatus(Enum):
     VALID = "Valid"
