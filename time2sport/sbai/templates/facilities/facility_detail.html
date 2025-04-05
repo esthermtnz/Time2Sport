@@ -8,7 +8,6 @@
 
         <!-- Información de la instalación -->
         <p><strong>Tipo:</strong> {{ facility.get_facility_type_display }}</p>
-        <p><strong>Número de instalaciones:</strong> {{ facility.number_of_facilities }}</p>
         <p><strong>Precio por hora:</strong> {{ facility.hour_price }}€</p>
 
         <!-- Horarios de la instalación -->
@@ -20,13 +19,6 @@
 
         <!-- Descripción -->
         <p>{{ facility.description }}</p>
-
-        <div class="mt-3">
-            <button class="btn btn-success btn-lg">RESERVAR</button>
-            <p class="mt-2">
-                Al reservar la instalación, podrá utilizarla durante el tiempo seleccionado. Asegúrese de verificar la disponibilidad antes de proceder.
-            </p>
-        </div>
 
         <!-- Horario disponible para los próximos 7 días -->
         <h3>Horarios disponibles para los próximos 7 días</h3>
@@ -80,6 +72,9 @@
 
             <!-- Botón para enviar las sesiones seleccionadas -->
             <button type="submit" class="btn btn-primary mt-3">Reservar</button>
+            <p class="mt-2">
+                Al reservar la instalación, podrá utilizarla durante el tiempo seleccionado. Asegúrese de verificar la disponibilidad antes de proceder.
+            </p>
         </form>
 
         <script>
@@ -117,6 +112,35 @@
                 </div>
             {% endfor %}
         </div>
+
+
+        <!-- Mensaje de éxito o error de la reserva -->
+        {% if messages %}
+        <div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <p class="mb-0">
+                            {% for message in messages %}
+                                <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %}">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            var messageModal = new bootstrap.Modal(document.getElementById('messageModal'));
+            messageModal.show();
+        </script>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

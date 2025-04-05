@@ -108,4 +108,4 @@ def reserve_facility_session(request):
                 messages.error(request, f'La hora {start} - {end} ya está ocupada.')
 
         messages.success(request, 'Reserva realizada con éxito.')
-    return redirect('all_facilities')
+    return redirect('facility_detail', facility_id=facility_id)

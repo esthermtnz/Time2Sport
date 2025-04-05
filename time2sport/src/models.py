@@ -116,10 +116,10 @@ class Session(models.Model):
 
                     current_time = datetime.combine(today, start_time)
 
-                    # Divide the time range into 30 minute intervals
+                    # Divide the time range into 1 hour intervals
                     while current_time.time() < end_time:
                         # Define next time
-                        next_time = current_time + timedelta(minutes=30)
+                        next_time = current_time + timedelta(hours=1)
 
                         # Create a session for each facility instance
                         for instance in instances:

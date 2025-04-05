@@ -80,7 +80,7 @@ def divide_hours_into_blocks(schedule):
     start = schedule.hour_begin
     end = schedule.hour_end
     while start < end:
-        siguiente = (datetime.combine(datetime.today(), start) + timedelta(minutes=30)).time()
+        siguiente = (datetime.combine(datetime.today(), start) + timedelta(hours=1)).time()
         blocks.append({'start': start, 'end': siguiente})
         start = siguiente
     return blocks
