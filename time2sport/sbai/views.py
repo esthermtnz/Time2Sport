@@ -58,7 +58,20 @@ def activity_detail(request, activity_id):
 
 @login_required
 def all_facilities(request):
-    facilities = SportFacility.objects.prefetch_related('photos').filter(number_of_facilities__gt=0)
+    all_facilities = SportFacility.objects.prefetch_related('photos')
+    facilities = []
+    # If a facility has more than one instance, show only one
+    for f in all_facilities:
+        if f.number_of_facilities > 1:
+            # Get the first instance
+            name = ' '.join(f.name.split(" ")[:-1])
+            facility = SportFacility.objects.filter(name__regex=f"^{name} [0-9]+$").first()
+            if facility and facility not in facilities:
+                facility.name = name
+                facilities.append(facility)
+        else:
+            facilities.append(f)
+
     return render(request, 'facilities/all_facilities.html', {'facilities': facilities})
 
 
@@ -67,7 +80,7 @@ def divide_hours_into_blocks(schedule):
     start = schedule.hour_begin
     end = schedule.hour_end
     while start < end:
-        siguiente = (datetime.combine(datetime.today(), start) + timedelta(hours=1)).time()
+        siguiente = (datetime.combine(datetime.today(), start) + timedelta(minutes=30)).time()
         blocks.append({'start': start, 'end': siguiente})
         start = siguiente
     return blocks
@@ -80,37 +93,41 @@ def facility_detail(request, facility_id):
 
     # Check if the facility has multiple instances
     if facility.number_of_facilities == 1:
-        facilities = facility
+        facilities = [facility]
     else:
-        facilities = SportFacility.objects.filter(name__regex=f"^{facility.name} [0-9]+$").prefetch_related('photos')
+        name = ' '.join(facility.name.split(" ")[:-1])
+        facilities = SportFacility.objects.filter(name__regex=f"^{name} [0-9]+$").prefetch_related('photos')
 
     # Get the next 7 days
     today = timezone.now().date()
     next_7_days = [today + timedelta(days=i) for i in range(7)]
 
     # Get the schedules for the next 7 days
-    schedules_next_7_days = []
+    sessions_next_7_days = []
     for day in next_7_days:
         day_of_week = day.weekday() # Get the day of the week (0 is Monday ... 6 is Sunday)
 
-        # Get the daily schedules matching the day of the week
-        daily_schedules = facility.schedules.filter(day_of_week=day_of_week)
+        # Sessions for each facility on the current day
+        all_sessions_of_the_day = []
 
-        # Divide the schedules into hourly blocks
-        daily_schedules_divided = []
-        for schedule in daily_schedules:
-            daily_schedules_divided.extend(divide_hours_into_blocks(schedule))
+        for f in facilities:
+            # Get the daily schedules matching the day of the week for this facility
+            session_of_the_day = f.sessions.filter(date=day)
+            all_sessions_of_the_day.append({
+                'facility': f,
+                'sessions': session_of_the_day
+            })
 
-        schedules_next_7_days.append({
+        sessions_next_7_days.append({
             'date': day,
-            'schedules': daily_schedules_divided
+            'sessions': all_sessions_of_the_day
         })
 
     return render(request, 'facilities/facility_detail.html', {
         'facility': facility,
         'instances': facilities,
         'next_7_days': next_7_days,
-        'schedules_next_7_days': schedules_next_7_days
+        'sessions_next_7_days': sessions_next_7_days
     })
 
 @login_required

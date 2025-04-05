@@ -26,50 +26,6 @@ def create_schedule(day, hour_ranges):
         schedules.append(schedule)
     return schedules
 
-def create_sessions(schedules, activity=None, facility=None):
-    if (activity and facility) or (not activity and not facility):
-        return []
-
-    sessions = []
-    today = datetime.today()
-
-    for schedule in schedules:
-
-        day_of_week = schedule.day_of_week
-        days_of_week = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
-        target_day_index = int(day_of_week)
-        today_day_index = today.weekday() # 0 for Monday, 6 for Sunday
-
-        days_diff = target_day_index - today_day_index
-        if days_diff <= 0:
-            days_diff += 7 # If the day has already passed, we need to add 7 days
-
-        # Calculate the date of the first session
-        first_session_date = today + timedelta(days=days_diff)
-
-        for i in range(4): # Create sessions for the following month (4 weeks)
-            session_date = first_session_date + timedelta(weeks=i)
-
-            # Check if a session already exists for this schedule
-            existing_session = Session.objects.filter(schedule=schedule, 
-                                                      activity=activity if activity else None, 
-                                                      facility=facility if facility else None).first()
-
-            if not existing_session:
-                session = Session.objects.create(
-                    activity=activity if activity else None,
-                    facility=facility if facility else None,
-                    schedule=schedule,
-                    date=session_date,
-                    capacity=10,
-                    free_places=10,
-                )
-                sessions.append(session)
-            else:
-                print(f"Session already exists for {activity.name if activity else facility.name} with schedule {schedule.id}")
-                
-    return sessions
-
 
 def populate():
     activity_schedules = {
@@ -161,23 +117,22 @@ def populate():
             )
             print(bonus)
 
-        sessions_act = create_sessions(schedules, activity)
+        sessions_act = Session.create_sessions(schedules, activity=activity, capacity=10)
 
     # Create facilities and assign schedules
     for fac in facilities:
-        facility = SportFacility.objects.create(
+        schedules = []
+        for day, hours in facility_schedules.get(fac['name'], {}).items():
+            schedules.extend(create_schedule(day, hours))
+
+        facility = SportFacility.create(
             name=fac['name'],
             number_of_facilities=fac['number_of_facilities'],
             description=fac['description'],
             hour_price=fac['hour_price'],
-            facility_type=fac['facility_type']
-        )
-
-        schedules = []
-        for day, hours in facility_schedules.get(facility.name, {}).items():
-            schedules.extend(create_schedule(day, hours))
-
-        facility.schedules.set(schedules)
+            facility_type=fac['facility_type'],
+            schedules=schedules
+        )[0]
 
         # Associate existing images
         facility_images_folder = f'media/facilities/{facility.id}'
@@ -187,7 +142,7 @@ def populate():
             photo = Photo.objects.create(facility=facility, image=f"facilities/{facility.id}/{image_file}")
             print(f'Added image {photo.image} to facility {facility.name}')
 
-        sesions_fac = create_sessions(schedules, facility=facility)
+        sesions_fac = Session.create_sessions(schedules, facility=facility)
 
 
     print(sessions_act)

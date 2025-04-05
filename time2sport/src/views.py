@@ -4,10 +4,11 @@ from .models import Reservation, Session
 from django.contrib.auth.decorators import login_required
 
 from django.contrib import messages
-from sbai.models import Bonus
-from .models import ProductBonus
+from sbai.models import Bonus, SportFacility, Schedule
+from .models import ProductBonus, ReservationStatus, Reservation
 from django.utils.timezone import now
-from datetime import datetime
+from datetime import datetime, date
+
 
 @login_required
 def reserve_activity_session(request, session_id):
@@ -72,19 +73,39 @@ def purchase_bonus(request, bonus_id):
 
 
 @login_required
-def reserve_facility_session(request, sessions_id):
-    sessions = []
-    for session_id in sessions_id:
-        session = get_object_or_404(Session, id=session_id)
-        if session is None:
-            return redirect('all_facilities')
-        sessions.append(session)
+def reserve_facility_session(request):
+    if request.method == 'POST':
+        selected_sessions = request.POST.get('selected_sessions', '').split(',')
 
-    user = request.user
-    reservation = session.add_reservation_facility(user)
-    if reservation:
-        messages.success(request, "Reserva realizada con éxito.")
-    else:
-        messages.error(request, "Error al realizar la reserva.")
+        if not selected_sessions:
+            messages.error(request, 'No se ha seleccionado ninguna sesión.')
+            return redirect('facility_detail', facility_id=request.POST.get('facility_id'))
 
-    return redirect('facility_detail', facility_id=session.sport_facility.id)
+        for session in selected_sessions:
+            facility_id, start, end, day = session.split('|')
+
+            # Convert date to day of the week
+            day_number = datetime.strptime(day, '%B %d %Y').weekday()
+
+            start_time = datetime.strptime(start, '%H:%M').time()
+            end_time = datetime.strptime(end, '%H:%M').time()
+
+            # Get the facility and session
+            facility = get_object_or_404(SportFacility, id=facility_id)
+            session = facility.sessions.filter(start_time=start_time, end_time=end_time).first()
+
+            # Check if session is already reserved
+            if session and session.free_places > 0:
+                Reservation.objects.create(
+                    session=session,
+                    user=request.user,
+                    status=ReservationStatus.VALID.value
+                )
+                
+                session.free_places -= 1
+                session.save()
+            else:
+                messages.error(request, f'La hora {start} - {end} ya está ocupada.')
+
+        messages.success(request, 'Reserva realizada con éxito.')
+    return redirect('all_facilities')

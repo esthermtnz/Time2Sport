@@ -30,36 +30,84 @@
 
         <!-- Horario disponible para los próximos 7 días -->
         <h3>Horarios disponibles para los próximos 7 días</h3>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Fecha</th>
-                    <th>Instalación</th>
-                    <th>Horas Disponibles</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for day_schedule in schedules_next_7_days %}
-                {% for instance in instances %}
+
+        <form method="POST" action="{% url 'reserve_facility_session' %}">
+            {% csrf_token %}
+            
+            <!-- Campo oculto para el ID de la instalación -->
+            <input type="hidden" name="facility_id" value="{{ facility.id }}">
+        
+            <!-- Campo oculto para las sesiones seleccionadas -->
+            <input type="hidden" id="selected_sessions" name="selected_sessions">
+        
+            <!-- Tabla de horarios disponibles -->
+            <table class="table table-bordered">
+                <thead>
                     <tr>
-                        <td>{{ day_schedule.date|date:"d/m/Y" }}</td>
-                        <td>{{ instance.name }}</td>
-                        <td>
-                            {% if day_schedule.schedules %}
-                                {% for block in day_schedule.schedules %}
-                                    <button class="btn btn-primary">
-                                        {{ block.start|time:"H:i" }} - {{ block.end|time:"H:i" }}
-                                    </button>
-                                {% endfor %}
-                            {% else %}
-                                <span class="text-muted">Este día permanece cerrado</span>
-                            {% endif %}
-                        </td>
+                        <th>Fecha</th>
+                        <th>Instalación</th>
+                        <th>Horas Disponibles</th>
                     </tr>
-                {% endfor %}
-            {% endfor %}            
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {% for day in sessions_next_7_days %}
+                        {% for facility_group in day.sessions %}
+                            <tr>
+                                {% if forloop.first %}
+                                    <td rowspan="{{ day.sessions|length }}">{{ day.date|date:"d/m/Y" }}</td>
+                                {% endif %}
+                                <td class="text-nowrap">{{ facility_group.facility.name }}</td>
+                                <td>
+                                    {% if facility_group.sessions|length > 0 %}
+                                        {% for session in facility_group.sessions %}
+                                            <button type="button" 
+                                                    class="btn {% if session.free_places < 1 %}btn-danger{% else %}btn-success{% endif %}"
+                                                    value="{{ facility_group.facility.id }}|{{ session.start_time|time:'H:i' }}|{{ session.end_time|time:'H:i' }}|{{ day.date|date:'F d Y' }}"
+                                                    onclick="toggleSessionSelection(this)"
+                                                    {% if session.free_places < 1 %}disabled{% endif %}>
+                                                {{ session.start_time|time:"H:i" }} - {{ session.end_time|time:"H:i" }}
+                                            </button>
+                                        {% endfor %}
+                                    {% else %}
+                                            <p class="text-muted"> La instalación permanecerá cerrada este día.</p>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Botón para enviar las sesiones seleccionadas -->
+            <button type="submit" class="btn btn-primary mt-3">Reservar</button>
+        </form>
+
+        <script>
+            function toggleSessionSelection(button) {
+                var selectedSessionsField = document.getElementById('selected_sessions');
+                var currentSessions = selectedSessionsField.value ? selectedSessionsField.value.split(',') : [];
+        
+                // Si el botón ya está seleccionado, desmarcarlo
+                if (button.classList.contains('btn-primary')) {
+                    button.classList.remove('btn-primary');
+                    button.classList.add('btn-success');
+
+                    // Eliminar de la lista de sesiones seleccionadas
+                    currentSessions = currentSessions.filter(function(session) {
+                        return session !== button.value;
+                    });
+                } else {
+                    button.classList.add('btn-primary');
+                    button.classList.remove('btn-success');
+
+                    // Añadir a la lista de sesiones seleccionadas
+                    currentSessions.push(button.value);
+                }
+        
+                // Actualizar el valor del campo hidden con las sesiones seleccionadas
+                selectedSessionsField.value = currentSessions.join(',');
+            }
+        </script>
 
         <!-- Galería de imágenes -->
         <div class="row mt-4">
