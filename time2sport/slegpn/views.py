@@ -75,12 +75,11 @@ def invoice_activity(request, activity_id):
 
     return render(request, 'activities/activity_detail.html', {'activity': activity})
 
-# CHANGE THIS FUNCTION TO SRC RESERVAR PISTA ------- IMPORTANT!!!!
+
 @login_required
 def invoice_facility(request, facility_id):
     facility = get_object_or_404(SportFacility, pk=facility_id)
     selected_sessions = request.session['selected_sessions']
-
 
     facility_id = facility.id
     hour_price = facility.hour_price 
@@ -202,12 +201,27 @@ def payment_activity_failed(request, bonus_id):
 @login_required
 def payment_facility_successful(request, facility_id):
     facility = get_object_or_404(SportFacility, id=facility_id)
-    context = {}
+    num_hours = len(request.session['selected_sessions'])
+    total = get_total(num_hours * facility.hour_price, request.user.is_uam)
+
+    context = {
+        'concept': f'Alquiler {facility.name}',
+        'date': timezone.localtime(),
+        'total':total,
+    }
+
     reserve_facility_session(request)
     return render(request, 'payments/payment-facility-success.html', context)
 
 @login_required
 def payment_facility_failed(request, facility_id):
     facility = get_object_or_404(SportFacility, id=facility_id)
-    context={}
+    num_hours = len(request.session['selected_sessions'])
+    total = get_total(num_hours * facility.hour_price, request.user.is_uam)
+
+    context={
+        'concept': f'Inscripción {facility.name}',
+        'date': timezone.localtime(),
+        'total': total,
+    }
     return render(request, 'payments/payment-facility-failed.html', context)
