@@ -43,9 +43,13 @@
         </div>
 
         <!-- Botón reservar ahora -->
-        <div class="mt-3 d-flex justify-content-center">
-            <button class="btn btn-success btn-lg">RESERVAR AHORA</button>
-        </div>
+        <form method="post" action="{% url 'activity_detail' activity.id %}">
+            {% csrf_token %}
+            <div class="mt-3 d-flex justify-content-center">
+                <button class="btn btn-success btn-lg">RESERVAR AHORA</button>
+            </div>
+        </form>
+
         <div class="mt-3 d-flex justify-content-center">
             <a href="{% url 'index' %}" class="text-muted small">Quizás más tarde</a>
         </div>

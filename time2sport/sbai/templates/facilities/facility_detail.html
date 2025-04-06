@@ -23,7 +23,7 @@
         <!-- Horario disponible para los próximos 7 días -->
         <h3>Horarios disponibles para los próximos 7 días</h3>
 
-        <form method="POST" action="{% url 'reserve_facility_session' %}">
+        <form method="POST" action="{% url 'check_reserve_facility_session' %}">
             {% csrf_token %}
             
             <!-- Campo oculto para el ID de la instalación -->
@@ -72,9 +72,6 @@
 
             <!-- Botón para enviar las sesiones seleccionadas -->
             <button type="submit" class="btn btn-primary mt-3">Reservar</button>
-
-            <!-- Botón de reserva -->
-            <a href="{% url 'invoice_facility' facility.id %}" class="btn btn-success btn-lg">RESERVAR</a>
 
             <p class="mt-2">
                 Al reservar la instalación, podrá utilizarla durante el tiempo seleccionado. Asegúrese de verificar la disponibilidad antes de proceder.

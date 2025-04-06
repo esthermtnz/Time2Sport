@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from sbai.models import Bonus, SportFacility, Schedule
 from src.models import ReservationStatus, Reservation
-from slegpn.models import ProductBonus
+from slegpn.models import ProductBonus, Notification
 from django.utils.timezone import now
 from datetime import datetime, date
 
@@ -75,6 +75,9 @@ def reserve_activity_session(request, session_id):
     reservation = session.add_reservation_activity(user)
     if reservation:
         messages.success(request, "Reserva realizada con éxito.")
+        title = "Reserva realizada con éxito"
+        content = f"Has realizado una reserva de {session.activity} para el día {session.date.strftime('%d/%m/%Y')}."
+        Notification.objects.create(user=user, title=title, content=content)
     else:
         messages.error(request, "Error al realizar la reserva.")
 
@@ -127,9 +130,10 @@ def purchase_bonus(request, bonus_id):
     return redirect('activity_detail', activity_id=activity.id)
 
 @login_required
-def reserve_facility_session(request):
+def check_reserve_facility_session(request):
     if request.method == 'POST':
         selected_sessions = request.POST.get('selected_sessions', '').split(',')
+        request.session['selected_sessions'] = selected_sessions
 
         if not selected_sessions:
             messages.error(request, 'No se ha seleccionado ninguna sesión.')
@@ -152,31 +156,49 @@ def reserve_facility_session(request):
         # <a href="{% url 'invoice_facility' facility.id %}" class="btn btn-success btn-lg">RESERVAR</a>
         # status = render / redirect
 
-        for session in selected_sessions:
-            facility_id, start, end, day = session.split('|')
+        return redirect('invoice_facility', facility_id=facility_id)
 
-            # Convert date to day of the week
-            day_number = datetime.strptime(day, '%B %d %Y').weekday()
 
-            start_time = datetime.strptime(start, '%H:%M').time()
-            end_time = datetime.strptime(end, '%H:%M').time()
+def reserve_facility_session(request):
+    selected_sessions = request.session['selected_sessions']
+    
+    for session in selected_sessions:
+        facility_id, start, end, day = session.split('|')
 
-            # Get the facility and session
-            facility = get_object_or_404(SportFacility, id=facility_id)
-            session = facility.sessions.filter(start_time=start_time, end_time=end_time).first()
+        # Convert date to day of the week
+        day_number = datetime.strptime(day, '%B %d %Y').weekday()
 
-            # Check if session is already reserved
-            if session and session.free_places > 0:
-                Reservation.objects.create(
-                    session=session,
-                    user=request.user,
-                    status=ReservationStatus.VALID.value
-                )
-                
-                session.free_places -= 1
-                session.save()
+        start_time = datetime.strptime(start, '%H:%M').time()
+        end_time = datetime.strptime(end, '%H:%M').time()
+
+        # Get the facility and session
+        facility = get_object_or_404(SportFacility, id=facility_id)
+        session = facility.sessions.filter(start_time=start_time, end_time=end_time).first()
+
+        # Check if session is already reserved
+        if session and session.free_places > 0:
+            Reservation.objects.create(
+                session=session,
+                user=request.user,
+                status=ReservationStatus.VALID.value
+            )
+            
+            session.free_places -= 1
+            session.save()
+
+            title = "Reserva realizada correctamente"
+            content = f"Has reservado la instalación "
+
+            if facility.number_of_facilities > 1:
+                content += ' '.join(facility.name.split(" ")[:-1])
             else:
-                messages.error(request, f'La hora {start} - {end} ya está ocupada.')
+                content += f"{facility}"
+            content += f" el día {session.date.strftime('%d/%m/%Y')}"
 
-        messages.success(request, 'Reserva realizada con éxito.')
-    return redirect('facility_detail', facility_id=facility_id)
+        else:
+            title = "Error en la reserva"
+            content = "Se ha producido un error. Intentelo más tarde"
+            messages.error(request, f'La hora {start} - {end} ya está ocupada.')
+    
+    Notification.objects.create(title=title, content=content, user=request.user)
+    messages.success(request, 'Reserva realizada con éxito.')

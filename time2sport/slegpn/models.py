@@ -25,7 +25,7 @@ class ProductBonus(models.Model):
     one_use_available = models.BooleanField(default=True)
 
     def __str__(self):
-         return f"{self.user.username} - {self.bonus.get_bonus_type_display()} ({'Válido' if self.is_valid else 'No válido'})"
+         return f"{self.user.username} - {self.bonus.get_bonus_type_display()} {self.bonus.activity} ({'Válido' if self.is_valid else 'No válido'})"
     
     @property
     def is_valid(self):
