@@ -4,7 +4,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
-from .models import Activity, SportFacility
+from .models import Activity, SportFacility, DayOfWeek, Schedule
 
 import random
 import string
@@ -21,13 +21,12 @@ from django.core.files.storage import default_storage
 from django.contrib.auth.decorators import login_required
 from datetime import datetime, timedelta
 from django.utils.timezone import now
+from django.utils import timezone
 
 from django.core.mail import EmailMessage
-
-
-
 from django.db.models import Q
 
+from src.models import Session
 
 @login_required
 def all_activities(request):
@@ -37,17 +36,99 @@ def all_activities(request):
 @login_required
 def activity_detail(request, activity_id):
     activity = get_object_or_404(Activity, pk=activity_id)
-    return render(request, 'activities/activity_detail.html', {'activity': activity})
+
+    has_bono = request.user.has_valid_bono_for_activity(activity)
+
+    if not has_bono:
+        return render(request, 'activities/activity_detail.html', {
+            'activity': activity,
+            'has_bono': has_bono,
+            'bonuses': activity.bonuses.all()
+        })
+
+    sessions = Session.objects.filter(activity_id=activity_id)
+
+    ordered_sessions = sessions.order_by("date", "schedule__hour_begin")
+
+    return render(request, 'activities/activity_detail.html', {
+        'activity': activity,
+        'has_bono': has_bono,
+        'sessions': ordered_sessions
+    })
 
 @login_required
 def all_facilities(request):
-    facilities = SportFacility.objects.prefetch_related('photos').all()
+    all_facilities = SportFacility.objects.prefetch_related('photos')
+    facilities = []
+    # If a facility has more than one instance, show only one
+    for f in all_facilities:
+        if f.number_of_facilities > 1:
+            # Get the first instance
+            name = ' '.join(f.name.split(" ")[:-1])
+            facility = SportFacility.objects.filter(name__regex=f"^{name} [0-9]+$").first()
+            if facility and facility not in facilities:
+                facility.name = name
+                facilities.append(facility)
+        else:
+            facilities.append(f)
+
     return render(request, 'facilities/all_facilities.html', {'facilities': facilities})
+
+
+def divide_hours_into_blocks(schedule):
+    blocks = []
+    start = schedule.hour_begin
+    end = schedule.hour_end
+    while start < end:
+        siguiente = (datetime.combine(datetime.today(), start) + timedelta(hours=1)).time()
+        blocks.append({'start': start, 'end': siguiente})
+        start = siguiente
+    return blocks
+
 
 @login_required
 def facility_detail(request, facility_id):
+    # Get the facility by id
     facility = get_object_or_404(SportFacility, pk=facility_id)
-    return render(request, 'facilities/facility_detail.html', {'facility': facility})
+
+    # Check if the facility has multiple instances
+    if facility.number_of_facilities == 1:
+        facilities = [facility]
+    else:
+        name = ' '.join(facility.name.split(" ")[:-1])
+        facilities = SportFacility.objects.filter(name__regex=f"^{name} [0-9]+$").prefetch_related('photos')
+
+    # Get the next 7 days
+    today = timezone.now().date()
+    next_7_days = [today + timedelta(days=i) for i in range(7)]
+
+    # Get the schedules for the next 7 days
+    sessions_next_7_days = []
+    for day in next_7_days:
+        day_of_week = day.weekday() # Get the day of the week (0 is Monday ... 6 is Sunday)
+
+        # Sessions for each facility on the current day
+        all_sessions_of_the_day = []
+
+        for f in facilities:
+            # Get the daily schedules matching the day of the week for this facility
+            session_of_the_day = f.sessions.filter(date=day)
+            all_sessions_of_the_day.append({
+                'facility': f,
+                'sessions': session_of_the_day
+            })
+
+        sessions_next_7_days.append({
+            'date': day,
+            'sessions': all_sessions_of_the_day
+        })
+
+    return render(request, 'facilities/facility_detail.html', {
+        'facility': facility,
+        'instances': facilities,
+        'next_7_days': next_7_days,
+        'sessions_next_7_days': sessions_next_7_days
+    })
 
 @login_required
 def schedules(request):

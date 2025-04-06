@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'sgu',
     'sbai',
     'slegpn',
+    'src',
 
     'allauth',
     'allauth.account',
