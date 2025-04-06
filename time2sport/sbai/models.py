@@ -42,7 +42,7 @@ class SportFacility(models.Model):
     name = models.CharField(max_length=255)
     number_of_facilities = models.IntegerField()
     description = models.TextField()
-    hour_price = models.FloatField()
+    hour_price = models.DecimalField(max_digits=6, decimal_places=2)
     facility_type = models.CharField(max_length=10, choices=FACILITY_TYPE_CHOICES)
     schedules = models.ManyToManyField(Schedule, related_name="sport_facilities", blank=True)
 

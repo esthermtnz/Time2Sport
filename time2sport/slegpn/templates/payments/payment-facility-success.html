@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow rounded-4 p-4">
+
+        <h2 class="text-center mb-4">Pago realizado</h2>
+
+        <div class="d-flex justify-content-center mb-3">
+            <img src="{% static 'images/payment_success_icon.png' %}" alt="Payment Success" 
+                 class="img-fluid" style="max-width: 200px;">
+        </div>
+
+        <div class="mb-3 d-flex justify-content-center">
+            <p>La transacción ha sido efectuada correctamente. ¡Muchas gracias por confiar en Time2Sport!</p>
+        </div>
+
+        <!-- Botón Home -->
+        <div class="mt-3 d-flex justify-content-center">
+            <form action="{% url 'index' %}" method="get">
+                <button type="submit" class="btn btn-success btn-lg">IR A HOME</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

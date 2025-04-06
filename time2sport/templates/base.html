@@ -49,9 +49,17 @@
                 <img src="{% static 'images/logo.png' %}" alt="Logo Time2Sport" class="img-fluid" style="max-width: 150px;">
             </a>
             
-            <!-- Notifications bell -->  
-            <img src="{% static 'images/notifications_logo.png' %}" alt="Notifications" class="img-fluid me-3" style="max-width: 30px;"> 
-            
+            <!-- Notifications bell --> 
+            <a href="{% url 'notifications' %}"  class="position-relative d-inline-block me-3"> 
+                <img src="{% static 'images/notifications_logo.png' %}" alt="Notifications" class="img-fluid" style="max-width: 30px;"> 
+                
+                {% if unread_notifications > 0 %}
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="z-index: 10;">
+                        {{ unread_notifications }}
+                    </span>
+                {%endif%}
+            </a>
+
             <!-- Search bar -->  
             <form class="d-flex" role="search" method="POST" action="{% url 'search_results' %}">
                 {% csrf_token %}

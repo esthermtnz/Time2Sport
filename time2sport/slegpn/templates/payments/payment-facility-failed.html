@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow rounded-4 p-4">
+
+        <h2 class="text-center mb-4">Pago cancelado</h2>
+
+        <div class="d-flex justify-content-center mb-3">
+            <img src="{% static 'images/payment_declined_icon.png' %}" alt="Payment Success" 
+                 class="img-fluid" style="max-width: 150px;">
+        </div>
+
+        <div class="mb-3 d-flex justify-content-center">
+            <p>La transacción a través de PayPal ha sido cancelada. Intentelo más tarde.</p>
+        </div>
+
+        <!-- Botón Home -->
+        <div class="mt-3 d-flex justify-content-center">
+            <form action="{% url 'index' %}" method="get">
+                <button type="submit" class="btn btn-success btn-lg">IR A HOME</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

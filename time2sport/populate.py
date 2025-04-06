@@ -6,9 +6,12 @@ from datetime import datetime, timedelta
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'time2sport.settings')
 django.setup()
 
+
+from slegpn.models import Notification
 from sbai.models import SportFacility, Activity, Schedule, Photo, Bonus, DayOfWeek
 from src.models import Session, Reservation, ProductBonus
 from sgu.models import User
+
 
 def get_images_from_folder(folder_path):
     if not os.path.exists(folder_path):

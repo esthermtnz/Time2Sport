@@ -57,38 +57,30 @@
         {% else %}
         <!-- Mostrar opción de compra de bono si no tiene bono -->
         <div class="row mt-3">
-            <form method="post" action="{% url 'purchase_bonus' bonus_id=0 %}" id="bonoForm">
-                {% csrf_token %}
-                <div class="row mt-3">
-                    <div class="col-md-6">
-                        <label for="bonoSelect" class="fw-bold">Seleccione un bono:</label>
-                        <select id="bonoSelect" class="form-select" name="bonus_id" required>
-                            {% for bonus in activity.bonuses.all %}
-                                <option value="{{ bonus.id }}">{{ bonus.get_bonus_type_display }} - {{ bonus.price }}€</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="mt-3">
-                    <button type="submit" class="btn btn-success btn-lg">COMPRAR BONO</button>
-                </div>
-                
-                <p class="mt-2">
-                    Al comprar el bono, podrá reservar sesiones de esta actividad.
-                    Es necesario apuntarse a cada sesión individualmente.
-                </p>
-            </form>
+          <!-- Selector de bonos dinámico -->
+          <form method="post" action="{% url 'invoice_activity' activity.id %}">
+              {% csrf_token %}
+              <div class="row mt-3">
+                  <div class="col-md-6">
+                      <label for="bonoSelect" class="fw-bold">Seleccione un bono:</label>
+                      <select id="bonoSelect" name="bonus_id" class="form-select">
+                          {% for bonus in activity.bonuses.all %}
+                              <option value="{{ bonus.id }}">{{ bonus.get_bonus_type_display }} - {{ bonus.price }}€</option>
+                          {% endfor %}
+                      </select>
+                  </div>
+              </div>
+
+              <!-- Botón de inscripción -->
+              <div class="mt-3">
+                  <button class="btn btn-success btn-lg">INSCRIBIRSE</button>
+                  <p class="mt-2">
+                      Al inscribirse y pagar la cuota, podrá reservar semanalmente las sesiones de la actividad. 
+                      Es necesario apuntarse a cada sesión individualmente; sin apuntarse previamente, no se podrá asistir.
+                  </p>
+              </div>
+          </form>
         </div>
-        
-        <script>
-        document.getElementById('bonoForm').addEventListener('submit', function(e) {
-            const select = document.getElementById('bonoSelect');
-            const action = this.getAttribute('action').replace('0', select.value);
-            this.setAttribute('action', action);
-        });
-        </script>
-        
         {% endif %}
 
         <!-- Galería de imágenes -->
