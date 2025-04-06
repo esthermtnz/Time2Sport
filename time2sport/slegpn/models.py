@@ -37,3 +37,16 @@ class ProductBonus(models.Model):
         elif type in ['annual', 'semester']:
             return self.date_begin and self.date_end and self.date_begin <= date_now <= self.date_end
         return False
+
+    def use_single_use(self):
+        if self.bonus.bonus_type == 'single':
+            self.one_use_available = False
+            self.save()
+
+    def cancel_single_use(self):
+        if self.bonus.bonus_type == 'single':
+            self.one_use_available = True
+            self.save()
+
+    def belongs_to_activity(self, activity):
+        return self.bonus.activity == activity

@@ -5,7 +5,8 @@ from django.contrib.auth.decorators import login_required
 
 from django.contrib import messages
 from sbai.models import Bonus, SportFacility, Schedule
-from .models import ProductBonus, ReservationStatus, Reservation
+from src.models import ReservationStatus, Reservation
+from slegpn.models import ProductBonus
 from django.utils.timezone import now
 from datetime import datetime, date
 
@@ -147,6 +148,9 @@ def reserve_facility_session(request):
             if _is_conflict_reserved_sessions(user_sessions, requested_start, requested_end):
                 messages.error(request, "Ya tienes una reserva para esa hora. Puedes ver tus reservas en la sección de 'Mis Reservas'.")
                 return redirect('facility_detail', facility_id=facility_id)
+
+        # <a href="{% url 'invoice_facility' facility.id %}" class="btn btn-success btn-lg">RESERVAR</a>
+        # status = render / redirect
 
         for session in selected_sessions:
             facility_id, start, end, day = session.split('|')

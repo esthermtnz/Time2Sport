@@ -7,9 +7,9 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'time2sport.settings')
 django.setup()
 
 
-from slegpn.models import Notification
+from slegpn.models import Notification, ProductBonus
 from sbai.models import SportFacility, Activity, Schedule, Photo, Bonus, DayOfWeek
-from src.models import Session, Reservation, ProductBonus
+from src.models import Session, Reservation
 from sgu.models import User
 
 
