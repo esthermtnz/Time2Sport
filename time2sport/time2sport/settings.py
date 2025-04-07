@@ -42,12 +42,16 @@ INSTALLED_APPS = [
     'django_extensions',
     'sgu',
     'sbai',
+    'slegpn',
+    'src',
 
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.microsoft',
+
+    'paypal.standard.ipn'
 ]
 
 SITE_ID = 1
@@ -77,6 +81,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'time2sport.context_processors.unread_notifications',
             ],
         },
     },
@@ -169,7 +174,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Madrid'
 
 USE_I18N = True
 
@@ -215,3 +220,8 @@ SOCIALACCOUNT_LOGIN_ON_GET=True
 
 # New user model
 AUTH_USER_MODEL = "sgu.User"
+
+#PayPal Configuration
+PAYPAL_TEST = True
+PAYPAL_RECEIVER_EMAIL = 'sb-ruupa38090694@business.example.com' #Paypal Receiver Account
+PAYPAL_BUY_BUTTON_IMAGE = 'https://i.postimg.cc/tJwc9N6N/paypal-pay-button.png'

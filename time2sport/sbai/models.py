@@ -1,5 +1,6 @@
 from django.db import models
 import os
+from enum import Enum
 
 def photo_upload_path(instance, filename):
     # Si la imagen pertenece a una actividad, guardarla en "activities/{id}"
@@ -13,18 +14,18 @@ def photo_upload_path(instance, filename):
     # Si no pertenece a ninguna, guardarla en "photos"
     return f"photos/{filename}"
 
-class Schedule(models.Model):
-    DAYS_OF_WEEK = [
-        ('Monday', 'Monday'),
-        ('Tuesday', 'Tuesday'),
-        ('Wednesday', 'Wednesday'),
-        ('Thursday', 'Thursday'),
-        ('Friday', 'Friday'),
-        ('Saturday', 'Saturday'),
-        ('Sunday', 'Sunday'),
-    ]
 
-    day_of_week = models.CharField(max_length=10, choices=DAYS_OF_WEEK)
+class DayOfWeek(Enum):
+    Lunes = 0
+    Martes = 1
+    Miércoles = 2
+    Jueves = 3
+    Viernes = 4
+    Sábado = 5
+    Domingo = 6
+
+class Schedule(models.Model):
+    day_of_week = models.IntegerField(choices=[(day.value, day.name) for day in DayOfWeek])
     hour_begin = models.TimeField()
     hour_end = models.TimeField()
 
@@ -41,9 +42,44 @@ class SportFacility(models.Model):
     name = models.CharField(max_length=255)
     number_of_facilities = models.IntegerField()
     description = models.TextField()
-    hour_price = models.FloatField()
+    hour_price = models.DecimalField(max_digits=6, decimal_places=2)
     facility_type = models.CharField(max_length=10, choices=FACILITY_TYPE_CHOICES)
     schedules = models.ManyToManyField(Schedule, related_name="sport_facilities", blank=True)
+
+
+    @classmethod
+    def create(cls, name, number_of_facilities, description, hour_price, facility_type, schedules):
+        instances = []
+        if number_of_facilities > 1:
+            original_name = name
+            for i in range(1, number_of_facilities + 1):
+                name = f"{original_name} {i}"
+                instances.append(name)
+        else:
+            instances.append(name)
+
+        created_facilities = []
+        count = 0
+        for i in instances:
+            # If a facility with the same name does not exist, create it
+            if not cls.objects.filter(name=i).exists():
+                facility = cls(
+                    name=i,
+                    number_of_facilities=number_of_facilities,
+                    description=description,
+                    hour_price=hour_price,
+                    facility_type=facility_type
+                )
+                facility.save()
+
+                facility.schedules.set(schedules)
+                facility.save()
+                created_facilities.append(facility)
+
+                count += 1
+
+        return created_facilities
+
 
     def __str__(self):
         return self.name
