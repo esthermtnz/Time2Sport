@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="mx-auto" style="max-width: 720px;">
+    <h2 class="text-center mb-4 fw-bold">Mis reservas</h2>
+
+    <!-- Tabs navegation -->
+    <ul class="nav nav-tabs justify-content-center mb-4 shadow-sm rounded">
+      <li class="nav-item">
+        <a class="nav-link fw-semibold {% if active_tab == 'future_reservations' %}active{% endif %}" 
+           style="{% if active_tab == 'future_reservations' %}background-color: #67a084; color: white; border-color: #67a084 #67a084 transparent;{% else %}color: #67a084;{% endif %}"
+           href="{% url 'reservations' %}">
+           Próximas reservas
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link fw-semibold {% if active_tab == 'past_reservations' %}active{% endif %}" 
+           style="{% if active_tab == 'past_reservations' %}background-color: #67a084; color: white; border-color: #67a084 #67a084 transparent;{% else %}color: #67a084;{% endif %}"
+           href="{% url 'past-reservations' %}">
+           Reservas pasadas
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link fw-semibold {% if active_tab == 'waiting_list' %}active{% endif %}" 
+           style="{% if active_tab == 'waiting_list' %}background-color: #67a084; color: white; border-color: #67a084 #67a084 transparent;{% else %}color: #67a084;{% endif %}"
+           href="#">
+           En lista de espera
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <style>
+    .nav-tabs .nav-link.active {
+      background-color: #67a084;
+      color: white !important;
+      border-color: #67a084 #67a084 transparent;
+    }
+  </style>
+
+  <div class="reservations_content-wrapper">
+    {% block reservations_content %}
+    Reservas futuras
+    {% endblock %}
+  </div>
+
+</div>
+
+{% endblock %}
