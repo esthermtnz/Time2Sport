@@ -33,6 +33,12 @@ def mark_as_read(request, notification_id):
     notification.save()
     return redirect('notifications')
 
+
+@login_required
+def waiting_list(request):
+    context={'active_tab': 'waiting_list'}
+    return render(request, 'waiting_list.html', context)
+
 @login_required
 def invoice_activity(request, activity_id):
     activity = get_object_or_404(Activity, pk=activity_id)

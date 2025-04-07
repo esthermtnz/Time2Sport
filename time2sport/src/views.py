@@ -202,3 +202,14 @@ def reserve_facility_session(request):
     
     Notification.objects.create(title=title, content=content, user=request.user)
     messages.success(request, 'Reserva realizada con éxito.')
+
+@login_required
+def reservations(request):
+    context={'active_tab': 'future_reservations'}
+    return render(request, 'reservations.html', context)
+
+
+@login_required
+def past_reservations(request):
+    context={'active_tab': 'past_reservations'}
+    return render(request, 'past_reservations.html', context)

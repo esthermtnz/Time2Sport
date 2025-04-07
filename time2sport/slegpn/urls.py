@@ -18,6 +18,7 @@ urlpatterns = [
     path('payment-facility-success/<int:facility_id>/', views.payment_facility_successful, name='payment-facility-success'),
     path('payment-facility-failed/<int:facility_id>/', views.payment_facility_failed, name='payment-facility-failed'),
 
+    path('waiting-list/', views.waiting_list, name='waiting-list'),
 
     path('', include('paypal.standard.ipn.urls')),
 ]
