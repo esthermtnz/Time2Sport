@@ -5,7 +5,6 @@ from datetime import datetime, date
 from datetime import timedelta
 
 from sbai.models import *
-from slegpn.models import ProductBonus
 from sgu.models import User
 
 class Session(models.Model):
@@ -23,6 +22,7 @@ class Session(models.Model):
         return self.free_places == 0
 
     def add_reservation_activity(self, user):
+        from slegpn.models import ProductBonus
         # Check if the session is full
         if self.is_full():
             return None

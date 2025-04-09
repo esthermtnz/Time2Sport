@@ -1,20 +1,22 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse
-
 from django.contrib.auth.decorators import login_required
-from slegpn .models import Notification
 from django.shortcuts import get_object_or_404
+from django.conf import settings
+
 from sbai.models import Bonus, Activity, SportFacility
-from src.views import reserve_facility_session
-from slegpn.models import ProductBonus
+from slegpn.models import Notification, ProductBonus, WaitingList
 from sgu.models import User
+from src.models import Session
+from paypal.standard.forms import PayPalPaymentsForm
+
+from src.views import reserve_facility_session, _is_conflict_reserved_sessions
+from .utils import get_bonus_name, get_discount, get_total
+from django.contrib import messages
 from django.utils import timezone
 from datetime import date
-from .utils import get_bonus_name, get_discount, get_total
-
-from paypal.standard.forms import PayPalPaymentsForm
-from django.conf import settings
 import uuid
+
 
 # Create your views here.
 
@@ -231,3 +233,42 @@ def payment_facility_failed(request, facility_id):
         'total': total,
     }
     return render(request, 'payments/payment-facility-failed.html', context)
+
+@login_required
+def join_waiting_list(request, session_id):
+
+    if request.method == "POST": 
+        session = get_object_or_404(Session, id=session_id)
+        if session is None:
+            return redirect('all_activities')
+
+        #Check if the user has already a reservation for that session
+        if request.user.reservations.filter(session=session).exists():
+            messages.info(request, "Ya tienes una reserva para esta sesión, no te puedes apuntar a la lista de espera.")
+            return redirect('activity_detail', session.activity.id)
+
+        # Check if the user is already in the waiting list for that session
+        if request.user.waiting_lists.filter(session=session).exists():
+            messages.info(request, "Ya estás en la lista de espera para esta sesión.")
+            return redirect('activity_detail', session.activity.id)
+
+        # Check if the user does not have another session at the same time
+        users_sessions_day = request.user.reservations.filter(session__date=session.date)
+        requested_start = session.start_time
+        requested_end = session.end_time
+
+        if _is_conflict_reserved_sessions(users_sessions_day, requested_start, requested_end):
+            messages.error(request, "Ya tienes una reserva para esa hora. Puedes ver tus reservas en la sección de 'Mis Reservas'.")
+            return redirect('activity_detail', session.activity.id)
+        
+        WaitingList.objects.create(user=request.user, session=session)
+        messages.success(request, "Te has apuntado correctamente a la lista de espera.")
+        waiting_list = WaitingList.objects.filter(session=session).order_by('join_date')
+        position = list(waiting_list).index(request.user.waiting_lists.get(session=session)) + 1
+
+        title = "Añadido a la lista de espera"
+        content = f"Te has apuntado a la lista de espera de {session.activity.name}. Te encuentras en la posición {position}, en caso de que se produzca una cancelación se te notificará para proceder con la reserva."
+        Notification.objects.create(user=request.user, title=title, content=content)
+        return redirect('activity_detail', session.activity.id)
+
+    return redirect('index')

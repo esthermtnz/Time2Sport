@@ -120,7 +120,7 @@ def populate():
             )
             print(bonus)
 
-        sessions_act = Session.create_sessions(schedules, activity=activity, capacity=10)
+        sessions_act = Session.create_sessions(schedules, activity=activity, capacity=1)
 
     # Create facilities and assign schedules
     for fac in facilities:
