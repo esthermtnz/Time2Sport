@@ -18,7 +18,7 @@
             {{ waiting_list.session.facility.name }}
           </div>
           <div class="col-md-4">
-            <form method="POST" action="#">
+            <form method="POST" action="{%url 'cancel_waiting_list' waiting_list.id %}">
               {% csrf_token %}
               <button type="submit" class="btn btn-outline-danger">Cancelar</button>
             </form>
