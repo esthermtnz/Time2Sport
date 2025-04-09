@@ -38,7 +38,8 @@ def mark_as_read(request, notification_id):
 
 @login_required
 def waiting_list(request):
-    context={'active_tab': 'waiting_list'}
+    waiting_lists = request.user.waiting_lists.all()
+    context={'waiting_lists': waiting_lists, 'active_tab': 'waiting_list'}
     return render(request, 'waiting_list.html', context)
 
 @login_required
@@ -261,6 +262,7 @@ def join_waiting_list(request, session_id):
             messages.error(request, "Ya tienes una reserva para esa hora. Puedes ver tus reservas en la sección de 'Mis Reservas'.")
             return redirect('activity_detail', session.activity.id)
         
+        #Add to waiting list and notify
         WaitingList.objects.create(user=request.user, session=session)
         messages.success(request, "Te has apuntado correctamente a la lista de espera.")
         waiting_list = WaitingList.objects.filter(session=session).order_by('join_date')

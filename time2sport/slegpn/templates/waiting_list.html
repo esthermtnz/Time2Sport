@@ -1,7 +1,33 @@
 {% extends 'reservations.html' %}
 
 {% block reservations_content %}
+<div class="container mt-4">
 
-    Lista espera
-
-  {% endblock %}
+  {% for waiting_list in waiting_lists %}
+    <div class="card shadow-sm mb-3">
+      <div class="card-body">
+        <div class="row text-center align-items-center">
+          <div class="col-md-1 fw-bold text-nowrap">
+            {{ waiting_list.session.activity.name }}
+          </div>
+          <div class="col-md-5 text-nowrap">
+            {{ waiting_list.session.date|date:"d/m/Y" }} -
+            {{ waiting_list.session.start_time|time:"H:i" }} a {{ waiting_list.session.end_time|time:"H:i" }}
+          </div>
+          <div class="col-md-2 text-nowrap">
+            {{ waiting_list.session.facility.name }}
+          </div>
+          <div class="col-md-4">
+            <form method="POST" action="#">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-outline-danger">Cancelar</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <div class="alert alert-info text-center">No estás en ninguna lista de espera actualmente.</div>
+  {% endfor %}
+</div>
+{% endblock %}
