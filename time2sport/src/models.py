@@ -5,7 +5,6 @@ from datetime import datetime, date
 from datetime import timedelta
 
 from sbai.models import *
-from slegpn.models import ProductBonus
 from sgu.models import User
 
 class Session(models.Model):
@@ -23,6 +22,8 @@ class Session(models.Model):
         return self.free_places == 0
 
     def add_reservation_activity(self, user):
+        from slegpn.models import ProductBonus
+
         # Check if the session is full
         if self.is_full():
             return None
@@ -160,12 +161,17 @@ class Reservation(models.Model):
     def cancel(self):
         if self.status in [ReservationStatus.VALID.value, ReservationStatus.WAITING_LIST.value]:
             # Comprobar que hay más de 2 horas de antelación
+            now = datetime.now()
+            session_date_time = datetime.combine(self.session.date, self.session.start_time)
+            time_difference = session_date_time - now
             
-            
-            self.status = ReservationStatus.CANCELLED.value
-            self.save()
+            if time_difference < timedelta(hours=2):
+                return False
+
             self.session.free_places += 1
-            self.session.save()
+
+            self.delete()
+            return True
 
     def __str__(self):
         return f"{self.user.username} - {self.session} ({self.status})"

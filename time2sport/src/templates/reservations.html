@@ -2,49 +2,114 @@
 
 {% block content %}
 <div class="container mt-4">
-  <div class="mx-auto" style="max-width: 720px;">
-    <h2 class="text-center mb-4 fw-bold">Mis reservas</h2>
+    <div class="mx-auto" style="max-width: 720px;">
+        <h2 class="text-center mb-4 fw-bold">Mis reservas</h2>
 
-    <!-- Tabs navegation -->
-    <ul class="nav nav-tabs justify-content-center mb-4 shadow-sm rounded">
-      <li class="nav-item">
-        <a class="nav-link fw-semibold {% if active_tab == 'future_reservations' %}active{% endif %}" 
-           style="{% if active_tab == 'future_reservations' %}background-color: #67a084; color: white; border-color: #67a084 #67a084 transparent;{% else %}color: #67a084;{% endif %}"
-           href="{% url 'reservations' %}">
-           Próximas reservas
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link fw-semibold {% if active_tab == 'past_reservations' %}active{% endif %}" 
-           style="{% if active_tab == 'past_reservations' %}background-color: #67a084; color: white; border-color: #67a084 #67a084 transparent;{% else %}color: #67a084;{% endif %}"
-           href="{% url 'past-reservations' %}">
-           Reservas pasadas
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link fw-semibold {% if active_tab == 'waiting_list' %}active{% endif %}" 
-           style="{% if active_tab == 'waiting_list' %}background-color: #67a084; color: white; border-color: #67a084 #67a084 transparent;{% else %}color: #67a084;{% endif %}"
-           href="#">
-           En lista de espera
-        </a>
-      </li>
-    </ul>
-  </div>
+        <!-- Tabs navegation -->
+        <ul class="nav nav-tabs justify-content-center mb-4 shadow-sm rounded">
+        <li class="nav-item">
+            <a class="nav-link fw-semibold {% if active_tab == 'future_reservations' %}active{% endif %}" 
+            style="{% if active_tab == 'future_reservations' %}background-color: #67a084; color: white; border-color: #67a084 #67a084 transparent;{% else %}color: #67a084;{% endif %}"
+            href="{% url 'reservations' %}">
+                Próximas reservas
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link fw-semibold {% if active_tab == 'past_reservations' %}active{% endif %}" 
+            style="{% if active_tab == 'past_reservations' %}background-color: #67a084; color: white; border-color: #67a084 #67a084 transparent;{% else %}color: #67a084;{% endif %}"
+            href="{% url 'past-reservations' %}">
+                Reservas pasadas
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link fw-semibold {% if active_tab == 'waiting_list' %}active{% endif %}" 
+            style="{% if active_tab == 'waiting_list' %}background-color: #67a084; color: white; border-color: #67a084 #67a084 transparent;{% else %}color: #67a084;{% endif %}"
+            href="#">
+                En lista de espera
+            </a>
+        </li>
+        </ul>
+    </div>
 
-  <style>
-    .nav-tabs .nav-link.active {
-      background-color: #67a084;
-      color: white !important;
-      border-color: #67a084 #67a084 transparent;
-    }
-  </style>
+    <style>
+        .nav-tabs .nav-link.active {
+            background-color: #67a084;
+            color: white !important;
+            border-color: #67a084 #67a084 transparent;
+        }
+    </style>
 
-  <div class="reservations_content-wrapper">
-    {% block reservations_content %}
-    Reservas futuras
-    {% endblock %}
-  </div>
+    <div class="reservations_content-wrapper">
+        {% block reservations_content %}
+        <div class="container mt-4">
+            <div class="row">
+                {% if reservations %}
+                    {% for reservation in reservations %}
+                        <div class="col-12 mb-3">
+                            <div class="d-flex align-items-center p-3" style="background-color: #dbe8db; border-radius: 10px;">
+                                <div class="flex-grow-1 ms-3">
+                                    <h4 class="fw-bold mb-1">
+                                        {% if reservation.session.activity %}
+                                            {{ reservation.session.activity.name }}
+                                        {% else %}
+                                            {{ reservation.session.facility.name }}
+                                        {% endif %}
+                                    </h4>
+                                    <p class="mb-1">
+                                        <strong>Fecha:</strong> {{ reservation.session.date|date:"d/m/Y" }}
+                                    </p>
+                                    <p class="mb-1">
+                                        <strong>Día y hora:</strong> {{ reservation.session.date|date:"l" }} {{ reservation.session.start_time|time:"H:i" }} - {{ reservation.session.end_time|time:"H:i" }}
+                                    </p>
+                                    <p class="mb-1">
+                                        {% if reservation.session.activity %}
+                                            <strong>Lugar:</strong> {{ reservation.session.activity.location }}
+                                        {% else %}
+                                            <strong>Lugar:</strong> {{ reservation.session.facility.name }} ({{ reservation.session.facility.facility_type }})
+                                        {% endif %}
+                                    </p>
+                                </div>
+                                <div>
+                                    <a href="{% url 'cancel_reservation' reservation.id %}" class="btn btn-danger">Cancelar</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-center">No tienes reservas pasadas.</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endblock %}
 
+        <!-- Mensaje de éxito o error de la cancelación -->
+        {% if messages %}
+        <div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <p class="mb-0">
+                            {% for message in messages %}
+                                <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %}">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <script>
+            var messageModal = new bootstrap.Modal(document.getElementById('messageModal'));
+            messageModal.show();
+        </script>
+    </div>
 </div>
 
 {% endblock %}

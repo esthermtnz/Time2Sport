@@ -158,7 +158,7 @@ def check_reserve_facility_session(request):
 
         return redirect('invoice_facility', facility_id=facility_id)
 
-
+@login_required
 def reserve_facility_session(request):
     selected_sessions = request.session['selected_sessions']
     
@@ -205,11 +205,40 @@ def reserve_facility_session(request):
 
 @login_required
 def reservations(request):
-    context={'active_tab': 'future_reservations'}
-    return render(request, 'reservations.html', context)
+    user = request.user
 
+    reservations = user.reservations.filter(session__date__gte=date.today()).order_by('session__date')
+    reservations = reservations.filter(status=ReservationStatus.VALID.value)
+
+    context = {
+        'active_tab': 'future_reservations',
+        'reservations': reservations
+    }
+
+    return render(request, 'reservations.html', context)
 
 @login_required
 def past_reservations(request):
-    context={'active_tab': 'past_reservations'}
+    user = request.user
+
+    past_reservations = user.reservations.filter(session__date__lt=date.today()).order_by('-session__date')
+    past_reservations = past_reservations.filter(status=ReservationStatus.VALID.value)
+
+    context = {
+        'active_tab': 'past_reservations',
+        'past_reservations': past_reservations
+    }
+
     return render(request, 'past_reservations.html', context)
+
+@login_required
+def cancel_reservation(request, reservation_id):
+    reservation = get_object_or_404(Reservation, id=reservation_id, user=request.user)
+
+    is_cancelled = reservation.cancel()
+    if not is_cancelled:
+        messages.error(request, "No puedes cancelar una reserva pasada.")
+    else:
+        messages.success(request, "Reserva cancelada con éxito.")
+    
+    return redirect('reservations')
