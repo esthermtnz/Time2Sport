@@ -159,6 +159,8 @@ class Reservation(models.Model):
     status = models.CharField(max_length=15, choices=[(tag.value, tag.name) for tag in ReservationStatus])
 
     def cancel(self):
+        from slegpn.models import ProductBonus
+
         if self.status in [ReservationStatus.VALID.value, ReservationStatus.WAITING_LIST.value]:
             # Comprobar que hay más de 2 horas de antelación
             now = datetime.now()
@@ -169,6 +171,13 @@ class Reservation(models.Model):
                 return False
 
             self.session.free_places += 1
+            self.session.save()
+
+            if self.session.activity:
+                bonusses = ProductBonus.objects.filter(user=self.user, bonus__activity=self.session.activity).last()
+                if bonusses.bonus.bonus_type == 'single':
+                    bonusses.one_use_available = True
+                    bonusses.save()
 
             self.delete()
             return True

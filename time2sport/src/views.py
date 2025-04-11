@@ -237,7 +237,7 @@ def cancel_reservation(request, reservation_id):
 
     is_cancelled = reservation.cancel()
     if not is_cancelled:
-        messages.error(request, "No puedes cancelar una reserva pasada.")
+        messages.error(request, "No puedes cancelar una reserva con menos de 2 horas de antelación.")
     else:
         messages.success(request, "Reserva cancelada con éxito.")
     
