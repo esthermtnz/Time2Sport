@@ -128,45 +128,42 @@ def complete_enrollment(request, bonus_id):
     year_now = date_now.year
     month_now = date_now.month
 
-    if not ProductBonus.objects.filter(user=user, bonus=bonus).exists():
-        title = "Pago realizado correctamente"
-        content = f"Gracias por inscribirte a {bonus.activity}. "
-        content += f"Has pagado {get_total(bonus.price, user.is_uam)}€ en un bono de tipo {get_bonus_name(bonus.bonus_type)}."
+    title = "Pago realizado correctamente"
+    content = f"Gracias por inscribirte a {bonus.activity}. "
+    content += f"Has pagado {get_total(bonus.price, user.is_uam)}€ en un bono de tipo {get_bonus_name(bonus.bonus_type)}."
 
-        if bonus.bonus_type == 'single':
-            content += " Válido para una única reserva de la actividad."
-            product_bonus = ProductBonus.objects.create(user=user, bonus=bonus, one_use_available=True)
-            Notification.objects.create(user=user, title=title, content=content)
-        elif bonus.bonus_type == 'semester':
-            # ENE - JUN : Second Semester
-            if 1 <= month_now <= 6:
-                inicio = date(year_now, 1, 1)
-                fin = date(year_now, 6, 30)
+    if bonus.bonus_type == 'single':
+        content += " Válido para una única reserva de la actividad."
+        product_bonus = ProductBonus.objects.create(user=user, bonus=bonus, one_use_available=True)
+        Notification.objects.create(user=user, title=title, content=content)
+    elif bonus.bonus_type == 'semester':
+        # ENE - JUN : Second Semester
+        if 1 <= month_now <= 6:
+            inicio = date(year_now, 1, 1)
+            fin = date(year_now, 6, 30)
 
-            # JUL - DIC : First Semester
-            elif 7 <= month_now <= 12:
-                inicio = date(year_now, 9, 1)
-                fin = date(year_now, 12, 31)
+        # JUL - DIC : First Semester
+        elif 7 <= month_now <= 12:
+            inicio = date(year_now, 9, 1)
+            fin = date(year_now, 12, 31)
 
-            content += f" Válido de {inicio.strftime('%d/%m/%Y')} - {fin.strftime('%d/%m/%Y')}."
-            product_bonus = ProductBonus.objects.create(user=user, bonus=bonus, date_begin=inicio, date_end=fin)
-            Notification.objects.create(user=user, title=title, content=content)
-        elif bonus.bonus_type == 'annual':
-            if 1 <= month_now <= 6:
-                inicio = date((year_now-1), 9, 1)
-                fin = date(year_now, 6, 30)
-            elif 7 <= month_now <= 12:
-                inicio = date(year_now, 9, 1)
-                fin = date((year_now+1), 6, 30)
+        content += f" Válido de {inicio.strftime('%d/%m/%Y')} - {fin.strftime('%d/%m/%Y')}."
+        product_bonus = ProductBonus.objects.create(user=user, bonus=bonus, date_begin=inicio, date_end=fin)
+        Notification.objects.create(user=user, title=title, content=content)
+    elif bonus.bonus_type == 'annual':
+        if 1 <= month_now <= 6:
+            inicio = date((year_now-1), 9, 1)
+            fin = date(year_now, 6, 30)
+        elif 7 <= month_now <= 12:
+            inicio = date(year_now, 9, 1)
+            fin = date((year_now+1), 6, 30)
 
-            content += f" Válido de {inicio.strftime('%d/%m/%Y')} - {fin.strftime('%d/%m/%Y')}."
+        content += f" Válido de {inicio.strftime('%d/%m/%Y')} - {fin.strftime('%d/%m/%Y')}."
 
-            product_bonus = ProductBonus.objects.create(user=user, bonus=bonus, date_begin=inicio, date_end=fin)
-            Notification.objects.create(user=user, title=title, content=content)
+        product_bonus = ProductBonus.objects.create(user=user, bonus=bonus, date_begin=inicio, date_end=fin)
+        Notification.objects.create(user=user, title=title, content=content)
 
-        return redirect('payment-activity-success', product_bonus_id=product_bonus.id)
-    
-    return redirect('index')
+    return redirect('payment-activity-success', product_bonus_id=product_bonus.id)
 
 @login_required
 def payment_activity_successful(request, product_bonus_id):

@@ -1,34 +1,51 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mt-4">
-        <h2>Searching "{{ query }}"</h2>
+<div class="search_content-wrapper">
+    <div class="container text-center" style="min-height: 60vh;">
+        <h2 class="mb-4">Buscando "{{ query }}"</h2>
+        <div class="row">
 
-        {% if facilities is not None %}
-            {% if facilities %}
-                <h3>Instalaciones</h3>
-                <ul>
+            {% if facilities is not None %}
+                {% if facilities %}
+                    <h3 class="mb-3">Instalaciones</h3>
                     {% for facility in facilities %}
-                        <li>{{ facility.name }} - {{ facility.description }}</li>
+                        <div class="col-12 mb-3">
+                            <a href="{% url 'facility_detail' facility.id %}" class="text-decoration-none text-dark">
+                                <div class="p-3" style="background-color: #e7f0f9; border-radius: 10px;">
+                                    <h4 class="fw-bold mb-1">{{ facility.name }}</h4>
+                                    <p class="mb-0">{{ facility.description }}</p>
+                                </div>
+                            </a>
+                        </div>
                     {% endfor %}
-                </ul>
-            {% else %}
-                <p>No se encontraron instalaciones.</p>
+                {% endif %}
             {% endif %}
-        {% endif %}
 
-        {% if activities is not None %}
-            {% if activities %}
-                <h3>Actividades</h3>
-                <ul>
+            {% if activities is not None %}
+                {% if activities %}
+                    <h3 class="mt-4 mb-3">Actividades</h3>
                     {% for activity in activities %}
-                        <li>{{ activity.name }} - {{ activity.description }}</li>
+                        <div class="col-12 mb-3">
+                            <a href="{% url 'activity_detail' activity.id %}" class="text-decoration-none text-dark">
+                                <div class="p-3" style="background-color: #e7f0f9; border-radius: 10px;">
+                                    <h4 class="fw-bold mb-1">{{ activity.name }}</h4>
+                                    <p class="mb-0">{{ activity.description }}</p>
+                                </div>
+                            </a>
+                        </div>
                     {% endfor %}
-                </ul>
-            {% else %}
-                <p>No se encontraron actividades.</p>
+                {% endif %}
             {% endif %}
-        {% endif %}
 
+            {% if not activities and not facilities %}
+                <div class="col-12 mb-4">
+                    <div class="d-flex align-items-center" style="background-color: #f2e9e1; border-radius: 10px; min-height:80px; padding: 2rem;">
+                        <h4 class="fw mb-1">Búsqueda sin éxito</h4>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
 </div>
 {% endblock %}
