@@ -15,6 +15,7 @@ from .utils import get_bonus_name, get_discount, get_total
 from django.contrib import messages
 from django.utils import timezone
 from datetime import date
+from django.http import JsonResponse
 import uuid
 
 
@@ -34,6 +35,11 @@ def mark_as_read(request, notification_id):
     notification.read = True
     notification.save()
     return redirect('notifications')
+
+@login_required
+def unread_notifications_count(request):
+    count = request.user.notifications.filter(read=False).count()
+    return JsonResponse({'unread_count': count})
 
 
 @login_required
