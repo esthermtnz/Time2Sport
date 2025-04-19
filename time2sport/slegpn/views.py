@@ -14,7 +14,7 @@ from src.views import reserve_facility_session, _is_conflict_reserved_sessions
 from .utils import get_bonus_name, get_discount, get_total
 from django.contrib import messages
 from django.utils import timezone
-from datetime import date
+from datetime import date, datetime, timedelta
 from django.http import JsonResponse
 import uuid
 
@@ -278,6 +278,20 @@ def join_waiting_list(request, session_id):
 
         if _is_conflict_reserved_sessions(users_sessions_day, requested_start, requested_end):
             messages.error(request, "Ya tienes una reserva para esa hora. Puedes ver tus reservas en la sección de 'Mis Reservas'.")
+            return redirect('activity_detail', session.activity.id)
+        
+        #Check that the session hasn't already started
+        start_time =  datetime.combine(session.date, session.start_time)
+        end_time = datetime.combine(session.date, session.end_time)
+
+        if session.end_time < session.start_time:
+            end_time += timedelta(days=1)
+
+        if start_time <= timezone.now() < end_time:
+            messages.error(request, "La sesión ya ha comenzado, no te puedes apuntar a la lista de espera.")
+            return redirect('activity_detail', session.activity.id)
+        elif timezone.now() >= end_time:
+            messages.error(request, "La sesión ya ha finalizado, no te puedes apuntar a la lista de espera.")
             return redirect('activity_detail', session.activity.id)
         
         #Add to waiting list and notify
