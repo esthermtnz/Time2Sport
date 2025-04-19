@@ -225,3 +225,7 @@ AUTH_USER_MODEL = "sgu.User"
 PAYPAL_TEST = True
 PAYPAL_RECEIVER_EMAIL = 'sb-ruupa38090694@business.example.com' #Paypal Receiver Account
 PAYPAL_BUY_BUTTON_IMAGE = 'https://i.postimg.cc/tJwc9N6N/paypal-pay-button.png'
+
+# Celery configuration
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+WAITING_LIST_NOTIFICATION_MINS = 1

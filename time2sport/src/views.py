@@ -1,14 +1,17 @@
 from django.shortcuts import render, redirect, get_object_or_404
 
 from .models import Reservation, Session
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 
 from django.contrib import messages
 from sbai.models import Bonus, SportFacility, Schedule
 from src.models import ReservationStatus, Reservation
 from slegpn.models import ProductBonus, Notification
-from django.utils.timezone import now
+from slegpn.tasks import check_waiting_list_timeout
+
 from datetime import datetime, date
+from django.utils.timezone import now
 
 def _is_conflict_reserved_sessions(users_sessions_day, requested_start, requested_end):
     # Check if the user does not have another session at the same time
@@ -234,11 +237,29 @@ def past_reservations(request):
 @login_required
 def cancel_reservation(request, reservation_id):
     reservation = get_object_or_404(Reservation, id=reservation_id, user=request.user)
+    session = reservation.session
 
     is_cancelled = reservation.cancel()
     if not is_cancelled:
         messages.error(request, "No puedes cancelar una reserva con menos de 2 horas de antelación.")
     else:
+        waiting_list = session.waiting_list.order_by('join_date')
+
+        # Find the first user who hasn't been notified
+        next_entry = waiting_list.filter(notified_at__isnull=True).first()
+        if next_entry:
+            # Mark as notified
+            next_entry.notified_at = now()
+            next_entry.save()
+
+            Notification.objects.create(
+                title="¡Apúntate a la sesión, se ha liberado una plaza!",
+                content=f"Se ha liberado una plaza en {session.activity.name}. Tienes {settings.WAITING_LIST_NOTIFICATION_MINS} minutos para confirmar.",
+                user=next_entry.user
+            )
+
+            # Monitor 20 minutes task
+            check_waiting_list_timeout.apply_async((session.id,), countdown=settings.WAITING_LIST_NOTIFICATION_MINS*60)
         messages.success(request, "Reserva cancelada con éxito.")
     
     return redirect('reservations')
