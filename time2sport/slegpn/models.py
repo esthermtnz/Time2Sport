@@ -54,7 +54,7 @@ class ProductBonus(models.Model):
     
 class WaitingList(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='waiting_lists')
-    session = models.ForeignKey(Session, on_delete=models.CASCADE, related_name='sessions')
+    session = models.ForeignKey(Session, on_delete=models.CASCADE, related_name='waiting_list')
     join_date = models.DateTimeField(default=timezone.now)
 
     class Meta:
@@ -63,3 +63,15 @@ class WaitingList(models.Model):
 
     def __str__(self):
             return f"{self.user.username} se encuentra en la lista de espera para la sesión {self.session}"
+    
+    def cancel(self, notify=True):
+        session = self.session
+        user = self.user
+        self.delete()
+
+        if notify:
+            title="Has sido eliminado de la lista de espera"
+            content=f"Te has borrado de la lista de espera de {session.activity.name}."
+            Notification.objects.create(user=user, title=title, content=content)
+        
+        return session

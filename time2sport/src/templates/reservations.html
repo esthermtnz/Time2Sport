@@ -24,7 +24,7 @@
         <li class="nav-item">
             <a class="nav-link fw-semibold {% if active_tab == 'waiting_list' %}active{% endif %}" 
             style="{% if active_tab == 'waiting_list' %}background-color: #67a084; color: white; border-color: #67a084 #67a084 transparent;{% else %}color: #67a084;{% endif %}"
-            href="#">
+            href="{% url 'waiting-list' %}">
                 En lista de espera
             </a>
         </li>

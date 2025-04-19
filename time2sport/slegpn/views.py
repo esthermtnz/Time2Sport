@@ -237,14 +237,8 @@ def waiting_list(request):
 def cancel_waiting_list(request, waiting_list_id):
     
     if request.method == "POST": 
-
         waiting_entry = get_object_or_404(WaitingList, id=waiting_list_id, user=request.user)
-        session = waiting_entry.session
-        waiting_entry.delete()
-        
-        title="Has sido eliminado de la lista de espera"
-        content=f"Te has borrado de la lista de espera de {session.activity.name}."
-        Notification.objects.create(user=request.user, title=title, content=content)
+        waiting_entry.cancel()
 
     return redirect('waiting-list')
 
