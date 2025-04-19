@@ -23,8 +23,8 @@ def check_waiting_list_timeout(session_id):
             else: 
                 Notification.objects.create(
                     user=current_entry.user,
-                    title="Tiempo de reserva expirado",
-                    content=f"No has confirmado tu plaza en {session.activity.name} a tiempo."
+                    title="Tiempo para reservar a expirado",
+                    content=f"No has confirmado tu plaza de {session.activity.name} a tiempo."
                 )
                 current_entry.delete()
 
@@ -37,7 +37,7 @@ def check_waiting_list_timeout(session_id):
                     Notification.objects.create(
                         user=next_entry.user,
                         title="¡Apúntate a la sesión, se ha liberado una plaza!",
-                        content=f"Se ha liberado una plaza de {session.activity.name}. Tienes {settings.WAITING_LIST_NOTIFICATION_MINS} minutos para realizar la reserva."
+                        content=f"Se ha liberado una plaza de {session.activity.name} para el día {session.date.strftime('%d/%m/%Y')} a las {session.start_time.strftime('%H:%M')}. Tienes {settings.WAITING_LIST_NOTIFICATION_MINS} minutos para realizar la reserva."
                     )
 
                     check_waiting_list_timeout.apply_async((session.id,), countdown=settings.WAITING_LIST_NOTIFICATION_MINS*60)

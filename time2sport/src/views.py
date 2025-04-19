@@ -254,7 +254,7 @@ def cancel_reservation(request, reservation_id):
 
             Notification.objects.create(
                 title="¡Apúntate a la sesión, se ha liberado una plaza!",
-                content=f"Se ha liberado una plaza en {session.activity.name}. Tienes {settings.WAITING_LIST_NOTIFICATION_MINS} minutos para confirmar.",
+                content=f"Se ha liberado una plaza en {session.activity.name} para el día {session.date.strftime('%d/%m/%Y')} a las {session.start_time.strftime('%H:%M')}. Tienes {settings.WAITING_LIST_NOTIFICATION_MINS} minutos para confirmar.",
                 user=next_entry.user
             )
 

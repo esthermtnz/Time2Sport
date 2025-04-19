@@ -281,8 +281,8 @@ def join_waiting_list(request, session_id):
             return redirect('activity_detail', session.activity.id)
         
         #Check that the session hasn't already started
-        start_time =  datetime.combine(session.date, session.start_time)
-        end_time = datetime.combine(session.date, session.end_time)
+        start_time = timezone.make_aware(datetime.combine(session.date, session.start_time))
+        end_time = timezone.make_aware(datetime.combine(session.date, session.end_time))
 
         if session.end_time < session.start_time:
             end_time += timedelta(days=1)
