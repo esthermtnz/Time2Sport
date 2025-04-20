@@ -239,6 +239,7 @@ def waiting_list(request):
     context={'waiting_lists': waiting_lists, 'active_tab': 'waiting_list'}
     return render(request, 'waiting_list.html', context)
 
+@login_required
 def cancel_waiting_list(request, waiting_list_id):
     
     if request.method == "POST": 
