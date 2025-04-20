@@ -1,16 +1,15 @@
 from django.test import TestCase
 from django.urls import reverse
-from sbai.models import Activity, Schedule, Bonus
+from sbai.models import Activity, Schedule, Bonus, DayOfWeek
 from sgu.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
-
 
 class AllActivitiesViewTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         # Create an activity schedule
         cls.activity_schedule = Schedule.objects.create(
-            day_of_week = "Tuesday",
+            day_of_week = DayOfWeek.MARTES,
             hour_begin = "08:00:00",
             hour_end = "14:00:00"
         )
@@ -177,7 +176,7 @@ class ActivityDetailViewTestCase(TestCase):
 
         # Create an activity schedule
         cls.activity_schedule = Schedule.objects.create(
-            day_of_week = "Tuesday",
+            day_of_week = DayOfWeek.MARTES,
             hour_begin = "08:00:00",
             hour_end = "14:00:00"
         )

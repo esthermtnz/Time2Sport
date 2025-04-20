@@ -87,9 +87,12 @@ class Session(models.Model):
 
         elif facility:
             if facility.number_of_facilities > 1:
-                # Remove last digit from the name
-                facility_name = ' '.join(facility.name.split(" ")[:-1])
-                instances = SportFacility.objects.filter(name__regex=f"^{facility_name} [0-9]+$")
+                if not facility.name[-1].isdigit():
+                    facility_name = facility.name
+                else:
+                    facility_name = ' '.join(facility.name.split(" ")[:-1])
+
+                instances = SportFacility.objects.filter(name__regex=f"^{facility_name}( [0-9]+)?$")
             else:
                 instances = [facility]
 

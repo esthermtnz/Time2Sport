@@ -1,47 +1,47 @@
 import os
 from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
-from sbai.models import Schedule, SportFacility, Activity, Photo, Bonus
+from sbai.models import Schedule, SportFacility, Activity, Photo, Bonus, DayOfWeek
 
 class ScheduleModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         # Create a sport facility schedule
         cls.sport_facility_schedule = Schedule.objects.create(
-            day_of_week = "Wednesday",
+            day_of_week = DayOfWeek.MIERCOLES,
             hour_begin = "09:00:00",
             hour_end = "11:00:00"
         )
 
         # Create an activity schedule
         cls.activity_schedule = Schedule.objects.create(
-            day_of_week = "Tuesday",
+            day_of_week = DayOfWeek.MARTES,
             hour_begin = "08:00:00",
             hour_end = "14:00:00"
         )
 
     def test_sport_facility_schedule_fields(self):
         """Verify that the sport facility schedule fields match"""
-        self.assertEqual(self.sport_facility_schedule.day_of_week, "Wednesday")
+        self.assertEqual(self.sport_facility_schedule.get_day_of_week_display(), "Miércoles")
         self.assertEqual(self.sport_facility_schedule.hour_begin, "09:00:00")
         self.assertEqual(self.sport_facility_schedule.hour_end, "11:00:00")
 
 
     def test_sport_facility_schedule_str(self):
         """Verify that the sport facility schedule string method is correct"""
-        self.assertEqual(str(self.sport_facility_schedule), "Wednesday: 09:00:00 - 11:00:00")
+        self.assertEqual(str(self.sport_facility_schedule), "Miércoles: 09:00:00 - 11:00:00")
 
     
     def test_activity_schedule_fields(self):
         """Verify that the activity schedule fields match"""
-        self.assertEqual(self.activity_schedule.day_of_week, "Tuesday")
+        self.assertEqual(self.activity_schedule.get_day_of_week_display(), "Martes")
         self.assertEqual(self.activity_schedule.hour_begin, "08:00:00")
         self.assertEqual(self.activity_schedule.hour_end, "14:00:00")
 
 
     def test_activity_schedule_str(self):
         """Verify that the activity schedule string method is correct"""
-        self.assertEqual(str(self.activity_schedule), "Tuesday: 08:00:00 - 14:00:00")
+        self.assertEqual(str(self.activity_schedule), "Martes: 08:00:00 - 14:00:00")
 
     
 class SportFacilityModelTest(TestCase):
@@ -49,7 +49,7 @@ class SportFacilityModelTest(TestCase):
     def setUpTestData(cls):
         # Create a sport facility schedule
         cls.sport_facility_schedule = Schedule.objects.create(
-            day_of_week = "Wednesday",
+            day_of_week = DayOfWeek.MIERCOLES,
             hour_begin = "09:00:00",
             hour_end = "11:00:00"
         )
@@ -86,7 +86,7 @@ class ActivityModelTest(TestCase):
     def setUpTestData(cls):
         # Create an activity schedule
         cls.activity_schedule = Schedule.objects.create(
-            day_of_week = "Tuesday",
+            day_of_week = DayOfWeek.MARTES,
             hour_begin = "08:00:00",
             hour_end = "14:00:00"
         )

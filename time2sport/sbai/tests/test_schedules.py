@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.urls import reverse
-from sbai.models import Activity, SportFacility, Schedule
+from sbai.models import Activity, SportFacility, Schedule, DayOfWeek
 from sgu.models import User
 
 
@@ -9,14 +9,14 @@ class SchedulesViewTestCase(TestCase):
     def setUpTestData(cls):
         # Create a sport facility schedule
         cls.sport_facility_schedule = Schedule.objects.create(
-            day_of_week = "Wednesday",
+            day_of_week = DayOfWeek.MIERCOLES,
             hour_begin = "09:00:00",
             hour_end = "11:00:00"
         )
 
         # Create an activity schedule
         cls.activity_schedule = Schedule.objects.create(
-            day_of_week = "Tuesday",
+            day_of_week = DayOfWeek.MARTES,
             hour_begin = "08:00:00",
             hour_end = "14:00:00"
         )
@@ -84,7 +84,7 @@ class FacilitiesScheduleViewTestCase(TestCase):
     def setUpTestData(cls):
         # Create a sport facility schedule
         cls.sport_facility_schedule = Schedule.objects.create(
-            day_of_week = "Wednesday",
+            day_of_week = DayOfWeek.MIERCOLES,
             hour_begin = "09:00:00",
             hour_end = "11:00:00"
         )
@@ -152,7 +152,7 @@ class ActivitiesScheduleViewTestCase(TestCase):
     def setUpTestData(cls):
         # Create an activity schedule
         cls.activity_schedule = Schedule.objects.create(
-            day_of_week = "Tuesday",
+            day_of_week = DayOfWeek.MARTES,
             hour_begin = "08:00:00",
             hour_end = "14:00:00"
         )
@@ -194,7 +194,7 @@ class ActivitiesScheduleViewTestCase(TestCase):
         #Check the activity is sent to the template
         formatted_schedules = [
             {
-                "day": schedule.day_of_week,
+                "day": schedule.get_day_of_week_display(),
                 "times": f"{schedule.hour_begin.strftime('%H:%M')} - {schedule.hour_end.strftime('%H:%M')}"
             }
             for schedule in self.activity.schedules.all()
@@ -233,14 +233,14 @@ class DownloadsViewTestCase(TestCase):
     def setUpTestData(cls):
         # Create a sport facility schedule
         cls.sport_facility_schedule = Schedule.objects.create(
-            day_of_week = "Wednesday",
+            day_of_week = DayOfWeek.MIERCOLES,
             hour_begin = "09:00:00",
             hour_end = "11:00:00"
         )
 
         # Create an activity schedule
         cls.activity_schedule = Schedule.objects.create(
-            day_of_week = "Tuesday",
+            day_of_week = DayOfWeek.MARTES,
             hour_begin = "08:00:00",
             hour_end = "14:00:00"
         )

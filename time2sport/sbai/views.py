@@ -64,11 +64,9 @@ def all_facilities(request):
     for f in all_facilities:
         if f.number_of_facilities > 1:
             # Get the first instance
-            name = ' '.join(f.name.split(" ")[:-1])
-            facility = SportFacility.objects.filter(name__regex=f"^{name} [0-9]+$").first()
-            if facility and facility not in facilities:
-                facility.name = name
-                facilities.append(facility)
+            if not f.name.split(" ")[-1].isdigit():
+                name = f.name
+                facilities.append(f)
         else:
             facilities.append(f)
 
@@ -94,9 +92,13 @@ def facility_detail(request, facility_id):
     # Check if the facility has multiple instances
     if facility.number_of_facilities == 1:
         facilities = [facility]
+        name = facility.name
     else:
-        name = ' '.join(facility.name.split(" ")[:-1])
-        facilities = SportFacility.objects.filter(name__regex=f"^{name} [0-9]+$").prefetch_related('photos')
+        if facility.name.split(" ")[-1].isdigit():
+            name = ' '.join(facility.name.split(" ")[:-1])
+        else:
+            name = facility.name
+        facilities = SportFacility.objects.filter(name__regex=f"^{name}( [0-9]+)?$").prefetch_related('photos')
 
     # Get the next 7 days
     today = timezone.now().date()
@@ -125,7 +127,7 @@ def facility_detail(request, facility_id):
 
     return render(request, 'facilities/facility_detail.html', {
         'facility': facility,
-        'instances': facilities,
+        'name': name,
         'next_7_days': next_7_days,
         'sessions_next_7_days': sessions_next_7_days
     })
@@ -193,7 +195,7 @@ def activities_schedule(request):
         schedule_dict = {}
 
         for schedule in activity.schedules.all():
-            day = schedule.get_day_of_week_display
+            day = schedule.get_day_of_week_display()
             time_range = f"{schedule.hour_begin.strftime('%H:%M')} - {schedule.hour_end.strftime('%H:%M')}"
 
             if day not in schedule_dict:

@@ -1,6 +1,6 @@
 from django.test import TestCase, Client
 from django.urls import reverse
-from sbai.models import Activity, SportFacility, Schedule, Bonus
+from sbai.models import Activity, SportFacility, Schedule, Bonus, DayOfWeek
 from sgu.models import User
 
 
@@ -9,14 +9,14 @@ class SearchResultsViewTestCase(TestCase):
     def setUpTestData(cls):
         # Create a sport facility schedule
         cls.sport_facility_schedule = Schedule.objects.create(
-            day_of_week = "Wednesday",
+            day_of_week = DayOfWeek.MIERCOLES,
             hour_begin = "09:00:00",
             hour_end = "11:00:00"
         )
 
         # Create an activity schedule
         cls.activity_schedule = Schedule.objects.create(
-            day_of_week = "Tuesday",
+            day_of_week = DayOfWeek.MARTES,
             hour_begin = "08:00:00",
             hour_end = "14:00:00"
         )
@@ -74,7 +74,7 @@ class SearchResultsViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'search_results.html')
 
-        self.assertContains(response, f'Searching "{self.activity.name}"')
+        self.assertContains(response, f'Buscando "{self.activity.name}"')
 
         #(GET) - Get the template search_results searching for an activity
         response = self.client.get(reverse('search_results'))
@@ -87,7 +87,8 @@ class SearchResultsViewTestCase(TestCase):
 
         #-- Template verification --
         self.assertContains(response, "Actividades")
-        self.assertContains(response, f'{self.activity.name} - {self.activity.description}')
+        self.assertContains(response, self.activity.name)
+        self.assertContains(response, self.activity.description)
 
     def test_search_results_view_2(self):
         """Searching a sport facility with filters"""
@@ -101,7 +102,7 @@ class SearchResultsViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'search_results.html')
 
-        self.assertContains(response, f'Searching "{self.sport_facility.name}"')
+        self.assertContains(response, f'Buscando "{self.sport_facility.name}"')
 
         #(GET) - Get the template search_results searching for an sport facility
         response = self.client.get(reverse('search_results'))
@@ -114,7 +115,8 @@ class SearchResultsViewTestCase(TestCase):
 
         #-- Template verification --
         self.assertContains(response, "Instalaciones")
-        self.assertContains(response, f'{self.sport_facility.name} - {self.sport_facility.description}')
+        self.assertContains(response, self.sport_facility.name)
+        self.assertContains(response, self.sport_facility.description)
         
     def test_search_results_view_3(self):
         """Searching an empty query without filters"""
@@ -128,7 +130,7 @@ class SearchResultsViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'search_results.html')
 
-        self.assertContains(response, f'Searching ""')
+        self.assertContains(response, f'Buscando ""')
 
         #(GET) - Get the template search_results searching for an sport facility
         response = self.client.get(reverse('search_results'))
@@ -142,10 +144,12 @@ class SearchResultsViewTestCase(TestCase):
 
         #-- Template verification --
         self.assertContains(response, "Instalaciones")
-        self.assertContains(response, f'{self.sport_facility.name} - {self.sport_facility.description}')
+        self.assertContains(response, self.sport_facility.name)
+        self.assertContains(response, self.sport_facility.description)
         
         self.assertContains(response, "Actividades")
-        self.assertContains(response, f'{self.activity.name} - {self.activity.description}')
+        self.assertContains(response, self.activity.name)
+        self.assertContains(response, self.activity.description)
 
     def test_search_no_results(self):
         """Searching for a non-existent activity or facility"""
@@ -154,8 +158,7 @@ class SearchResultsViewTestCase(TestCase):
         response = self.client.post(reverse('search_results'), {'q': "Busqueda incorrecta"})
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "No se encontraron instalaciones.")
-        self.assertContains(response, "No se encontraron actividades.")
+        self.assertContains(response, "Búsqueda sin éxito")
 
     def test_search_case_insensitive(self):
         """Searching with different letter cases"""
@@ -164,7 +167,7 @@ class SearchResultsViewTestCase(TestCase):
         response = self.client.post(reverse('search_results'), {'q': "zUmBa"})
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, f'Searching "zUmBa"')
+        self.assertContains(response, f'Buscando "zUmBa"')
 
         #(GET) - Get the template search_results searching for an activity
         response = self.client.get(reverse('search_results'))
@@ -177,7 +180,8 @@ class SearchResultsViewTestCase(TestCase):
 
         #-- Template verification --
         self.assertContains(response, "Actividades")
-        self.assertContains(response, f'{self.activity.name} - {self.activity.description}')
+        self.assertContains(response, self.activity.name)
+        self.assertContains(response, self.activity.description)
 
     def test_search_with_extra_spaces(self):
         """Searching with extra spaces"""

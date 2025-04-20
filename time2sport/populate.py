@@ -128,14 +128,14 @@ def populate():
         for day, hours in facility_schedules.get(fac['name'], {}).items():
             schedules.extend(create_schedule(day, hours))
 
-        facility = SportFacility.create(
+        facility = SportFacility.objects.create(
             name=fac['name'],
             number_of_facilities=fac['number_of_facilities'],
             description=fac['description'],
             hour_price=fac['hour_price'],
             facility_type=fac['facility_type'],
             schedules=schedules
-        )[0]
+        )
 
         # Associate existing images
         facility_images_folder = f'media/facilities/{facility.id}'

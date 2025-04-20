@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.urls import reverse
-from sbai.models import SportFacility, Schedule
+from sbai.models import SportFacility, Schedule, DayOfWeek
 from sgu.models import User
 
 
@@ -9,7 +9,7 @@ class AllFacilitiesViewTestCase(TestCase):
     def setUpTestData(cls):
         # Create a sport facility schedule
         cls.sport_facility_schedule = Schedule.objects.create(
-            day_of_week = "Wednesday",
+            day_of_week = DayOfWeek.MIERCOLES,
             hour_begin = "09:00:00",
             hour_end = "11:00:00"
         )
@@ -172,7 +172,7 @@ class FacilityDetailViewTestCase(TestCase):
     def setUpTestData(cls):
         # Create a sport facility schedule
         cls.sport_facility_schedule = Schedule.objects.create(
-            day_of_week = "Wednesday",
+            day_of_week = DayOfWeek.MIERCOLES,
             hour_begin = "09:00:00",
             hour_end = "11:00:00"
         )
@@ -237,7 +237,7 @@ class FacilityDetailViewTestCase(TestCase):
         self.assertContains(response, self.sport_facility.description)
 
         #Check that the 'Reservar' button is displayed
-        self.assertContains(response, '<button class="btn btn-success btn-lg">RESERVAR</button>', html=True)
+        self.assertContains(response, '<button type="submit" class="btn btn-primary mt-3">Reservar</button>', html=True)
 
         #Check that the facility's photos are displayed
         if self.sport_facility.photos.exists():
@@ -270,7 +270,7 @@ class FacilityDetailViewTestCase(TestCase):
             self.assertNotContains(response, day)
 
         #Check that the 'Reservar' button is displayed
-        self.assertContains(response, '<button class="btn btn-success btn-lg">RESERVAR</button>', html=True)
+        self.assertContains(response, '<button type="submit" class="btn btn-primary mt-3">Reservar</button>', html=True)
 
         #Check that the facility's photos are displayed
         if self.sport_facility_without_schedule.photos.exists():

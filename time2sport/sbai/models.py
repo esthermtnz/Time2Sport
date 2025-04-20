@@ -33,6 +33,44 @@ class Schedule(models.Model):
         return f"{self.get_day_of_week_display()}: {self.hour_begin} - {self.hour_end}"
 
 
+class SportFacilityManager(models.Manager):
+    def create(self, name, number_of_facilities, description, hour_price, facility_type, schedules=None, **kwargs):
+        instances = []
+        if number_of_facilities > 1:
+            original_name = name
+            for i in range(1, number_of_facilities + 1):
+                if i == 1:
+                    name = original_name
+                else:
+                    name = f"{original_name} {i}"
+                instances.append(name)
+        else:
+            instances.append(name)
+
+        created_facilities = []
+        count = 0
+        for i in instances:
+            # If a facility with the same name does not exist, create it
+            if not self.model.objects.filter(name=i).exists():
+                facility = self.model(
+                    name=i,
+                    number_of_facilities=number_of_facilities,
+                    description=description,
+                    hour_price=hour_price,
+                    facility_type=facility_type
+                )
+                facility.save()
+
+                if schedules:
+                    facility.schedules.set(schedules)
+                    facility.save()
+
+                created_facilities.append(facility)
+                count += 1
+
+        return created_facilities[0]
+
+
 class SportFacility(models.Model):
     FACILITY_TYPE_CHOICES = [
         ('exterior', 'Exterior'),
@@ -46,40 +84,7 @@ class SportFacility(models.Model):
     facility_type = models.CharField(max_length=10, choices=FACILITY_TYPE_CHOICES)
     schedules = models.ManyToManyField(Schedule, related_name="sport_facilities", blank=True)
 
-
-    @classmethod
-    def create(cls, name, number_of_facilities, description, hour_price, facility_type, schedules):
-        instances = []
-        if number_of_facilities > 1:
-            original_name = name
-            for i in range(1, number_of_facilities + 1):
-                name = f"{original_name} {i}"
-                instances.append(name)
-        else:
-            instances.append(name)
-
-        created_facilities = []
-        count = 0
-        for i in instances:
-            # If a facility with the same name does not exist, create it
-            if not cls.objects.filter(name=i).exists():
-                facility = cls(
-                    name=i,
-                    number_of_facilities=number_of_facilities,
-                    description=description,
-                    hour_price=hour_price,
-                    facility_type=facility_type
-                )
-                facility.save()
-
-                facility.schedules.set(schedules)
-                facility.save()
-                created_facilities.append(facility)
-
-                count += 1
-
-        return created_facilities
-
+    objects = SportFacilityManager()
 
     def __str__(self):
         return self.name
