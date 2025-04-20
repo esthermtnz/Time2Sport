@@ -19,7 +19,7 @@ class SessionModelTest(TestCase):
         )
         activity.schedules.add(
             Schedule.objects.create(
-                day_of_week = DayOfWeek.Martes.value,
+                day_of_week = DayOfWeek.MARTES,
                 hour_begin = "08:00:00",
                 hour_end = "14:00:00"
             )
@@ -35,7 +35,7 @@ class SessionModelTest(TestCase):
         )
         facility.schedules.add(
             Schedule.objects.create(
-                day_of_week = DayOfWeek.Jueves.value,
+                day_of_week = DayOfWeek.JUEVES,
                 hour_begin = "09:00:00",
                 hour_end = "14:00:00"
             )
@@ -43,14 +43,14 @@ class SessionModelTest(TestCase):
 
         # Create the session for the activity schedule
         schedule_activity = Schedule.objects.create(
-            day_of_week = DayOfWeek.Martes.value,
+            day_of_week = DayOfWeek.MARTES,
             hour_begin = "08:00:00",
             hour_end = "9:00:00"
         )
 
         # Create the session for the facility schedule
         schedule_facility = Schedule.objects.create(
-            day_of_week = DayOfWeek.Jueves.value,
+            day_of_week = DayOfWeek.JUEVES,
             hour_begin = "09:00:00",
             hour_end = "10:00:00"
         )
@@ -90,7 +90,7 @@ class SessionModelTest(TestCase):
         session = self.session_activity
         self.assertEqual(session.activity.name, "Partido de Futbol")
         self.assertIsNone(session.facility)
-        self.assertEqual(session.schedule.day_of_week, DayOfWeek.Martes.value)
+        self.assertEqual(session.schedule.day_of_week, DayOfWeek.MARTES)
         self.assertEqual(session.capacity, 5)
         self.assertEqual(session.free_places, 5)
         self.assertEqual(session.start_time, time(8, 0))
@@ -101,7 +101,7 @@ class SessionModelTest(TestCase):
         session = self.session_facility
         self.assertIsNone(session.activity)
         self.assertEqual(session.facility.name, "Pista de Tenis")
-        self.assertEqual(session.schedule.day_of_week, DayOfWeek.Jueves.value)
+        self.assertEqual(session.schedule.day_of_week, DayOfWeek.JUEVES)
         self.assertEqual(session.capacity, 2)
         self.assertEqual(session.free_places, 2)
         self.assertEqual(session.start_time, time(9, 0))
@@ -201,7 +201,7 @@ class ReservationModelTest(TestCase):
         )
         activity.schedules.add(
             Schedule.objects.create(
-                day_of_week = DayOfWeek.Martes.value,
+                day_of_week = DayOfWeek.MARTES,
                 hour_begin = "08:00:00",
                 hour_end = "14:00:00"
             )
@@ -209,7 +209,7 @@ class ReservationModelTest(TestCase):
 
         # Create the session for the activity schedule
         schedule_activity = Schedule.objects.create(
-            day_of_week = DayOfWeek.Martes.value,
+            day_of_week = DayOfWeek.MARTES,
             hour_begin = "08:00:00",
             hour_end = "9:00:00"
         )
@@ -252,8 +252,9 @@ class ReservationModelTest(TestCase):
     def test_reservation_cancel(self):
         reservation = self.reservation
         session = reservation.session
-        session.date = (timezone.now() + timedelta(days=1)).date() 
-        session.start_time = (timezone.now() + timedelta(hours=3)).time()
+        now = timezone.now()
+        session.date = (now + timedelta(days=1)).date()
+        session.start_time = time(10, 0)
         session.save()
 
         bonus = Bonus.objects.create(

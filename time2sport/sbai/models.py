@@ -30,7 +30,7 @@ class Schedule(models.Model):
     hour_end = models.TimeField()
 
     def __str__(self):
-        return f"{self.day_of_week}: {self.hour_begin} - {self.hour_end}"
+        return f"{self.get_day_of_week_display()}: {self.hour_begin} - {self.hour_end}"
 
 
 class SportFacility(models.Model):
