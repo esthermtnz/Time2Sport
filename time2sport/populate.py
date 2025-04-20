@@ -22,7 +22,7 @@ def create_schedule(day, hour_ranges):
     schedules = []
     for hour_begin, hour_end in hour_ranges:
         schedule = Schedule.objects.create(
-            day_of_week=DayOfWeek(int(day)).value,
+            day_of_week=day,
             hour_begin=hour_begin,
             hour_end=hour_end
         )
@@ -33,40 +33,40 @@ def create_schedule(day, hour_ranges):
 def populate():
     activity_schedules = {
         'Partido de Fútbol': {
-            '0': [('08:00:00', '09:00:00'), ('11:00:00', '12:00:00')],
-            '1': [('09:00:00', '11:00:00')],
-            '4': [('08:00:00', '10:00:00')]
+            0: [('08:00:00', '09:00:00'), ('11:00:00', '12:00:00')],
+            DayOfWeek.MARTES: [('09:00:00', '11:00:00')],
+            DayOfWeek.VIERNES: [('08:00:00', '10:00:00')]
         },
         'Entrenamiento de Tenis': {
-            '0': [('10:00:00', '12:00:00')],
-            '2': [('14:00:00', '16:00:00')],
-            '5': [('09:00:00', '11:00:00')]
+            DayOfWeek.LUNES: [('10:00:00', '12:00:00')],
+            DayOfWeek.MIERCOLES: [('14:00:00', '16:00:00')],
+            DayOfWeek.SABADO: [('09:00:00', '11:00:00')]
         },
         'Entrenamiento de Baloncesto': {
-            '3': [('17:00:00', '19:00:00')],
-            '6': [('10:00:00', '12:00:00')]
+            DayOfWeek.JUEVES: [('17:00:00', '19:00:00')],
+            DayOfWeek.DOMINGO: [('10:00:00', '12:00:00')]
         },
         'Clases de Natación': {
-            '0': [('07:00:00', '08:00:00')],
-            '2': [('15:00:00', '16:00:00')],
-            '4': [('18:00:00', '19:30:00')]
+            DayOfWeek.LUNES: [('07:00:00', '08:00:00')],
+            DayOfWeek.MIERCOLES: [('15:00:00', '16:00:00')],
+            DayOfWeek.VIERNES: [('18:00:00', '19:30:00')]
         },
         'Entrenamiento de Carrera': {
-            '1': [('06:00:00', '07:00:00'), ('19:00:00', '20:00:00')],
-            '3': [('08:00:00', '09:00:00')]
+            DayOfWeek.MARTES: [('06:00:00', '07:00:00'), ('19:00:00', '20:00:00')],
+            DayOfWeek.JUEVES: [('08:00:00', '09:00:00')]
         }
     }
 
     facility_schedules = {
         'Campo de Fútbol': {
-            '0': [('07:00:00', '10:00:00')],
-            '2': [('12:00:00', '15:00:00')],
-            '5': [('10:00:00', '12:00:00')]
+            DayOfWeek.LUNES: [('07:00:00', '10:00:00')],
+            DayOfWeek.MIERCOLES: [('12:00:00', '15:00:00')],
+            DayOfWeek.SABADO: [('10:00:00', '12:00:00')]
         },
         'Pista de Tenis': {
-            '1': [('08:00:00', '10:00:00')],
-            '3': [('16:00:00', '18:00:00')],
-            '6': [('09:00:00', '11:00:00')]
+            DayOfWeek.MARTES: [('08:00:00', '10:00:00')],
+            DayOfWeek.JUEVES: [('16:00:00', '18:00:00')],
+            DayOfWeek.DOMINGO: [('09:00:00', '11:00:00')]
         }
     }
 

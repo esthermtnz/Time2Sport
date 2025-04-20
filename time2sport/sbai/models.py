@@ -15,17 +15,17 @@ def photo_upload_path(instance, filename):
     return f"photos/{filename}"
 
 
-class DayOfWeek(Enum):
-    Lunes = 0
-    Martes = 1
-    Miércoles = 2
-    Jueves = 3
-    Viernes = 4
-    Sábado = 5
-    Domingo = 6
+class DayOfWeek(models.IntegerChoices):
+    LUNES = 0, "Lunes"
+    MARTES = 1, "Martes"
+    MIERCOLES = 2, "Miércoles"
+    JUEVES = 3, "Jueves"
+    VIERNES = 4, "Viernes"
+    SABADO = 5, "Sabado"
+    DOMINGO = 6, "Domingo"
 
 class Schedule(models.Model):
-    day_of_week = models.IntegerField(choices=[(day.value, day.name) for day in DayOfWeek])
+    day_of_week = models.IntegerField(choices=DayOfWeek.choices)
     hour_begin = models.TimeField()
     hour_end = models.TimeField()
 

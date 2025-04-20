@@ -161,7 +161,7 @@ def download_facilities_schedule(request):
     # Recopilar los horarios de las instalaciones
     for facility in facilities:
         horarios = "\n".join(
-            [f"{schedule.day_of_week}: {schedule.hour_begin} - {schedule.hour_end}" for schedule in facility.schedules.all()]
+            [f"{schedule.get_day_of_week_display()}: {schedule.hour_begin} - {schedule.hour_end}" for schedule in facility.schedules.all()]
         )
         data.append([facility.name, horarios])
 
@@ -193,7 +193,7 @@ def activities_schedule(request):
         schedule_dict = {}
 
         for schedule in activity.schedules.all():
-            day = schedule.day_of_week
+            day = schedule.get_day_of_week_display
             time_range = f"{schedule.hour_begin.strftime('%H:%M')} - {schedule.hour_end.strftime('%H:%M')}"
 
             if day not in schedule_dict:
@@ -241,9 +241,10 @@ def download_activities_schedule(request):
 
         # Agrupar horarios por día
         for schedule in activity.schedules.all():
-            if schedule.day_of_week not in schedules_by_day:
-                schedules_by_day[schedule.day_of_week] = []
-            schedules_by_day[schedule.day_of_week].append(f"{schedule.hour_begin.strftime('%I:%M')} - {schedule.hour_end.strftime('%I:%M')}")
+            day = schedule.get_day_of_week_display()
+            if day not in schedules_by_day:
+                schedules_by_day[day] = []
+            schedules_by_day[day].append(f"{schedule.hour_begin.strftime('%I:%M')} - {schedule.hour_end.strftime('%I:%M')}")
 
         activity_rows = [] # Filas de la misma actividad
         for day, hours in schedules_by_day.items():
