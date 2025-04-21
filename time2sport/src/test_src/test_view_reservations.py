@@ -12,20 +12,6 @@ class ReservationsViewTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        # Create an activity
-        cls.activity = Activity.objects.create(
-            name = "Partido de Futbol",
-            location = "Campo de Fútbol",
-            description = "Entrenamiento futbol sala para 5 jugadores",
-            activity_type = "Terrestre",
-        )
-        cls.activity.schedules.add(
-            Schedule.objects.create(
-                day_of_week = DayOfWeek.MARTES,
-                hour_begin = "08:00:00",
-                hour_end = "14:00:00"
-            )
-        )
 
         # Create the session for the activity schedule
         schedule_activity = Schedule.objects.create(
@@ -33,6 +19,15 @@ class ReservationsViewTest(TestCase):
             hour_begin = "08:00:00",
             hour_end = "9:00:00"
         )
+
+        # Create an activity
+        cls.activity = Activity.objects.create(
+            name = "Partido de Futbol",
+            location = "Campo de Fútbol",
+            description = "Entrenamiento futbol sala para 5 jugadores",
+            activity_type = "Terrestre",
+        )
+        cls.activity.schedules.add(schedule_activity)
 
         #Create a session
         cls.session = Session.objects.create(
@@ -95,6 +90,7 @@ class ReservationsViewTest(TestCase):
         self.assertRedirects(response, f"/accounts/login/?next={reverse('reservations')}")
 
     def test_reservations(self):
+        "Checks that the future reservations are correctly displayed"
         self.client.force_login(self.user)
 
         response = self.client.get(reverse('reservations'))
@@ -119,6 +115,7 @@ class ReservationsViewTest(TestCase):
         self.assertContains(response, 'class="btn btn-danger">Cancelar</a>')
 
     def test_any_future_reservations(self):
+        "Checks that in case there isn't any future reservation a message is shown"
         self.client.force_login(self.user)
 
         self.session.date = date.today() - timedelta(days=1)
@@ -130,6 +127,7 @@ class ReservationsViewTest(TestCase):
         self.assertContains(response, "No tienes reservas agendadas.")
 
     def test_past_reservation_not_displayed(self):
+        "Checks that in case a past reservations exist, it is not displayed"
         self.client.force_login(self.user)
 
         self.session.date = date.today() - timedelta(days=3)
@@ -141,9 +139,10 @@ class ReservationsViewTest(TestCase):
         self.assertNotContains(response, self.activity.name)
 
     def test_multiple_future_reservations(self):
+        "Checks that in case there are multiple reservations both are displayed"
         self.client.force_login(self.user)
 
-        Reservation.objects.create(
+        reservation_2 = Reservation.objects.create(
             user=self.user,
             session=self.session_2,
             bonus=self.reservation.bonus
@@ -153,7 +152,25 @@ class ReservationsViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context['reservations']), 2)
 
+        #Session 1
+        self.assertContains(response, self.activity.name)
+        self.assertContains(response, self.reservation.session.date.strftime('%d/%m/%Y'))
+        self.assertContains(response, self.reservation.session.end_time.strftime('%H:%M'))
+        self.assertContains(response, self.reservation.session.date.strftime('%A'))
+        self.assertContains(response, self.activity.location)
+
+        #Session 2
+        self.assertContains(response, self.activity.name)
+        self.assertContains(response, reservation_2.session.date.strftime('%d/%m/%Y'))
+        self.assertContains(response, reservation_2.session.end_time.strftime('%H:%M'))
+        self.assertContains(response, reservation_2.session.date.strftime('%A'))
+        self.assertContains(response, self.activity.location)
+
+        #Check Cancelar button
+        self.assertContains(response, 'class="btn btn-danger">Cancelar</a>')
+
     def test_reservations_are_ordered_by_date(self):
+        "Checks that the sessions are displayed in the correct order"
         self.client.force_login(self.user)
 
         future_date = date.today() + timedelta(days=5)
@@ -181,6 +198,14 @@ class PastReservationsViewTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        
+        # Create the session for the activity schedule
+        schedule_activity = Schedule.objects.create(
+            day_of_week = DayOfWeek.MARTES,
+            hour_begin = "08:00:00",
+            hour_end = "9:00:00"
+        )
+
         # Create an activity
         cls.activity = Activity.objects.create(
             name = "Partido de Futbol",
@@ -188,20 +213,7 @@ class PastReservationsViewTest(TestCase):
             description = "Entrenamiento futbol sala para 5 jugadores",
             activity_type = "Terrestre",
         )
-        cls.activity.schedules.add(
-            Schedule.objects.create(
-                day_of_week = DayOfWeek.MARTES,
-                hour_begin = "08:00:00",
-                hour_end = "14:00:00"
-            )
-        )
-
-        # Create the session for the activity schedule
-        schedule_activity = Schedule.objects.create(
-            day_of_week = DayOfWeek.MARTES,
-            hour_begin = "08:00:00",
-            hour_end = "9:00:00"
-        )
+        cls.activity.schedules.add(schedule_activity)
 
         #Create a session
         cls.session = Session.objects.create(
@@ -264,6 +276,7 @@ class PastReservationsViewTest(TestCase):
         self.assertRedirects(response, f"/accounts/login/?next={reverse('past-reservations')}")
 
     def test_past_reservations(self):
+        "Checks that the past reservation is correclty displayed in the view"
         self.client.force_login(self.user)
 
         response = self.client.get(reverse('past-reservations'))
@@ -285,6 +298,7 @@ class PastReservationsViewTest(TestCase):
         self.assertContains(response, self.activity.location)
 
     def test_any_past_reservations(self):
+        "Checks that in case there isn't any past reservation a message is shown"
         self.client.force_login(self.user)
 
         self.session.date = date.today() + timedelta(days=1)
@@ -296,6 +310,7 @@ class PastReservationsViewTest(TestCase):
         self.assertContains(response, "No tienes reservas pasadas.")
 
     def test_future_reservation_not_displayed(self):
+        "Checks that in case there is a future reservation it is not displayed"
         self.client.force_login(self.user)
 
         self.session.date = date.today() + timedelta(days=2)
@@ -306,10 +321,11 @@ class PastReservationsViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, self.activity.name)
 
-    def test_multiple_future_reservations(self):
+    def test_multiple_past_reservations(self):
+        "Checks that in case there are multiple past reservation all of them are displayed"
         self.client.force_login(self.user)
 
-        Reservation.objects.create(
+        reservation_2 = Reservation.objects.create(
             user=self.user,
             session=self.session_2,
             bonus=self.reservation.bonus
@@ -319,7 +335,23 @@ class PastReservationsViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context['past_reservations']), 2)
 
+        #Session 1
+        self.assertContains(response, self.activity.name)
+        self.assertContains(response, self.reservation.session.date.strftime('%d/%m/%Y'))
+        self.assertContains(response, self.reservation.session.end_time.strftime('%H:%M'))
+        self.assertContains(response, self.reservation.session.date.strftime('%A'))
+        self.assertContains(response, self.activity.location)
+
+        #Session 2
+        self.assertContains(response, self.activity.name)
+        self.assertContains(response, reservation_2.session.date.strftime('%d/%m/%Y'))
+        self.assertContains(response, reservation_2.session.end_time.strftime('%H:%M'))
+        self.assertContains(response, reservation_2.session.date.strftime('%A'))
+        self.assertContains(response, self.activity.location)
+
+
     def test_reservations_are_ordered_by_date(self):
+        "Checks that the reservations are ordered as expected"
         self.client.force_login(self.user)
 
         earlier_date = date.today() - timedelta(days=1)

@@ -10,36 +10,6 @@ from django.utils import timezone
 class SessionModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        # Create an activity
-        activity = Activity.objects.create(
-            name = "Partido de Futbol",
-            location = "Campo de Fútbol",
-            description = "Entrenamiento futbol sala para 5 jugadores",
-            activity_type = "Terrestre",
-        )
-        activity.schedules.add(
-            Schedule.objects.create(
-                day_of_week = DayOfWeek.MARTES,
-                hour_begin = "08:00:00",
-                hour_end = "14:00:00"
-            )
-        )
-
-        # Create a facility
-        facility = SportFacility.objects.create(
-            name = "Pista de Tenis",
-            number_of_facilities = 2,
-            description = "Una pista de tenis bien mantenida.",
-            hour_price = 30.0,
-            facility_type = "Exterior",
-        )
-        facility.schedules.add(
-            Schedule.objects.create(
-                day_of_week = DayOfWeek.JUEVES,
-                hour_begin = "09:00:00",
-                hour_end = "14:00:00"
-            )
-        )
 
         # Create the session for the activity schedule
         schedule_activity = Schedule.objects.create(
@@ -55,6 +25,26 @@ class SessionModelTest(TestCase):
             hour_end = "10:00:00"
         )
 
+        # Create an activity
+        activity = Activity.objects.create(
+            name = "Partido de Futbol",
+            location = "Campo de Fútbol",
+            description = "Entrenamiento futbol sala para 5 jugadores",
+            activity_type = "Terrestre",
+        )
+        activity.schedules.add(schedule_activity)
+
+        # Create a facility
+        facility = SportFacility.objects.create(
+            name = "Pista de Tenis",
+            number_of_facilities = 2,
+            description = "Una pista de tenis bien mantenida.",
+            hour_price = 30.0,
+            facility_type = "Exterior",
+        )
+        facility.schedules.add(schedule_facility)
+
+    
         cls.session_activity = Session.objects.create(
             activity=activity,
             facility=None,
@@ -100,6 +90,7 @@ class SessionModelTest(TestCase):
 
 
     def test_session_activity_fields(self):
+        "Verifies that the session of an activity fields are correct"
         session = self.session_activity
         self.assertEqual(session.activity.name, "Partido de Futbol")
         self.assertIsNone(session.facility)
@@ -111,6 +102,7 @@ class SessionModelTest(TestCase):
 
 
     def test_session_facility_fields(self):
+        "Verifies that the session of an facility fields are correct"
         session = self.session_facility
         self.assertIsNone(session.activity)
         self.assertEqual(session.facility.name, "Pista de Tenis")
@@ -121,16 +113,19 @@ class SessionModelTest(TestCase):
         self.assertEqual(session.end_time, time(10, 0))
 
     def test_session_is_full(self):
+        "Verifies that the session is full"
         session = self.session_activity
         session.free_places = 0
         session.save()
         self.assertTrue(session.is_full())
         
     def test_session_is_not_full(self):
+        "Verifies that the session is not full"
         session = self.session_activity
         self.assertFalse(session.is_full())
 
     def test_session_add_reservation_activity(self):
+        "Correctly adds a reservation of an activity session"
         session = self.session_activity
         user = self.user
 
@@ -144,6 +139,7 @@ class SessionModelTest(TestCase):
 
     
     def test_no_reservation_when_session_is_full(self):
+        "Verifies that a reservation can't be made when the session is full"
         session = self.session_activity
         session.free_places = 0
         session.save()
@@ -154,6 +150,7 @@ class SessionModelTest(TestCase):
         self.assertIsNone(reservation)
 
     def test_no_duplicate_reservation(self):
+        "Verifies that a reservation can't be made when it has already been reserved"
         session = self.session_activity
         self.user.has_valid_bono_for_activity = lambda actividad: True
 
@@ -165,6 +162,7 @@ class SessionModelTest(TestCase):
         self.assertIsNone(reservation)
 
     def test_single_use_bonus_is_used(self):
+        "Verifies that in case the reservation is made with a single use bonus, it expires"
         session = self.session_activity
 
         self.user.has_valid_bono_for_activity = lambda actividad: True
@@ -179,11 +177,13 @@ class SessionModelTest(TestCase):
         self.assertEqual(reservation.session, session)
 
     def test_session_activity_str(self):
+        "Checks that the string format of the session activity is correct"
         s = self.session_activity
         expected = f"{s.activity.name} - {s.date.strftime('%d/%m/%Y')} {s.start_time}-{s.end_time} ({s.free_places}/{s.capacity} disponibles)"
         self.assertEqual(str(s), expected)
 
     def test_session_facility_str(self):
+        "Checks that the string format of the session facility is correct"
         s = self.session_facility
         expected = f"{s.facility.name} - {s.date.strftime('%d/%m/%Y')} {s.start_time.strftime('%H:%M')}:{s.end_time.strftime('%H:%M')} ({s.free_places}/{s.capacity} disponibles)"
         self.assertEqual(str(s), expected)
@@ -256,16 +256,18 @@ class ReservationModelTest(TestCase):
         )
 
     def test_reservation_fields(self):
+        "Checks that the reservation fields are correct"
         self.assertEqual(self.reservation.user.username, "ramon")
         self.assertEqual(self.reservation.session.activity.name, "Partido de Futbol")
         self.assertEqual(self.reservation.bonus.bonus.bonus_type, "single")
 
     def test_reservation_str(self):
+        "Checks that the string representation of a reservation is correct"
         expected_str = f"{self.reservation.user.username} - {self.reservation.session}"
         self.assertEqual(str(self.reservation), expected_str)
 
     def test_reservation_cancel_successful(self):
-        # Asegura que la cancelación devuelve True y elimina la reserva
+        "Checks that the reservation is succesfully canceled"
         self.reservation.session.date = date.today() + timedelta(days=1)
         self.reservation.session.start_time = (datetime.now() + timedelta(hours=3)).time()
         self.reservation.session.save()
@@ -275,7 +277,7 @@ class ReservationModelTest(TestCase):
         self.assertFalse(Reservation.objects.filter(id=self.reservation.id).exists())
 
     def test_reservation_cancel_fails_due_to_time_limit(self):
-        # Menos de 2 horas para la sesión
+        "Checks that the reservation can't be cancelled when less that two hours from the start"
         self.reservation.session.date = date.today()
         self.reservation.session.start_time = (datetime.now() + timedelta(minutes=30)).time()
         self.reservation.session.save()

@@ -11,6 +11,13 @@ class AuxiliarReservationFunctionsView(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        # Create the session for the activity schedule
+        schedule_activity = Schedule.objects.create(
+            day_of_week = DayOfWeek.MARTES,
+            hour_begin = "08:00:00",
+            hour_end = "9:00:00"
+        )
+
         # Create an activity
         activity = Activity.objects.create(
             name = "Partido de Futbol",
@@ -18,20 +25,7 @@ class AuxiliarReservationFunctionsView(TestCase):
             description = "Entrenamiento futbol sala para 5 jugadores",
             activity_type = "Terrestre",
         )
-        activity.schedules.add(
-            Schedule.objects.create(
-                day_of_week = DayOfWeek.MARTES,
-                hour_begin = "08:00:00",
-                hour_end = "14:00:00"
-            )
-        )
-
-        # Create the session for the activity schedule
-        schedule_activity = Schedule.objects.create(
-            day_of_week = DayOfWeek.MARTES,
-            hour_begin = "08:00:00",
-            hour_end = "9:00:00"
-        )
+        activity.schedules.add(schedule_activity)
 
         #Create a session
         session = Session.objects.create(
@@ -77,6 +71,7 @@ class AuxiliarReservationFunctionsView(TestCase):
     
     
     def test_is_conflict_reserved_sessions(self):
+        "Confirms that there is a conflict between two reserved sessions"
         input_users_sessions = [self.reservation]
         requested_start = time(8, 30)
         requested_end = time(9, 30)
@@ -85,15 +80,17 @@ class AuxiliarReservationFunctionsView(TestCase):
         self.assertTrue(result)
 
     def test_no_conflict_reserved_sessions(self):
+        "Confirms that there is no conflict between two reserved sessions"
         input_users_sessions = []
-        requested_start = time(10, 0)
-        requested_end = time(11, 0)
+        requested_start = time(9, 0)
+        requested_end = time(10, 0)
 
         result = _is_conflict_reserved_sessions(input_users_sessions, requested_start, requested_end)
         self.assertFalse(result)
 
     
     def test_is_conflict_chosen_sessions(self):
+        "Confirms that there is a conflict between two sessions"
         selected_sessions = [
             "1|09:00|10:00|April 21 2025",
             "1|09:30|10:30|April 21 2025"
@@ -103,6 +100,7 @@ class AuxiliarReservationFunctionsView(TestCase):
         self.assertTrue(result)
 
     def test_no_conflict_chosen_sessions(self):
+        "Confirms that there is no conflict between two sessions"
         selected_sessions = [
             "1|09:00|10:00|April 21 2025",
             "1|10:00|11:00|April 21 2025"
@@ -113,6 +111,7 @@ class AuxiliarReservationFunctionsView(TestCase):
 
 
     def test_get_session_split_data(self):
+        "Checks that the data is correctly splitted"
         input_string = "1|09:00|10:00|April 21 2025"
         facility_id, day, start, end = _get_session_split_data(input_string)
         self.assertEqual(facility_id, "1")

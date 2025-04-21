@@ -86,7 +86,7 @@ def reserve_activity_session(request, session_id):
 @login_required
 def check_reserve_facility_session(request):
     if request.method == 'POST':
-        selected_sessions = request.POST.get('selected_sessions', '').split(',')
+        selected_sessions = [s for s in request.POST.get('selected_sessions', '').split(',') if s]
         request.session['selected_sessions'] = selected_sessions
 
         if not selected_sessions:
@@ -106,9 +106,6 @@ def check_reserve_facility_session(request):
             if _is_conflict_reserved_sessions(user_sessions, requested_start, requested_end):
                 messages.error(request, "Ya tienes una reserva para esa hora. Puedes ver tus reservas en la sección de 'Mis Reservas'.")
                 return redirect('facility_detail', facility_id=facility_id)
-
-        # <a href="{% url 'invoice_facility' facility.id %}" class="btn btn-success btn-lg">RESERVAR</a>
-        # status = render / redirect
 
         return redirect('invoice_facility', facility_id=facility_id)
 
@@ -185,11 +182,16 @@ def past_reservations(request):
 @login_required
 def cancel_reservation(request, reservation_id):
     reservation = get_object_or_404(Reservation, id=reservation_id, user=request.user)
-
+    session_cancelled = reservation.session
+    
     is_cancelled = reservation.cancel()
     if not is_cancelled:
         messages.error(request, "No puedes cancelar una reserva con menos de 2 horas de antelación.")
     else:
         messages.success(request, "Reserva cancelada con éxito.")
+
+        title = "Reserva cancelada con éxito"
+        content = f"Has cancelado tu reserva de {session_cancelled.activity.name} correctamente."
+        Notification.objects.create(title=title, content=content, user=request.user)
     
     return redirect('reservations')

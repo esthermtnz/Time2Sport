@@ -2,9 +2,9 @@ from django.test import TestCase
 from datetime import datetime, time, date, timedelta
 from django.urls import reverse
 from src.models import Session, Reservation
-from sbai.models import Schedule, SportFacility, Activity, Bonus, DayOfWeek
+from sbai.models import Schedule, Activity, Bonus, DayOfWeek
 from sgu.models import User
-from slegpn.models import ProductBonus
+from slegpn.models import ProductBonus, Notification
 from src.views import _is_conflict_reserved_sessions, _is_conflict_chosen_sessions, _get_session_split_data
 
 
@@ -12,6 +12,12 @@ class CancelReservationViewTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        # Create the session for the activity schedule
+        schedule_activity = Schedule.objects.create(
+            day_of_week = DayOfWeek.MARTES,
+            hour_begin = "08:00:00",
+            hour_end = "9:00:00"
+        )
         # Create an activity
         cls.activity = Activity.objects.create(
             name = "Partido de Futbol",
@@ -19,23 +25,10 @@ class CancelReservationViewTest(TestCase):
             description = "Entrenamiento futbol sala para 5 jugadores",
             activity_type = "Terrestre",
         )
-        cls.activity.schedules.add(
-            Schedule.objects.create(
-                day_of_week = DayOfWeek.MARTES,
-                hour_begin = "08:00:00",
-                hour_end = "14:00:00"
-            )
-        )
-
-        # Create the session for the activity schedule
-        schedule_activity = Schedule.objects.create(
-            day_of_week = DayOfWeek.MARTES,
-            hour_begin = "08:00:00",
-            hour_end = "9:00:00"
-        )
+        cls.activity.schedules.add(schedule_activity)
 
         #Create a session
-        session = Session.objects.create(
+        cls.session = Session.objects.create(
             activity=cls.activity,
             facility=None,
             schedule=schedule_activity,
@@ -57,7 +50,7 @@ class CancelReservationViewTest(TestCase):
 
         #Create a bonus
         bonus = Bonus.objects.create(
-            activity=session.activity,
+            activity=cls.session.activity,
             bonus_type='single',
             price=10.0
         )
@@ -72,7 +65,7 @@ class CancelReservationViewTest(TestCase):
         #Create a reservation
         cls.reservation = Reservation.objects.create(
             user = cls.user,
-            session = session,
+            session = cls.session,
             bonus = product_bonus
         )
     
@@ -84,6 +77,7 @@ class CancelReservationViewTest(TestCase):
 
     
     def test_cancel_reservation(self):
+        "Successfully cancels a reservation"
         self.client.force_login(self.user)
 
         #Session in the next 3 hours
@@ -107,9 +101,15 @@ class CancelReservationViewTest(TestCase):
         self.assertEqual(len(messages), 1)
         self.assertEqual(str(messages[0]), "Reserva cancelada con éxito.")
 
+        notification = Notification.objects.filter(user=self.user).last()
+        self.assertIsNotNone(notification)
+        self.assertIn("Reserva cancelada con éxito", notification.title)
+        self.assertIn(f"Has cancelado tu reserva de {self.session.activity.name} correctamente.", notification.content)
+
 
 
     def test_cancel_reservation_less_than_two_hours(self):
+        "Attempts to cancel a reservation with less than two hours before the start"
         self.client.force_login(self.user)
 
         now = datetime.now()
@@ -133,6 +133,7 @@ class CancelReservationViewTest(TestCase):
         self.assertEqual(str(messages[0]), "No puedes cancelar una reserva con menos de 2 horas de antelación.")
 
     def test_cancel_reservation_exactly_two_hours(self):
+        "Attempts to cancel a reservation just in time, two hours before the class"
         self.client.force_login(self.user)
 
         now = datetime.now()
@@ -155,12 +156,19 @@ class CancelReservationViewTest(TestCase):
         self.assertEqual(len(messages), 1)
         self.assertEqual(str(messages[0]), "Reserva cancelada con éxito.")
 
+        notification = Notification.objects.filter(user=self.user).last()
+        self.assertIsNotNone(notification)
+        self.assertIn("Reserva cancelada con éxito", notification.title)
+        self.assertIn(f"Has cancelado tu reserva de {self.session.activity.name} correctamente.", notification.content)
+
     def test_cancel_nonexistent_reservation(self):
+        "Attempts to cancel a non existent reservation"
         self.client.force_login(self.user)
         response = self.client.get(reverse('cancel_reservation', args=[9999]))
         self.assertEqual(response.status_code, 404)
 
     def test_cannot_cancel_reservation_of_another_user(self):
+        "Attempts to cancel the reservation of another user"
         evil_user = User.objects.create(
             username="ana",
             email="ana@example.com",
