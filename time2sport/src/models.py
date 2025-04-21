@@ -6,7 +6,6 @@ from datetime import timedelta
 
 from sbai.models import Bonus, Activity, SportFacility, Schedule
 from sgu.models import User
-from slegpn.models import ProductBonus
 
 class Session(models.Model):
     activity = models.ForeignKey(Activity, on_delete=models.CASCADE, related_name="sessions", null=True)
@@ -152,12 +151,12 @@ class Session(models.Model):
 
 
 class Reservation(models.Model):            
+    from slegpn.models import ProductBonus
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reservations")
     session = models.ForeignKey(Session, on_delete=models.CASCADE, related_name="reservations")
     bonus = models.ForeignKey(ProductBonus, on_delete=models.SET_NULL, null=True, related_name="reservations")
 
     def cancel(self):
-        from slegpn.models import ProductBonus
 
         # Comprobar que hay más de 2 horas de antelación
         now = datetime.now()
