@@ -24,7 +24,6 @@ class Session(models.Model):
 
     def add_reservation_activity(self, user):
         from slegpn.models import ProductBonus
-
         # Check if the session is full
         if self.is_full():
             return None

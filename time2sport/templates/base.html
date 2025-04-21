@@ -138,5 +138,32 @@
     <!-- Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>    
 
+    <script>
+        function fetchNotificationCount() {
+            fetch("{% url 'unread_notifications_count' %}")
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.querySelector('.position-relative .badge');
+                    if (data.unread_count > 0) {
+                        if (!badge) {
+                            const newBadge = document.createElement('span');
+                            newBadge.className = "position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger";
+                            newBadge.style.zIndex = "10";
+                            newBadge.textContent = data.unread_count;
+                            document.querySelector('.position-relative').appendChild(newBadge);
+                        } else {
+                            badge.textContent = data.unread_count;
+                        }
+                    } else if (badge) {
+                        badge.remove();
+                    }
+                });
+        }
+    
+        // Checks if there are new notifcations every 15 secs
+        setInterval(fetchNotificationCount, 15000);
+        fetchNotificationCount();
+    </script>
+    
 </body>
 </html>
