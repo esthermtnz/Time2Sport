@@ -230,6 +230,24 @@ class CheckReserveFacilitySessionViewTest(TestCase):
         self.assertNotEqual(response.status_code, 200)
         self.assertRedirects(response, f'/accounts/login/?next=/facilities/{self.facility.id}/')
     
+    def test_check_reserve_facility_session(self):
+        "Checks that a valid selected session proceeds to invoice"
+        self.client.force_login(self.user)
+
+        # Delete reservation from db
+        self.reservation.delete()
+
+        selected = f"{self.facility.id}|09:00|10:00|{date.today().strftime('%B %d %Y')}"
+        
+        response = self.client.post(reverse('check_reserve_facility_session'), {
+            'facility_id': self.facility.id,
+            'selected_sessions': f"{selected}"
+        })
+
+        self.assertRedirects(response, reverse('invoice_facility', args=[self.facility.id]))
+        self.assertEqual(self.client.session['selected_sessions'], [selected])
+
+
     def test_check_reserve_facility_multiple_sessions(self):
         "Checks that multiple valid sessions proceed to invoice"
         self.client.force_login(self.user)
