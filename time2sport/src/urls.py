@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import reserve_activity_session, purchase_bonus, check_reserve_facility_session
+from .views import reserve_activity_session, check_reserve_facility_session
 from .views import reservations, past_reservations, cancel_reservation
 
 urlpatterns = [

@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 
 from django.contrib import messages
 from sbai.models import Bonus, SportFacility, Schedule
-from src.models import ReservationStatus, Reservation
+from src.models import Reservation
 from slegpn.models import ProductBonus, Notification
 from django.utils.timezone import now
 from datetime import datetime, date
@@ -133,8 +133,7 @@ def reserve_facility_session(request):
         if session and session.free_places > 0:
             Reservation.objects.create(
                 session=session,
-                user=request.user,
-                status=ReservationStatus.VALID.value
+                user=request.user
             )
             
             session.free_places -= 1
@@ -162,7 +161,6 @@ def reservations(request):
     user = request.user
 
     reservations = user.reservations.filter(session__date__gte=date.today()).order_by('session__date')
-    reservations = reservations.filter(status=ReservationStatus.VALID.value)
 
     context = {
         'active_tab': 'future_reservations',
@@ -176,7 +174,6 @@ def past_reservations(request):
     user = request.user
 
     past_reservations = user.reservations.filter(session__date__lt=date.today()).order_by('-session__date')
-    past_reservations = past_reservations.filter(status=ReservationStatus.VALID.value)
 
     context = {
         'active_tab': 'past_reservations',

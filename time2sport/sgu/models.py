@@ -50,3 +50,10 @@ class User(AbstractUser):
                 if bonus.is_valid:
                     return True
         return False
+
+    def get_valid_bono_for_activity(self, activity):
+        for bonus in self.bonuses.all():
+            if bonus.belongs_to_activity(activity):
+                if bonus.is_valid:
+                    return bonus
+        return None

@@ -4,8 +4,9 @@ from django.utils import timezone
 from datetime import datetime, date
 from datetime import timedelta
 
-from sbai.models import *
+from sbai.models import Bonus, Activity, SportFacility, Schedule
 from sgu.models import User
+from slegpn.models import ProductBonus
 
 class Session(models.Model):
     activity = models.ForeignKey(Activity, on_delete=models.CASCADE, related_name="sessions", null=True)
@@ -36,16 +37,16 @@ class Session(models.Model):
         if Reservation.objects.filter(user=user, session=self).exists():
             return None
 
-        # Get bonus instance if single
-        bonus_is_single = ProductBonus.objects.filter(user=user, bonus__activity=self.activity, one_use_available=True).first()
+        # Get bonus
+        bonus_available = user.get_valid_bono_for_activity(self.activity)
 
         # Make reservation
-        reservation = Reservation.objects.create(user=user, session=self, status=ReservationStatus.VALID.value)
+        reservation = Reservation.objects.create(user=user, session=self, bonus=bonus_available)
         self.free_places -= 1
 
         # If bonus is single-use, mark it as used
-        if bonus_is_single:
-            bonus_is_single.use_single_use()
+        if bonus_available.bonus.bonus_type == 'single':
+            bonus_available.use_single_use()
 
         reservation.save()
         self.save()
@@ -150,40 +151,32 @@ class Session(models.Model):
             return f"{self.facility.name} - {self.date.strftime('%d/%m/%Y')} {self.start_time.strftime('%H:%M')}:{self.end_time.strftime('%H:%M')} ({self.free_places}/{self.capacity} disponibles)"
         return f"{self.activity.name} - {self.date.strftime('%d/%m/%Y')} {self.start_time}-{self.end_time} ({self.free_places}/{self.capacity} disponibles)"
 
-class ReservationStatus(Enum):
-    VALID = "Valid"
-    WAITING_LIST = "Waiting List"
-    FINISHED = "Finished"
-    CANCELLED = "Cancelled"
 
 class Reservation(models.Model):            
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reservations")
     session = models.ForeignKey(Session, on_delete=models.CASCADE, related_name="reservations")
-    status = models.CharField(max_length=15, choices=[(tag.value, tag.name) for tag in ReservationStatus])
+    bonus = models.ForeignKey(ProductBonus, on_delete=models.SET_NULL, null=True, related_name="reservations")
 
     def cancel(self):
         from slegpn.models import ProductBonus
 
-        if self.status in [ReservationStatus.VALID.value, ReservationStatus.WAITING_LIST.value]:
-            # Comprobar que hay más de 2 horas de antelación
-            now = datetime.now()
-            session_date_time = datetime.combine(self.session.date, self.session.start_time)
-            time_difference = session_date_time - now
-            
-            if time_difference < timedelta(hours=2):
-                return False
+        # Comprobar que hay más de 2 horas de antelación
+        now = datetime.now()
+        session_date_time = datetime.combine(self.session.date, self.session.start_time)
+        time_difference = session_date_time - now
+        
+        if time_difference < timedelta(hours=2):
+            return False
 
-            self.session.free_places += 1
-            self.session.save()
+        self.session.free_places += 1
+        self.session.save()
 
-            if self.session.activity:
-                bonusses = ProductBonus.objects.filter(user=self.user, bonus__activity=self.session.activity).last()
-                if bonusses.bonus.bonus_type == 'single':
-                    bonusses.one_use_available = True
-                    bonusses.save()
+        if self.session.activity:
+            if self.bonus.bonus.bonus_type == 'single':
+                self.bonus.cancel_single_use()
 
-            self.delete()
-            return True
+        self.delete()
+        return True
 
     def __str__(self):
-        return f"{self.user.username} - {self.session} ({self.status})"
+        return f"{self.user.username} - {self.session}"
