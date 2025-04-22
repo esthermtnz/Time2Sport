@@ -13,7 +13,7 @@ class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications', null=True)
 
     def __str__(self):
-        return f'{self.date} : {self.title} - {self.content}'
+        return f'{self.timestamp} : {self.title} - {self.content}'
     
 
 class ProductBonus(models.Model):

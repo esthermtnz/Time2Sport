@@ -4,10 +4,13 @@ from datetime import timedelta, time
 from datetime import datetime
 from django.contrib.auth import get_user_model
 from django.urls import reverse
-from freezegun import freeze_time
 from django.utils.timezone import now
-
-from slegpn.models import WaitingList, ProductBonus
+from unittest.mock import patch
+from freezegun import freeze_time
+from slegpn.tasks import check_waiting_list_timeout
+from django.conf import settings
+        
+from slegpn.models import WaitingList, ProductBonus, Notification
 from src.models import Session, Reservation
 from sbai.models import Activity, Schedule, DayOfWeek, Bonus
 
@@ -200,16 +203,19 @@ class WaitingListTestCase(TestCase):
         self.assertEqual(self.notification.status_code, 200)
         self.assertNotContains(self.notification, "¡Apúntate a la sesión, se ha liberado una plaza!")
 
-        import time
-        # Time passes
-        time.sleep(150)
+        # User 2 does not reserve the session
+        self.client.logout()
+        self.client.login(username="testuser2", password="testpassword2")
 
-        print(WaitingList.objects.all())
+        # Simulate the time passing to check if the second user in the waiting list is notified
+        with freeze_time(timezone.now() + timedelta(minutes=settings.WAITING_LIST_NOTIFICATION_MINS + 1)):
+            check_waiting_list_timeout(self.session_available.id)
 
-        # Check user is notified
         self.notification = self.client.get(reverse('notifications'))
-        self.assertEqual(self.notification.status_code, 200)
+        self.assertContains(self.notification, f"Tiempo para reservar a expirado")
+
+        # Check if the second user in the waiting list (User 3) is notified
+        self.client.logout()
+        self.client.login(username="testuser3", password="testpassword3")
+        self.notification = self.client.get(reverse('notifications'))
         self.assertContains(self.notification, "¡Apúntate a la sesión, se ha liberado una plaza!")
-
-
-
