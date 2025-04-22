@@ -110,9 +110,6 @@ def check_reserve_facility_session(request):
                 messages.error(request, "Ya tienes una reserva para esa hora. Puedes ver tus reservas en la sección de 'Mis Reservas'.")
                 return redirect('facility_detail', facility_id=facility_id)
 
-        # <a href="{% url 'invoice_facility' facility.id %}" class="btn btn-success btn-lg">RESERVAR</a>
-        # status = render / redirect
-
         return redirect('invoice_facility', facility_id=facility_id)
 
 @login_required

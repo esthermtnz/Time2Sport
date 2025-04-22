@@ -223,7 +223,6 @@ class ChangeWaitingListStatusTestCase(TestCase):
         self.assertEqual(self.notification.status_code, 200)
         self.assertNotContains(self.notification, "¡Apúntate a la sesión, se ha liberado una plaza!")
 
-
     def test_notify_second_place_if_first_cannot(self):
         """ Next user in the waiting list should be notified if the first one cannot reserve. """
 

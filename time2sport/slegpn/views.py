@@ -193,8 +193,7 @@ def payment_activity_successful(request, product_bonus_id):
 
 @login_required
 def payment_activity_failed(request, bonus_id):
-    product_bonus = get_object_or_404(ProductBonus, id=bonus_id)
-    bonus = get_object_or_404(Bonus, id=product_bonus.bonus.id)
+    bonus = get_object_or_404(Bonus, id=bonus_id)
     total = get_total(bonus.price, request.user.is_uam)
     context={
         'concept': f'Inscripción {bonus.activity.name}',
@@ -226,7 +225,7 @@ def payment_facility_failed(request, facility_id):
     total = get_total(num_hours * facility.hour_price, request.user.is_uam)
 
     context={
-        'concept': f'Inscripción {facility.name}',
+        'concept': f'Alquiler {facility.name}',
         'date': timezone.localtime(),
         'total': total,
     }
