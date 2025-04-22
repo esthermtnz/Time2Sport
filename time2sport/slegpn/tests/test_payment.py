@@ -70,6 +70,45 @@ class TestPaymentWithNotification(TestCase):
             price = 50.0,
         )
 
+    def test_user_cannot_see_payment_pages_if_not_logged_in(self):
+        """ Test that a user cannot see payment pages if not logged in. """
+
+        # Try to access the invoice page for activity without logging in
+        response = self.client.get(reverse('invoice_activity', args=[self.activity.id]))
+        # Check if the user is redirected to the login page
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, f"/accounts/login/?next={reverse('invoice_activity', args=[self.activity.id])}")
+
+        # Try to access the invoice page for facility without logging in
+        response = self.client.get(reverse('invoice_facility', args=[self.facility.id]))
+        # Check if the user is redirected to the login page
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, f"/accounts/login/?next={reverse('invoice_facility', args=[self.facility.id])}")
+
+        # Try to access the payment success page for activity without logging in
+        response = self.client.get(reverse('payment-activity-success', args=[self.activity.id]))
+        # Check if the user is redirected to the login page
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, f"/accounts/login/?next={reverse('payment-activity-success', args=[self.activity.id])}")
+        
+        # Try to access the payment failed page for activity without logging in
+        response = self.client.get(reverse('payment-activity-failed', args=[self.activity.id]))
+        # Check if the user is redirected to the login page
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, f"/accounts/login/?next={reverse('payment-activity-failed', args=[self.activity.id])}")
+        
+        # Try to access the payment success page for facility without logging in
+        response = self.client.get(reverse('payment-facility-success', args=[self.facility.id]))
+        # Check if the user is redirected to the login page
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, f"/accounts/login/?next={reverse('payment-facility-success', args=[self.facility.id])}")
+        
+        # Try to access the payment failed page for facility without logging in
+        response = self.client.get(reverse('payment-facility-failed', args=[self.facility.id]))
+        # Check if the user is redirected to the login page
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, f"/accounts/login/?next={reverse('payment-facility-failed', args=[self.facility.id])}")
+
 
     def test_purchase_bonus(self):
         """ Chech that a product bonus is created when a user buys a bonus """

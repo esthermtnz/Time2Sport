@@ -210,4 +210,8 @@ def cancel_reservation(request, reservation_id):
             check_waiting_list_timeout.apply_async((session.id,), countdown=settings.WAITING_LIST_NOTIFICATION_MINS*60)
         messages.success(request, "Reserva cancelada con éxito.")
     
+        title = "Reserva cancelada con éxito"
+        content = f"Has cancelado la reserva de {session.activity} correctamente."
+        Notification.objects.create(user=request.user, title=title, content=content)
+
     return redirect('reservations')

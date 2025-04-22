@@ -6,6 +6,16 @@ from django.urls import reverse
 User = get_user_model()
 
 class NotificationTestCase(TestCase):
+    def test_user_cannot_see_notifications_if_not_logged_in(self):
+        """ Test that a user cannot see notifications if not logged in. """
+
+        # Try to access the notifications page without logging in
+        response = self.client.get(reverse('notifications'))
+
+        # Check if the user is redirected to the login page
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, f"/accounts/login/?next={reverse('notifications')}")
+
     def test_read_notification(self):
         """ Test that a notification can be marked as read. """
         # Create a user and login

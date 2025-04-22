@@ -203,6 +203,11 @@ class ChangeWaitingListStatusTestCase(TestCase):
         reservation = Reservation.objects.get(user=self.user1, session=self.session_available)
         self.client.post(reverse('cancel_reservation', args=[reservation.id]), follow=True)
 
+        # Check if the user received a cancellation notification
+        self.notification = self.client.get(reverse('notifications'))
+        self.assertEqual(self.notification.status_code, 200)
+        self.assertContains(self.notification, "Reserva cancelada con éxito")
+
         # Check if the first user in the waiting list is notified
         waiting_list = WaitingList.objects.filter(session=self.session_available)
         self.assertEqual(waiting_list.count(), 2)
