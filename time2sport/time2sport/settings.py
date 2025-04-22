@@ -228,4 +228,4 @@ PAYPAL_BUY_BUTTON_IMAGE = 'https://i.postimg.cc/tJwc9N6N/paypal-pay-button.png'
 
 # Celery configuration
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
-WAITING_LIST_NOTIFICATION_MINS = 20
+WAITING_LIST_NOTIFICATION_MINS = 1
