@@ -84,6 +84,26 @@ class WaitingListTestCase(TestCase):
             date_end=timezone.now().date() + timedelta(days=30)
         )
 
+    def test_see_user_waiting_list(self):
+        """ A user can see their own waiting list. """
+        # Login user
+        self.client.login(username="testuser", password="testpassword")
+
+        # Check there are no entries in the waiting list
+        response = self.client.get(reverse('waiting-list'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "En lista de espera")
+        self.assertContains(response, "No estás en ninguna lista de espera actualmente.")
+
+        # Add user to waiting list
+        self.client.post(reverse('join_waiting_list', args=[self.session_full.id]), follow=True)
+
+        # Check if the user is in the waiting list
+        response = self.client.get(reverse('waiting-list'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "En lista de espera")
+        self.assertContains(response, "Example Activity")
+
 
     def test_add_to_waiting_list_when_full(self):
         """ A user can join the waiting list only if the session is full. """
