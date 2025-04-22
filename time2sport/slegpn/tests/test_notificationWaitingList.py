@@ -16,13 +16,89 @@ from sbai.models import Activity, Schedule, DayOfWeek, Bonus
 
 User = get_user_model()
 
-class WaitingListTestCase(TestCase):
+
+class WaitingListNotificationTestCase(TestCase):
+    def setUp(self):
+        # Create users
+        self.user1 = User.objects.create_user(username="testuser", password="testpassword")
+
+        # Create a schedule
+        self.schedule_1 = Schedule.objects.create(
+            day_of_week=DayOfWeek.LUNES,
+            hour_begin='08:00:00',
+            hour_end='09:00:00'
+        )
+
+        # Create an activity
+        self.activity = Activity.objects.create(
+            name="Example Activity",
+            description="Example activity for a test"
+        )
+        self.activity.schedules.add(self.schedule_1)
+
+        # Session with no free places (full)
+        self.session_full = Session.objects.create(
+            activity=self.activity,
+            schedule=self.schedule_1,
+            capacity=1,
+            free_places=0,
+            date=timezone.now().date() + timedelta(days=1),
+            start_time=datetime.strptime(self.schedule_1.hour_begin, '%H:%M:%S').time(),
+            end_time=datetime.strptime(self.schedule_1.hour_end, '%H:%M:%S').time()
+        )
+
+        # Create a bonus
+        self.bonus = Bonus.objects.create(
+            activity = self.activity,
+            bonus_type = 'semester',
+            price = 50.0,
+        )
+        
+        # Add the bonus to the user
+        self.product_bonus_1 = ProductBonus.objects.create(
+            user=self.user1,
+            bonus=self.bonus,
+            purchase_date=timezone.now(),
+            date_begin=timezone.now().date(),
+            date_end=timezone.now().date() + timedelta(days=30)
+        )
+
+    def test_waiting_list_notification(self):
+        """ Notification should be sent when a user is added to the waiting list. """
+        # Login user
+        self.client.login(username="testuser", password="testpassword")
+
+        # Add user to waiting list
+        self.client.post(reverse('join_waiting_list', args=[self.session_full.id]), follow=True)
+
+        # Check if the notification is received
+        self.notification = self.client.get(reverse('notifications'))
+        self.assertEqual(self.notification.status_code, 200)
+        self.assertContains(self.notification, "Añadido a la lista de espera")
+
+    def test_remove_from_waiting_list_notification(self):
+        """ Notification should be sent when a user is removed from the waiting list. """
+        # Login user
+        self.client.login(username="testuser", password="testpassword")
+
+        # Add user to waiting list
+        self.client.post(reverse('join_waiting_list', args=[self.session_full.id]), follow=True)
+
+        # Remove user from waiting list
+        self.client.post(reverse('cancel_waiting_list', args=[self.session_full.id]), follow=True)
+
+        # Check if the notification is received
+        self.notification = self.client.get(reverse('notifications'))
+        self.assertEqual(self.notification.status_code, 200)
+        self.assertContains(self.notification, "Has sido eliminado de la lista de espera")
+
+
+class ChangeWaitingListStatusTestCase(TestCase):
     def setUp(self):
         # Create users
         self.user1 = User.objects.create_user(username="testuser", password="testpassword")
         self.user2 = User.objects.create_user(username="testuser2", password="testpassword2")
         self.user3 = User.objects.create_user(username="testuser3", password="testpassword3")
-        self.user4 = User.objects.create_user(username="testuser4", password="testpassword4")
 
         # Create a schedule
         self.schedule_1 = Schedule.objects.create(
@@ -100,15 +176,6 @@ class WaitingListTestCase(TestCase):
             date_end=timezone.now().date() + timedelta(days=30)
         )
 
-        # Add the bonus to the user4
-        self.product_bonus_4 = ProductBonus.objects.create(
-            user=self.user4,
-            bonus=self.bonus,
-            purchase_date=timezone.now(),
-            date_begin=timezone.now().date(),
-            date_end=timezone.now().date() + timedelta(days=30)
-        )
-
 
     def test_notify_next_user_when_place_freed(self):
         """ When a new free place appears due to a cancelation, the first user in the list should be notified. """
@@ -156,7 +223,7 @@ class WaitingListTestCase(TestCase):
         self.assertEqual(self.notification.status_code, 200)
         self.assertNotContains(self.notification, "¡Apúntate a la sesión, se ha liberado una plaza!")
 
-    # @override_settings(WAITING_LIST_NOTIFICATION_MINS=1)
+
     def test_notify_second_place_if_first_cannot(self):
         """ Next user in the waiting list should be notified if the first one cannot reserve. """
 
