@@ -89,7 +89,7 @@ def reserve_activity_session(request, session_id):
 @login_required
 def check_reserve_facility_session(request):
     if request.method == 'POST':
-        selected_sessions = request.POST.get('selected_sessions', '').split(',')
+        selected_sessions = [s for s in request.POST.get('selected_sessions', '').split(',') if s]
         request.session['selected_sessions'] = selected_sessions
 
         if not selected_sessions:
@@ -209,9 +209,9 @@ def cancel_reservation(request, reservation_id):
             # Monitor 20 minutes task
             check_waiting_list_timeout.apply_async((session.id,), countdown=settings.WAITING_LIST_NOTIFICATION_MINS*60)
         messages.success(request, "Reserva cancelada con éxito.")
-    
+
         title = "Reserva cancelada con éxito"
-        content = f"Has cancelado la reserva de {session.activity} correctamente."
-        Notification.objects.create(user=request.user, title=title, content=content)
+        content = f"Has cancelado tu reserva de {session.activity.name} correctamente."
+        Notification.objects.create(title=title, content=content, user=request.user)
 
     return redirect('reservations')
