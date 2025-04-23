@@ -1,20 +1,23 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse
-
 from django.contrib.auth.decorators import login_required
-from slegpn .models import Notification
 from django.shortcuts import get_object_or_404
-from sbai.models import Bonus, Activity, SportFacility
-from src.views import reserve_facility_session
-from slegpn.models import ProductBonus
-from sgu.models import User
-from django.utils import timezone
-from datetime import date
-from .utils import get_bonus_name, get_discount, get_total
-
-from paypal.standard.forms import PayPalPaymentsForm
 from django.conf import settings
+
+from sbai.models import Bonus, Activity, SportFacility
+from slegpn.models import Notification, ProductBonus, WaitingList
+from sgu.models import User
+from src.models import Session
+from paypal.standard.forms import PayPalPaymentsForm
+
+from src.views import reserve_facility_session, _is_conflict_reserved_sessions
+from .utils import get_bonus_name, get_discount, get_total
+from django.contrib import messages
+from django.utils import timezone
+from datetime import date, datetime, timedelta
+from django.http import JsonResponse
 import uuid
+
 
 # Create your views here.
 
@@ -32,6 +35,12 @@ def mark_as_read(request, notification_id):
     notification.read = True
     notification.save()
     return redirect('notifications')
+
+@login_required
+def unread_notifications_count(request):
+    count = request.user.notifications.filter(read=False).count()
+    return JsonResponse({'unread_count': count})
+
 
 @login_required
 def invoice_activity(request, activity_id):
@@ -184,8 +193,7 @@ def payment_activity_successful(request, product_bonus_id):
 
 @login_required
 def payment_activity_failed(request, bonus_id):
-    product_bonus = get_object_or_404(ProductBonus, id=bonus_id)
-    bonus = get_object_or_404(Bonus, id=product_bonus.bonus.id)
+    bonus = get_object_or_404(Bonus, id=bonus_id)
     total = get_total(bonus.price, request.user.is_uam)
     context={
         'concept': f'Inscripción {bonus.activity.name}',
@@ -217,8 +225,89 @@ def payment_facility_failed(request, facility_id):
     total = get_total(num_hours * facility.hour_price, request.user.is_uam)
 
     context={
-        'concept': f'Inscripción {facility.name}',
+        'concept': f'Alquiler {facility.name}',
         'date': timezone.localtime(),
         'total': total,
     }
     return render(request, 'payments/payment-facility-failed.html', context)
+
+
+@login_required
+def waiting_list(request):
+    waiting_lists = request.user.waiting_lists.all()
+    context={'waiting_lists': waiting_lists, 'active_tab': 'waiting_list'}
+    return render(request, 'waiting_list.html', context)
+
+@login_required
+def cancel_waiting_list(request, waiting_list_id):
+    
+    if request.method == "POST": 
+
+        waiting_entry = get_object_or_404(WaitingList, id=waiting_list_id, user=request.user)
+        session = waiting_entry.session
+        waiting_entry.delete()
+        
+        title="Has sido eliminado de la lista de espera"
+        content=f"Te has borrado de la lista de espera de {session.activity.name}."
+        Notification.objects.create(user=request.user, title=title, content=content)
+
+    return redirect('waiting-list')
+
+@login_required
+def join_waiting_list(request, session_id):
+
+    if request.method == "POST": 
+        session = get_object_or_404(Session, id=session_id)
+        if session is None:
+            return redirect('all_activities')
+
+        #Check if the session is full
+        if session.free_places > 0:
+            messages.error(request, "La sesión no está llena, puedes reservar directamente.")
+            return redirect('activity_detail', session.activity.id)
+
+        #Check if the user has already a reservation for that session
+        if request.user.reservations.filter(session=session).exists():
+            messages.info(request, "Ya tienes una reserva para esta sesión, no te puedes apuntar a la lista de espera.")
+            return redirect('activity_detail', session.activity.id)
+
+        # Check if the user is already in the waiting list for that session
+        if request.user.waiting_lists.filter(session=session).exists():
+            messages.info(request, "Ya estás en la lista de espera para esta sesión.")
+            return redirect('activity_detail', session.activity.id)
+
+        # Check if the user does not have another session at the same time
+        users_sessions_day = request.user.reservations.filter(session__date=session.date)
+        requested_start = session.start_time
+        requested_end = session.end_time
+
+        if _is_conflict_reserved_sessions(users_sessions_day, requested_start, requested_end):
+            messages.error(request, "Ya tienes una reserva para esa hora. Puedes ver tus reservas en la sección de 'Mis Reservas'.")
+            return redirect('activity_detail', session.activity.id)
+        
+        #Check that the session hasn't already started
+        start_time = timezone.make_aware(datetime.combine(session.date, session.start_time))
+        end_time = timezone.make_aware(datetime.combine(session.date, session.end_time))
+
+        if session.end_time < session.start_time:
+            end_time += timedelta(days=1)
+
+        if start_time <= timezone.now() < end_time:
+            messages.error(request, "La sesión ya ha comenzado, no te puedes apuntar a la lista de espera.")
+            return redirect('activity_detail', session.activity.id)
+        elif timezone.now() >= end_time:
+            messages.error(request, "La sesión ya ha finalizado, no te puedes apuntar a la lista de espera.")
+            return redirect('activity_detail', session.activity.id)
+        
+        #Add to waiting list and notify
+        WaitingList.objects.create(user=request.user, session=session)
+        messages.success(request, "Te has apuntado correctamente a la lista de espera.")
+        waiting_list = WaitingList.objects.filter(session=session).order_by('join_date')
+        position = list(waiting_list).index(request.user.waiting_lists.get(session=session)) + 1
+
+        title = "Añadido a la lista de espera"
+        content = f"Te has apuntado a la lista de espera de {session.activity.name}. Te encuentras en la posición {position}, en caso de que se produzca una cancelación se te notificará para proceder con la reserva."
+        Notification.objects.create(user=request.user, title=title, content=content)
+        return redirect('activity_detail', session.activity.id)
+
+    return redirect('index')

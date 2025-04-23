@@ -24,29 +24,33 @@
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Día</th>
-                    <th>Fecha</th>
-                    <th>Horario</th>
-                    <th>Plazas disponibles</th>
-                    <th>Reservar</th>
+                    <th class="text-center">Día</th>
+                    <th class="text-center">Fecha</th>
+                    <th class="text-center">Horario</th>
+                    <th class="text-center">Plazas disponibles</th>
+                    <th class="text-center">Reservar</th>
                 </tr>
             </thead>
             <tbody>
                 {% for session in sessions %}
                 <tr>
-                    <td>{{ session.schedule.get_day_of_week_display }}</td>
-                    <td>{{ session.date|date:"d/m/Y" }}</td>
-                    <td>{{ session.schedule.hour_begin|time:"H:i" }} - {{ session.schedule.hour_end|time:"H:i" }}</td>
-                    <td>{{ session.free_places }}</td>
-                    <td>
+                    <td class="text-center">{{ session.schedule.get_day_of_week_display }}</td>
+                    <td class="text-center">{{ session.date|date:"d/m/Y" }}</td>
+                    <td class="text-center">{{ session.schedule.hour_begin|time:"H:i" }} - {{ session.schedule.hour_end|time:"H:i" }}</td>
+                    <td class="text-center">{{ session.free_places }}</td>
+                    <td class="text-center">
                         {% if session.free_places > 0 %}
                         <!-- Botón de reserva -->
-                        <form method="POST" action="{% url 'reserve_activity_session' session.id %}">
+                        <form method="POST" action="{% url 'reserve_activity_session' session.id %}" class="d-inline-block" >
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-primary">Reservar</button>
+                            <button type="submit" class="btn btn-primary" style="min-width: 220px;">Reservar</button>
                         </form>
                         {% else %}
-                        <span class="text-danger">No hay plazas</span>
+                        <!-- Botón lista de espera -->
+                        <form method="POST" action="{% url 'join_waiting_list' session.id %}"  class="d-inline-block">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-primary" style="min-width: 220px;">Apuntarse a lista de espera</button>
+                        </form>
                         {% endif %}
                     </td>
                 </tr>
@@ -91,35 +95,6 @@
                 </div>
             {% endfor %}
         </div>
-
-        <!-- Mensaje de éxito o error de la reserva -->
-        {% if messages %}
-        <div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-
-                    <div class="modal-body">
-                        <p class="mb-0">
-                            {% for message in messages %}
-                                <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %}">
-                                    {{ message }}
-                                </div>
-                            {% endfor %}
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <script>
-            var messageModal = new bootstrap.Modal(document.getElementById('messageModal'));
-            messageModal.show();
-        </script>
-
-        {% endif %}
     </div>
 </div>
 {% endblock %}

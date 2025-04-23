@@ -7,7 +7,7 @@
 
     {% if notifications %}
         <div class="scroll-box">
-            <div class="row justify-content-center">
+            <div class="row justify-content-center" style="max-height: 750px; overflow-y: auto; padding-right:10px; scrollbar-width: auto; scrollbar-color: rgba(210, 210, 210, 0.5) transparent;">
                 {% for notification in notifications %}
                     <div class="col-md-8 mb-3">
                         <div class="card shadow-sm {% if not notification.read %}border-primary{% endif %}">
@@ -34,7 +34,7 @@
             </div>
         </div>
     {% else %}
-        <p class="text-center">No tienes notificaciones.</p>
+        <div class="alert alert-info text-center">No tienes notificaciones.</div>
     {% endif %}
 </div>
 {% endblock %}

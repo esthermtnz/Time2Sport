@@ -24,7 +24,7 @@
         <li class="nav-item">
             <a class="nav-link fw-semibold {% if active_tab == 'waiting_list' %}active{% endif %}" 
             style="{% if active_tab == 'waiting_list' %}background-color: #67a084; color: white; border-color: #67a084 #67a084 transparent;{% else %}color: #67a084;{% endif %}"
-            href="#">
+            href="{% url 'waiting-list' %}">
                 En lista de espera
             </a>
         </li>
@@ -76,39 +76,11 @@
                         </div>
                     {% endfor %}
                 {% else %}
-                    <p class="text-center">No tienes reservas pasadas.</p>
+                    <p class="text-center">No tienes reservas agendadas.</p>
                 {% endif %}
             </div>
         </div>
         {% endblock %}
-
-        <!-- Mensaje de éxito o error de la cancelación -->
-        {% if messages %}
-        <div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-
-                    <div class="modal-body">
-                        <p class="mb-0">
-                            {% for message in messages %}
-                                <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %}">
-                                    {{ message }}
-                                </div>
-                            {% endfor %}
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-
-        <script>
-            var messageModal = new bootstrap.Modal(document.getElementById('messageModal'));
-            messageModal.show();
-        </script>
     </div>
 </div>
 

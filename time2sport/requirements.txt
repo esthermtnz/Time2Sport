@@ -1,5 +1,6 @@
 asgiref==3.8.1
 certifi==2025.1.31
+celery==5.5.1
 cffi==1.17.1
 chardet==5.2.0
 charset-normalizer==3.4.1
@@ -7,18 +8,17 @@ cryptography==44.0.1
 Django==5.1.6
 django-allauth==65.4.1
 django-extensions==3.2.3
+django-paypal==2.1
 freezegun==1.5.1
 idna==3.10
-ms-identity-python @ https://github.com/azure-samples/ms-identity-python/archive/refs/heads/0.9.zip
 msal==1.31.1
 pillow==11.1.0
 pycparser==2.22
 PyJWT==2.10.1
 python-dotenv==0.21.1
+redis==5.2.1
 reportlab==4.3.1
 requests==2.32.3
 sqlparse==0.5.3
 typing_extensions==4.12.2
 urllib3==2.3.0
-
-# pip install django-paypal

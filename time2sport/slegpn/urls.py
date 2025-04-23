@@ -7,6 +7,7 @@ from django.conf import settings
 urlpatterns = [
     path('notifications/', views.notifications, name='notifications'),
     path('notifications/<int:notification_id>/read/', views.mark_as_read, name='mark_as_read'),
+    path('notifications/unread-count/', views.unread_notifications_count, name='unread_notifications_count'),
 
     path('activities/<int:activity_id>/invoice/', views.invoice_activity, name='invoice_activity'),
     path('facilities/<int:facility_id>/invoice/', views.invoice_facility, name='invoice_facility'),
@@ -17,6 +18,10 @@ urlpatterns = [
 
     path('payment-facility-success/<int:facility_id>/', views.payment_facility_successful, name='payment-facility-success'),
     path('payment-facility-failed/<int:facility_id>/', views.payment_facility_failed, name='payment-facility-failed'),
+
+    path('waiting-list/', views.waiting_list, name='waiting-list'),
+    path('waiting-list/cancel/<int:waiting_list_id>/', views.cancel_waiting_list, name='cancel_waiting_list'),
+    path('wait-list/<int:session_id>/', views.join_waiting_list, name='join_waiting_list'),
 
 
     path('', include('paypal.standard.ipn.urls')),
