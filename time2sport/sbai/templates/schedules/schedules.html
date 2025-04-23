@@ -1,24 +1,32 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container">
-    <h2 class="text-center">Horarios</h2>
-    
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card">
-                <a href="{% url 'activities_schedule' %}">
-                    <h5 class="mt-2">Horarios Actividades</h5>
-                </a>
-            </div>
+<div class="container py-5">
+    <h2 class="text-center mb-5">Horarios</h2>
+
+    <div class="row justify-content-center g-4">
+        <div class="col-md-5 col-lg-4">
+            <a href="{% url 'activities_schedule' %}" class="text-decoration-none">
+                <div class="card shadow-sm text-center p-4 h-100 hover-shadow" style = "box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); transform: translateY(-3px); transition: all 0.3s ease-in-out;">
+                    <div class="card-body">
+                        <h5 class="card-title">Horarios Actividades</h5>
+                        <p class="card-text text-muted">Consulta los horarios de las actividades deportivas.</p>
+                    </div>
+                </div>
+            </a>
         </div>
-        <div class="col-md-6">
-            <div class="card">
-                <a href="{% url 'facilities_schedule' %}">
-                    <h5 class="mt-2">Horarios Instalaciones</h5>
-                </a>
-            </div>
+
+        <div class="col-md-5 col-lg-4">
+            <a href="{% url 'facilities_schedule' %}" class="text-decoration-none">
+                <div class="card shadow-sm text-center p-4 h-100 hover-shadow" style = "box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); transform: translateY(-3px); transition: all 0.3s ease-in-out;">
+                    <div class="card-body">
+                        <h5 class="card-title">Horarios Instalaciones</h5>
+                        <p class="card-text text-muted">Consulta los horarios de las pistas, salas y más espacios.</p>
+                    </div>
+                </div>
+            </a>
         </div>
     </div>
 </div>
+
 {% endblock %}
