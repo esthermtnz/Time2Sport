@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from sbai.models import Bonus, SportFacility, Schedule
 from src.models import Reservation
-from slegpn.models import ProductBonus, Notification
+from slegpn.models import ProductBonus, Notification, WaitingList
 from slegpn.tasks import check_waiting_list_timeout
 
 from datetime import datetime, date
@@ -81,6 +81,9 @@ def reserve_activity_session(request, session_id):
         title = "Reserva realizada con éxito"
         content = f"Has realizado una reserva de {session.activity} para el día {session.date.strftime('%d/%m/%Y')}."
         Notification.objects.create(user=user, title=title, content=content)
+
+        #If user was in the waiting list delete entry
+        WaitingList.objects.filter(user=user, session=session).delete()
     else:
         messages.error(request, "Error al realizar la reserva.")
 
@@ -210,8 +213,12 @@ def cancel_reservation(request, reservation_id):
             check_waiting_list_timeout.apply_async((session.id,), countdown=settings.WAITING_LIST_NOTIFICATION_MINS*60)
         messages.success(request, "Reserva cancelada con éxito.")
 
+        if session.activity: 
+            content = f"Has cancelado tu reserva de {session.activity.name} correctamente."
+        elif session.facility:
+            content = f"Has cancelado tu reserva de {session.facility.name} correctamente."
+            
         title = "Reserva cancelada con éxito"
-        content = f"Has cancelado tu reserva de {session.activity.name} correctamente."
         Notification.objects.create(title=title, content=content, user=request.user)
 
     return redirect('reservations')

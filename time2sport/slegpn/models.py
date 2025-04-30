@@ -52,10 +52,9 @@ class ProductBonus(models.Model):
         return self.bonus.activity == activity
     
 class WaitingList(models.Model):
-    from src.models import Session
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='waiting_lists')
-    session = models.ForeignKey(Session, on_delete=models.CASCADE, related_name='waiting_list')
+    session = models.ForeignKey('src.Session', on_delete=models.CASCADE, related_name='waiting_list')
     join_date = models.DateTimeField(default=timezone.now)
     notified_at = models.DateTimeField(null=True, blank=True)
 

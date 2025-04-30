@@ -22,7 +22,6 @@ class Session(models.Model):
         return self.free_places == 0
 
     def add_reservation_activity(self, user):
-        from slegpn.models import ProductBonus
         # Check if the session is full
         if self.is_full():
             return None
@@ -150,11 +149,10 @@ class Session(models.Model):
         return f"{self.activity.name} - {self.date.strftime('%d/%m/%Y')} {self.start_time}-{self.end_time} ({self.free_places}/{self.capacity} disponibles)"
 
 
-class Reservation(models.Model):            
-    from slegpn.models import ProductBonus
+class Reservation(models.Model):           
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reservations")
     session = models.ForeignKey(Session, on_delete=models.CASCADE, related_name="reservations")
-    bonus = models.ForeignKey(ProductBonus, on_delete=models.SET_NULL, null=True, related_name="reservations")
+    bonus = models.ForeignKey('slegpn.ProductBonus', on_delete=models.SET_NULL, null=True, related_name="reservations")
 
     def cancel(self):
 

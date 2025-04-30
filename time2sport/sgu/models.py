@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 import uuid
 import os
-import imghdr
+from PIL import Image
 
 
 class User(AbstractUser):
@@ -30,19 +30,23 @@ class User(AbstractUser):
             self.set_unusable_password()
         super().save(*args, **kwargs)
 
-    def editProfile(self,image):
-        # Valid image extensions
-        valid_extensions = {'jpeg', 'jpg', 'png'}
+    def editProfile(self, image):
+        valid_extensions = {'JPEG', 'JPG', 'PNG'}
 
-        # Verify that the image is a valid image
-        if not image or imghdr.what(image) not in valid_extensions:
+        try:
+            with Image.open(image) as img:
+                image_format = img.format.upper()
+                if image_format not in valid_extensions:
+                    return
+
+                if self.profile and self.profile.name != 'default_profile.png':
+                    self.profile.delete(save=False)
+
+                self.profile = image
+                self.save()
+
+        except Exception:
             return
-
-        if self.profile and self.profile.name != 'default_profile.png':
-            self.profile.delete(save=False)
-
-        self.profile = image
-        self.save()
 
     def has_valid_bono_for_activity(self, activity):
         for bonus in self.bonuses.all():
