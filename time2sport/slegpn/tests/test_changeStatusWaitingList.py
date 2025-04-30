@@ -290,3 +290,44 @@ class ChangeWaitingListStatusTestCase(TestCase):
         self.client.login(username="testuser3", password="testpassword3")
         self.notification = self.client.get(reverse('notifications'))
         self.assertContains(self.notification, "¡Apúntate a la sesión, se ha liberado una plaza!")
+
+    def test_remove_user_waiting_list_after_reservation(self):
+        """ User should be removed from the waiting list if they reserve a session. """
+
+        # Login first user
+        self.client.login(username="testuser", password="testpassword")
+        # Reserve session
+        self.client.post(reverse('reserve_activity_session', args=[self.session_available.id]), follow=True)
+
+        # Session is completed
+
+        # Login second user
+        self.client.login(username="testuser2", password="testpassword2")
+        # Add user to waiting list
+        self.client.post(reverse('join_waiting_list', args=[self.session_available.id]), follow=True)
+
+        # First user cancels reservation and frees a place
+        self.client.logout()
+        self.client.login(username="testuser", password="testpassword")
+        reservation = Reservation.objects.get(user=self.user1, session=self.session_available)
+        self.client.post(reverse('cancel_reservation', args=[reservation.id]), follow=True)
+
+        # Check if the first user in the waiting list is notified
+        waiting_list = WaitingList.objects.filter(session=self.session_available)
+        self.assertEqual(waiting_list.count(), 1)
+        self.assertEqual(waiting_list.first().user, self.user2)
+
+        self.client.logout()
+        self.client.login(username="testuser2", password="testpassword2")
+
+        # Check if the notification is received
+        self.notification = self.client.get(reverse('notifications'))
+        self.assertEqual(self.notification.status_code, 200)
+        self.assertContains(self.notification, "¡Apúntate a la sesión, se ha liberado una plaza!")
+
+        # Reserve the session
+        self.client.post(reverse('reserve_activity_session', args=[self.session_available.id]), follow=True)
+        
+        # Check if the user is removed from the waiting list
+        waiting_list = WaitingList.objects.filter(session=self.session_available)
+        self.assertEqual(waiting_list.count(), 0)
