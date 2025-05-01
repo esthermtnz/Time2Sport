@@ -18,13 +18,13 @@ cd Time2Sport
 ```
 
 ## **2. Comprobación e instalación de Python**
-Se requiere Python 3.8 o superior. Para verificar la versión instalada, usa:
+Se requiere Python 3.10 o superior. Para verificar la versión instalada, usa:
 
 ```
 python3 --version
 ```
 
-Si no tienes Python 3.8 o una versión más reciente, instálalo con:
+Si no tienes Python 3.10 o una versión más reciente, instálalo con:
 
 ```
 sudo apt update
