@@ -37,9 +37,13 @@
                     <td class="text-center">{{ session.schedule.get_day_of_week_display }}</td>
                     <td class="text-center">{{ session.date|date:"d/m/Y" }}</td>
                     <td class="text-center">{{ session.schedule.hour_begin|time:"H:i" }} - {{ session.schedule.hour_end|time:"H:i" }}</td>
-                    <td class="text-center">{{ session.free_places }}</td>
+                    {% if session.waiting_list and not session.is_first_user %}
+                        <td class="text-center">0</td>
+                    {% else %}
+                        <td class="text-center">{{ session.free_places }}</td>
+                    {% endif %}
                     <td class="text-center">
-                        {% if session.free_places > 0 %}
+                        {% if session.free_places > 0 and session.is_first_user %}
                         <!-- Botón de reserva -->
                         <form method="POST" action="{% url 'reserve_activity_session' session.id %}" class="d-inline-block" >
                             {% csrf_token %}

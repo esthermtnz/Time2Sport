@@ -50,6 +50,22 @@ def activity_detail(request, activity_id):
 
     ordered_sessions = sessions.order_by("date", "schedule__hour_begin")
 
+    # Get the first user in the waiting list of each session, if any
+    # To show only the reservation button to the first one if the session is not full due to a cancellation
+    for session in ordered_sessions:
+        waiting_list = session.waiting_list.all()
+        if waiting_list.exists():
+            is_first_user = waiting_list.first()
+            if is_first_user.user == request.user:
+                if not session.is_full():
+                    session.is_first_user = True
+                else:
+                    session.is_first_user = False
+            else:
+                session.is_first_user = False
+        else:
+            session.is_first_user = True
+
     return render(request, 'activities/activity_detail.html', {
         'activity': activity,
         'has_bono': has_bono,

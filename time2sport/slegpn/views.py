@@ -261,8 +261,8 @@ def join_waiting_list(request, session_id):
         if session is None:
             return redirect('all_activities')
 
-        #Check if the session is full
-        if session.free_places > 0:
+        #Check if the session is full and there is no waiting list
+        if session.free_places > 0 and not session.waiting_list.exists():
             messages.error(request, "La sesión no está llena, puedes reservar directamente.")
             return redirect('activity_detail', session.activity.id)
 
