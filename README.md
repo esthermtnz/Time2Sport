@@ -178,10 +178,11 @@ Existe un script `db.sh` que automatiza todo el proceso relacionado con la base 
 * Generación de nuevas migraciones.
 * Población de la base de datos.
 
+Para ejecutar el script:
 ```
 ./db.sh
 ```
-> Nota: Si no se ha configura `.pgpass` se pedirá dos veces la contraseña `alumnodb`: una para la eliminación de la tabla y otra para la creación.
+> Nota: Si no se ha configurado `.pgpass` se pedirá dos veces la contraseña `alumnodb`: una para la eliminación de la tabla y otra para la creación.
 
 ## **8. Ejecución del servidor y workers de Celery**
 Inicia el servidor con:
