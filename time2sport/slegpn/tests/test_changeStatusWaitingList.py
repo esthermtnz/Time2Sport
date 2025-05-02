@@ -83,9 +83,10 @@ class WaitingListNotificationTestCase(TestCase):
 
         # Add user to waiting list
         self.client.post(reverse('join_waiting_list', args=[self.session_full.id]), follow=True)
+        waiting_entry = WaitingList.objects.get(user=self.user1, session=self.session_full)
 
         # Remove user from waiting list
-        self.client.post(reverse('cancel_waiting_list', args=[self.session_full.id]), follow=True)
+        self.client.post(reverse('cancel_waiting_list', args=[waiting_entry.id]), follow=True)
 
         # Check if the notification is received
         self.notification = self.client.get(reverse('notifications'))

@@ -175,16 +175,12 @@ class WaitingListTestCase(TestCase):
         # Login user
         self.client.login(username="testuser", password="testpassword")
 
-        # Add user to waiting list
+        # Add user to waiting list and get the entry
         self.client.post(reverse('join_waiting_list', args=[self.session_full.id]), follow=True)
+        waiting_entry = WaitingList.objects.get(user=self.user1, session=self.session_full)
 
-        # Check if the user is in the waiting list
-        waiting_list = WaitingList.objects.filter(user=self.user1, session=self.session_full)
-        self.assertTrue(waiting_list.exists())
-
-        # Remove user from waiting list
-        response = self.client.post(reverse('cancel_waiting_list', args=[self.session_full.id]), follow=True)
+        # Remove user from waiting list using the correct ID
+        response = self.client.post(reverse('cancel_waiting_list', args=[waiting_entry.id]), follow=True)
 
         # Check if the user is removed from the waiting list
-        waiting_list = WaitingList.objects.filter(user=self.user1, session=self.session_full)
-        self.assertFalse(waiting_list.exists())
+        self.assertFalse(WaitingList.objects.filter(user=self.user1, session=self.session_full).exists())
