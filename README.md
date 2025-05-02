@@ -88,7 +88,75 @@ También puedes comprobar que salga activo con el siguiente comando:
 sudo systemctl status redis-server
 ```
 
-## **6. Migraciones y carga de datos iniciales**
+## **6. Instalación y configuración de PostgreSQL**
+
+Para instalar PostgreSQL:
+
+```
+sudo apt install postgresql
+sudo systemctl enable postgresql
+```
+
+Crea un nuevo usuario con privilegios de superusuario en la base de datos:
+
+```
+sudo -i -u postgres
+psql
+CREATE USER alumnodb WITH SUPERUSER PASSWORD 'alumnodb';
+\q
+exit
+```
+
+Después, desde la terminal, crea la base de datos:
+
+```
+createdb time2sport -U alumnodb -h localhost
+```
+> Nota: Introduce la contraseña `alumnodb`
+
+Acciones que se pueden realizar con la base de datos:
+1. Conexión a la base de datos:
+
+```
+psql time2sport -U alumnodb -h localhost
+```
+
+* Ver tablas: `\dt`
+
+2. Eliminar la base de datos
+
+```
+dropdb -U alumnodb -h localhost time2sport
+```
+
+> Nota: En ambos casos se solicitará la contraseña `alumnodb`
+
+**Configuración de `.pgpass` para evitar introducir la contraseña**
+
+Si no se quiere tener que introducir la contraseña `alumnodb` constantemente al ejecutar comandos como `dropdb`, `psql` o cuando se ejecuta `./db.sh`, se puede configurar un archivo `.pgpass` que almacenará la contraseña de manera segura.
+
+1. Crea el archivo `.pgpass`:
+Abre la terminal y edita el archivo `.pgpass`:
+
+```
+nano ~/.pgpass
+```
+
+2. Añade la información:
+```
+localhost:5432:postgres:alumnodb:alumnodb
+```
+
+3. Guarda y cierra el archivo:
+* Para guardar los cambios en `nano`: `Ctrl + O` y luego `Enter`.
+* Para salir de `nano`: `Ctrl + X`.
+
+4. Establece permisos seguros para el archivo:
+```
+chmod 600 ~/.pgpass
+```
+
+## **7. Migraciones y carga de datos iniciales**
 Ejecuta las migraciones necesarias:
 
 ```
@@ -102,16 +170,20 @@ Ejecuta el populate para cargar los datos iniciales en la base de datos. Usa el 
 
 ```
 python3 populate.py
-
 ```
 
-Existe un script `db.sh` que automatiza este apartado; contiene el borrado de migraciones y de la base de datos, la creación de migraciones y la población de la base de datos. Para ejecutarlo:
+Existe un script `db.sh` que automatiza todo el proceso relacionado con la base de datos. Este script realiza las siguientes acciones:
+* Eliminación de migraciones anteriores y de la base de datos.
+* Eliminación y creación de tablas.
+* Generación de nuevas migraciones.
+* Población de la base de datos.
 
 ```
 ./db.sh
 ```
+> Nota: Si no se ha configura `.pgpass` se pedirá dos veces la contraseña `alumnodb`: una para la eliminación de la tabla y otra para la creación.
 
-## **7. Ejecución del servidor y workers de Celery**
+## **8. Ejecución del servidor y workers de Celery**
 Inicia el servidor con:
 
 ```
@@ -141,7 +213,7 @@ python3 manage.py runserver
 
 > Nota: El símbolo & al final del comando de Celery hace que Celery se ejecute en segundo plano, mientras que el servidor (runserver) se ejecutará en primer plano. 
 
-## **8. Acceso a la aplicación**
+## **9. Acceso a la aplicación**
 
 Una vez que el servidor esté en ejecución, puedes acceder a la aplicación desde tu navegador utilizando la siguiente URL:
 
@@ -149,7 +221,7 @@ Una vez que el servidor esté en ejecución, puedes acceder a la aplicación des
 http://localhost:8000
 ```
 
-## **9. Creación de un superusuario**
+## **10. Creación de un superusuario**
 
 Si quieres acceder a las pestañas de administración, puedes crear un superusuario ejecutando el siguiente comando:
 
@@ -165,7 +237,7 @@ Una vez creado, puedes acceder al panel de administración desde tu navegador:
 http://localhost:8000/admin
 ```
 
-## **10. Ejecución de tests**
+## **11. Ejecución de tests**
 
 Para ejecutar los tests de una aplicación específica, usa:
 
@@ -189,7 +261,7 @@ Si se quisiera ejecutar todos los tests a la vez, usa:
 python3 manage.py test
 ```
 
-## **11. Opcional: Prueba de pago en entorno de pruebas**
+## **12. Opcional: Prueba de pago en entorno de pruebas**
 
 Si deseas probar el proceso de pago puedes utilizar las siguientes credenciales:
 
@@ -205,7 +277,7 @@ El dinero simulado irá a la siguiente cuenta:
 
 > Nota: Ten en cuenta que este es un entorno de pruebas, por lo que el pago no es real y no afecta cuentas bancarias reales.
 
-## **12. Opcional: Instalación de VS Code para ver el código**
+## **13. Opcional: Instalación de VS Code para ver el código**
 
 Si quieres visualizar y editar el código de manera cómoda, puedes instalar Visual Studio Code (VS Code) con los siguientes comandos:
 
