@@ -23,7 +23,7 @@ import uuid
 
 @login_required
 def notifications(request):
-
+    """Loads the notification template"""
     notifications = request.user.notifications.order_by('read', '-timestamp')
     context = {'notifications': notifications}
 
@@ -32,6 +32,7 @@ def notifications(request):
 
 @login_required
 def mark_as_read(request, notification_id):
+    """Marks a notification as read"""
     notification = get_object_or_404(
         Notification, id=notification_id, user=request.user)
     notification.read = True
@@ -41,12 +42,14 @@ def mark_as_read(request, notification_id):
 
 @login_required
 def unread_notifications_count(request):
+    """Counts the number of unread notifications"""
     count = request.user.notifications.filter(read=False).count()
     return JsonResponse({'unread_count': count})
 
 
 @login_required
 def invoice_activity(request, activity_id):
+    """Shows the activity invoice and sends the purchse data to PayPal platform"""
     activity = get_object_or_404(Activity, pk=activity_id)
 
     if request.method == 'POST':
@@ -89,6 +92,7 @@ def invoice_activity(request, activity_id):
 
 @login_required
 def invoice_facility(request, facility_id):
+    """Shows the facility invoice and sends the purchse data to PayPal platform"""
     facility = get_object_or_404(SportFacility, pk=facility_id)
     selected_sessions = request.session['selected_sessions']
 
@@ -130,6 +134,7 @@ def invoice_facility(request, facility_id):
 
 @login_required
 def complete_enrollment(request, bonus_id):
+    """Generates a valid product bonus after the purchase of an inscription"""
     bonus = get_object_or_404(Bonus, id=bonus_id)
     user = request.user
     date_now = date.today()
@@ -179,6 +184,7 @@ def complete_enrollment(request, bonus_id):
 
 @login_required
 def payment_activity_successful(request, product_bonus_id):
+    """Loads the payment success template for an activity and the purchase data"""
     product_bonus = get_object_or_404(ProductBonus, id=product_bonus_id)
     bonus = get_object_or_404(Bonus, id=product_bonus.bonus.id)
     total = get_total(bonus.price, request.user.is_uam)
@@ -200,6 +206,7 @@ def payment_activity_successful(request, product_bonus_id):
 
 @login_required
 def payment_activity_failed(request, bonus_id):
+    """Loads the payment failed template for an activity"""
     bonus = get_object_or_404(Bonus, id=bonus_id)
     total = get_total(bonus.price, request.user.is_uam)
     context = {
@@ -212,6 +219,7 @@ def payment_activity_failed(request, bonus_id):
 
 @login_required
 def payment_facility_successful(request, facility_id):
+    """Loads the payment success template for a facility and the purchase data"""
     facility = get_object_or_404(SportFacility, id=facility_id)
     num_hours = len(request.session['selected_sessions'])
     total = get_total(num_hours * facility.hour_price, request.user.is_uam)
@@ -228,6 +236,7 @@ def payment_facility_successful(request, facility_id):
 
 @login_required
 def payment_facility_failed(request, facility_id):
+    """Loads the payment failed for a facility"""
     facility = get_object_or_404(SportFacility, id=facility_id)
     num_hours = len(request.session['selected_sessions'])
     total = get_total(num_hours * facility.hour_price, request.user.is_uam)
@@ -242,6 +251,7 @@ def payment_facility_failed(request, facility_id):
 
 @login_required
 def waiting_list(request):
+    """Redirects to the waiting lists page"""
     waiting_lists = request.user.waiting_lists.all()
     context = {'waiting_lists': waiting_lists, 'active_tab': 'waiting_list'}
     return render(request, 'waiting_list.html', context)
@@ -249,7 +259,7 @@ def waiting_list(request):
 
 @login_required
 def cancel_waiting_list(request, waiting_list_id):
-
+    """Cancels the reservation of the waiting list"""
     if request.method == "POST":
 
         waiting_entry = get_object_or_404(
@@ -267,7 +277,7 @@ def cancel_waiting_list(request, waiting_list_id):
 
 @login_required
 def join_waiting_list(request, session_id):
-
+    """Joins the waiting list of an activity's session"""
     if request.method == "POST":
         session = get_object_or_404(Session, id=session_id)
         if session is None:

@@ -49,14 +49,14 @@ class SchedulesViewTestCase(TestCase):
         )
 
     def test_redirect_for_unauthenticated_users(self):
-        "Verifies that the user is logged in if it is not, redirects to login"
+        """Verifies that the user is logged in if it is not, redirects to login"""
         response = self.client.get(reverse('schedules'))
         self.assertNotEqual(response.status_code, 200)
         self.assertRedirects(
             response, f"/accounts/login/?next={reverse('schedules')}")
 
     def test_schedules_view(self):
-        "Ensures that the content of the schedules template is correct"
+        """Ensures that the content of the schedules template is correct"""
         self.client.force_login(self.user)
 
         # -- View verification --
@@ -108,14 +108,14 @@ class FacilitiesScheduleViewTestCase(TestCase):
         )
 
     def test_redirect_for_unauthenticated_users(self):
-        "Verifies that the user is logged in if it is not, redirects to login"
+        """Verifies that the user is logged in if it is not, redirects to login"""
         response = self.client.get(reverse('facilities_schedule'))
         self.assertNotEqual(response.status_code, 200)
         self.assertRedirects(
             response, f"/accounts/login/?next={reverse('facilities_schedule')}")
 
     def test_facilities_schedule_view(self):
-        "Ensures that the facilities schedules view is correctly displayed"
+        """Ensures that the facilities schedules view is correctly displayed"""
         self.client.force_login(self.user)
 
         # -- View verification --
@@ -176,14 +176,14 @@ class ActivitiesScheduleViewTestCase(TestCase):
         )
 
     def test_redirect_for_unauthenticated_users(self):
-        "Verifies that the user is logged in if it is not, redirects to login"
+        """Verifies that the user is logged in if it is not, redirects to login"""
         response = self.client.get(reverse('schedules'))
         self.assertNotEqual(response.status_code, 200)
         self.assertRedirects(
             response, f"/accounts/login/?next={reverse('schedules')}")
 
     def test_activities_schedule_view(self):
-        "Ensures that the activities schedules view is ocrrectly displayed"
+        """Ensures that the activities schedules view is ocrrectly displayed"""
         self.client.force_login(self.user)
 
         # -- View verification --
@@ -276,7 +276,7 @@ class DownloadsViewTestCase(TestCase):
         )
 
     def test_download_facilities_schedule_view(self):
-        "Ensures that the facilities schedules pdf is generated"
+        """Ensures that the facilities schedules pdf is generated"""
         self.client.force_login(self.user)
 
         # CHeck that the download_facilities_schedule is called correctly
@@ -289,7 +289,7 @@ class DownloadsViewTestCase(TestCase):
                       response['Content-Disposition'])
 
     def test_download_activities_schedule_view(self):
-        "Ensures that the activity schedules pdf is generated"
+        """Ensures that the activity schedules pdf is generated"""
         self.client.force_login(self.user)
 
         # Check that the download_activities_schedule is called correctly

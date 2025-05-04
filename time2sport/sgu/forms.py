@@ -57,6 +57,7 @@ class UAMForm(forms.Form):
     )
 
     def clean(self):
+        """Cleans the form and verifies that the data introduced is correct"""
         cleaned_data = super().clean()
         user_choice = cleaned_data.get("user_choice")
         email_uam = cleaned_data.get("email_uam")

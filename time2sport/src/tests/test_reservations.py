@@ -84,7 +84,7 @@ class ReserveActivitySessionViewTest(TestCase):
         )
 
     def test_redirect_for_unauthenticated_users(self):
-        "Verifies that the users ared logged in before accessing the template"
+        """Verifies that the users ared logged in before accessing the template"""
         response = self.client.get(
             reverse('activity_detail', args=[self.activity.id]))
         self.assertNotEqual(response.status_code, 200)
@@ -92,7 +92,7 @@ class ReserveActivitySessionViewTest(TestCase):
             response, f'/accounts/login/?next=/activities/{self.activity.id}/')
 
     def test_reserve_activity_session(self):
-        "Makes a reservation of a session activity successfully"
+        """Makes a reservation of a session activity successfully"""
         self.client.force_login(self.user)
 
         session_id = self.session_2.id
@@ -119,7 +119,7 @@ class ReserveActivitySessionViewTest(TestCase):
             f"Has realizado una reserva de {self.session_2.activity} para el día {self.session_2.date.strftime('%d/%m/%Y')}.", notification.content)
 
     def test_conflicting_reservation(self):
-        "Attempts to make a reservation that has a schedule conflict with an already made reservation"
+        """Attempts to make a reservation that has a schedule conflict with an already made reservation"""
         self.client.force_login(self.user)
         self.user.has_valid_bono_for_activity = lambda actividad: True
 
@@ -133,7 +133,7 @@ class ReserveActivitySessionViewTest(TestCase):
         self.assertIn("Ya tienes una reserva para esa hora", str(messages[0]))
 
     def test_reservation_fails_when_session_full(self):
-        "Attempts to make a reservation when the session is full"
+        """Attempts to make a reservation when the session is full"""
         self.client.force_login(self.user)
         self.user.has_valid_bono_for_activity = lambda actividad: True
 
@@ -150,7 +150,7 @@ class ReserveActivitySessionViewTest(TestCase):
         self.assertIn("Error al realizar la reserva", str(messages[0]))
 
     def test_reservation_nonexistant_session(self):
-        "Attempts to make a reservation of a non existant session"
+        """Attempts to make a reservation of a non existant session"""
         self.client.force_login(self.user)
         invalid_id = 9999
 
@@ -237,7 +237,7 @@ class CheckReserveFacilitySessionViewTest(TestCase):
         )
 
     def test_redirect_for_unauthenticated_users(self):
-        "Verifies that the users ared logged in before accessing the template"
+        """Verifies that the users ared logged in before accessing the template"""
         response = self.client.get(
             reverse('facility_detail', args=[self.facility.id]))
         self.assertNotEqual(response.status_code, 200)
@@ -245,7 +245,7 @@ class CheckReserveFacilitySessionViewTest(TestCase):
             response, f'/accounts/login/?next=/facilities/{self.facility.id}/')
 
     def test_check_reserve_facility_session(self):
-        "Checks that a valid selected session proceeds to invoice"
+        """Checks that a valid selected session proceeds to invoice"""
         self.client.force_login(self.user)
 
         # Delete reservation from db
@@ -263,7 +263,7 @@ class CheckReserveFacilitySessionViewTest(TestCase):
         self.assertEqual(self.client.session['selected_sessions'], [selected])
 
     def test_check_reserve_facility_multiple_sessions(self):
-        "Checks that multiple valid sessions proceed to invoice"
+        """Checks that multiple valid sessions proceed to invoice"""
         self.client.force_login(self.user)
 
         # Delete reservation from db
@@ -283,7 +283,7 @@ class CheckReserveFacilitySessionViewTest(TestCase):
                          selected_1, selected_2])
 
     def test_no_sessions_selected(self):
-        "Checks that an error message is given when no sessions are selected"
+        """Checks that an error message is given when no sessions are selected"""
         self.client.force_login(self.user)
 
         response = self.client.post(reverse('check_reserve_facility_session'), {
@@ -299,7 +299,7 @@ class CheckReserveFacilitySessionViewTest(TestCase):
                       str(messages[0]))
 
     def test_conflict_between_selected_sessions(self):
-        "Checks that redirects in case of a schedule conflict"
+        """Checks that redirects in case of a schedule conflict"""
         self.client.force_login(self.user)
 
         selected_1 = f"{self.facility.id}|09:00|10:00|{date.today().strftime('%B %d %Y')}"
@@ -318,7 +318,7 @@ class CheckReserveFacilitySessionViewTest(TestCase):
                       str(messages[0]))
 
     def test_conflict_with_existing_user_reservation(self):
-        "Checks that redirects in case of attempting making a reservation on a already reserved spot"
+        """Checks that redirects in case of attempting making a reservation on a already reserved spot"""
         self.client.force_login(self.user)
 
         selected = f"{self.facility.id}|09:00|10:00|{date.today().strftime('%B %d %Y')}"
@@ -411,7 +411,8 @@ class ReserveFacilitySessionViewTest(TestCase):
             bonus=None
         )
 
-    def test_redirect_if_not_authenticated(self):
+    def test_redirect_for_unauthenticated_users(self):
+        """Verifies that the users ared logged in before accessing the template"""
         selected = f"{self.facility.id}|09:00|10:00|{date.today().strftime('%B %d %Y')}"
         session = self.client.session
         session['selected_sessions'] = [selected]
@@ -424,7 +425,7 @@ class ReserveFacilitySessionViewTest(TestCase):
             response, f'/accounts/login/?next=/payment-facility-success/{self.facility.id}/')
 
     def test_reserve_facility_session(self):
-        "Creates the reservation of the facility"
+        """Creates the reservation of the facility"""
         self.client.force_login(self.user)
 
         selected = f"{self.facility.id}|10:00|11:00|{date.today().strftime('%B %d %Y')}"
@@ -449,7 +450,7 @@ class ReserveFacilitySessionViewTest(TestCase):
         self.assertEqual(session_2_updated.free_places, 1)
 
     def test_reserve_multiple_sessions(self):
-        "Creates multiple reservations for the facility"
+        """Creates multiple reservations for the facility"""
         self.client.force_login(self.user)
 
         selected_1 = f"{self.facility.id}|09:00|10:00|{date.today().strftime('%B %d %Y')}"
@@ -476,7 +477,7 @@ class ReserveFacilitySessionViewTest(TestCase):
         self.assertIn("Reserva realizada correctamente", notification.title)
 
     def test_reservation_attempt_session_is_full(self):
-        "Checks that an error message is received when attempting to make a reservation on a full session"
+        """Checks that an error message is received when attempting to make a reservation on a full session"""
         self.client.force_login(self.user)
 
         self.session.free_places = 0

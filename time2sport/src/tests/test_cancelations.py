@@ -70,7 +70,7 @@ class CancelReservationViewTest(TestCase):
         )
 
     def test_redirect_for_unauthenticated_users(self):
-        "Verifies that the users ared logged in before accessing the template"
+        """Verifies that the users ared logged in before accessing the template"""
         response = self.client.get(
             reverse('activity_detail', args=[self.activity.id]))
         self.assertNotEqual(response.status_code, 200)
@@ -78,7 +78,7 @@ class CancelReservationViewTest(TestCase):
             response, f'/accounts/login/?next=/activities/{self.activity.id}/')
 
     def test_cancel_reservation(self):
-        "Successfully cancels a reservation"
+        """Successfully cancels a reservation"""
         self.client.force_login(self.user)
 
         # Session in the next 3 hours
@@ -110,7 +110,7 @@ class CancelReservationViewTest(TestCase):
             f"Has cancelado tu reserva de {self.session.activity.name} correctamente.", notification.content)
 
     def test_cancel_reservation_less_than_two_hours(self):
-        "Attempts to cancel a reservation with less than two hours before the start"
+        """Attempts to cancel a reservation with less than two hours before the start"""
         self.client.force_login(self.user)
 
         now = datetime.now()
@@ -136,7 +136,7 @@ class CancelReservationViewTest(TestCase):
             messages[0]), "No puedes cancelar una reserva con menos de 2 horas de antelación.")
 
     def test_cancel_reservation_exactly_two_hours(self):
-        "Attempts to cancel a reservation just in time, two hours before the class"
+        """Attempts to cancel a reservation just in time, two hours before the class"""
         self.client.force_login(self.user)
 
         now = datetime.now()
@@ -167,13 +167,13 @@ class CancelReservationViewTest(TestCase):
             f"Has cancelado tu reserva de {self.session.activity.name} correctamente.", notification.content)
 
     def test_cancel_nonexistent_reservation(self):
-        "Attempts to cancel a non existent reservation"
+        """Attempts to cancel a non existent reservation"""
         self.client.force_login(self.user)
         response = self.client.get(reverse('cancel_reservation', args=[9999]))
         self.assertEqual(response.status_code, 404)
 
     def test_cannot_cancel_reservation_of_another_user(self):
-        "Attempts to cancel the reservation of another user"
+        """Attempts to cancel the reservation of another user"""
         evil_user = User.objects.create(
             username="ana",
             email="ana@example.com",

@@ -6,6 +6,7 @@ from PIL import Image
 
 
 class User(AbstractUser):
+    """Class that represents the user"""
     USER_TYPE_CHOICES = [
         ('notUAM', 'Usuario no perteneciente a la UAM'),
         ('student', 'Estudiante UAM'),
@@ -34,6 +35,7 @@ class User(AbstractUser):
         super().save(*args, **kwargs)
 
     def editProfile(self, image):
+        """Edits the user profile picture and saves it in the database"""
         valid_extensions = {'JPEG', 'JPG', 'PNG'}
 
         try:
@@ -52,6 +54,7 @@ class User(AbstractUser):
             return
 
     def has_valid_bono_for_activity(self, activity):
+        """Verifies if the bono is valid valid for an activity"""
         for bonus in self.bonuses.all():
             if bonus.belongs_to_activity(activity):
                 if bonus.is_valid:
@@ -59,6 +62,7 @@ class User(AbstractUser):
         return False
 
     def get_valid_bono_for_activity(self, activity):
+        """Gets a valid bono for an activity"""
         for bonus in self.bonuses.all():
             if bonus.belongs_to_activity(activity):
                 if bonus.is_valid:

@@ -89,7 +89,7 @@ class SessionModelTest(TestCase):
         )
 
     def test_session_activity_fields(self):
-        "Verifies that the session of an activity fields are correct"
+        """Verifies that the session of an activity fields are correct"""
         session = self.session_activity
         self.assertEqual(session.activity.name, "Partido de Futbol")
         self.assertIsNone(session.facility)
@@ -100,7 +100,7 @@ class SessionModelTest(TestCase):
         self.assertEqual(session.end_time, time(9, 0))
 
     def test_session_facility_fields(self):
-        "Verifies that the session of an facility fields are correct"
+        """Verifies that the session of an facility fields are correct"""
         session = self.session_facility
         self.assertIsNone(session.activity)
         self.assertEqual(session.facility.name, "Pista de Tenis")
@@ -111,19 +111,19 @@ class SessionModelTest(TestCase):
         self.assertEqual(session.end_time, time(10, 0))
 
     def test_session_is_full(self):
-        "Verifies that the session is full"
+        """Verifies that the session is full"""
         session = self.session_activity
         session.free_places = 0
         session.save()
         self.assertTrue(session.is_full())
 
     def test_session_is_not_full(self):
-        "Verifies that the session is not full"
+        """Verifies that the session is not full"""
         session = self.session_activity
         self.assertFalse(session.is_full())
 
     def test_session_add_reservation_activity(self):
-        "Correctly adds a reservation of an activity session"
+        """Correctly adds a reservation of an activity session"""
         session = self.session_activity
         user = self.user
 
@@ -136,7 +136,7 @@ class SessionModelTest(TestCase):
         self.assertEqual(session.free_places, 4)
 
     def test_no_reservation_when_session_is_full(self):
-        "Verifies that a reservation can't be made when the session is full"
+        """Verifies that a reservation can't be made when the session is full"""
         session = self.session_activity
         session.free_places = 0
         session.save()
@@ -147,7 +147,7 @@ class SessionModelTest(TestCase):
         self.assertIsNone(reservation)
 
     def test_no_duplicate_reservation(self):
-        "Verifies that a reservation can't be made when it has already been reserved"
+        """Verifies that a reservation can't be made when it has already been reserved"""
         session = self.session_activity
         self.user.has_valid_bono_for_activity = lambda actividad: True
 
@@ -159,7 +159,7 @@ class SessionModelTest(TestCase):
         self.assertIsNone(reservation)
 
     def test_single_use_bonus_is_used(self):
-        "Verifies that in case the reservation is made with a single use bonus, it expires"
+        """Verifies that in case the reservation is made with a single use bonus, it expires"""
         session = self.session_activity
 
         self.user.has_valid_bono_for_activity = lambda actividad: True
@@ -174,13 +174,13 @@ class SessionModelTest(TestCase):
         self.assertEqual(reservation.session, session)
 
     def test_session_activity_str(self):
-        "Checks that the string format of the session activity is correct"
+        """Checks that the string format of the session activity is correct"""
         s = self.session_activity
         expected = f"{s.activity.name} - {s.date.strftime('%d/%m/%Y')} {s.start_time}-{s.end_time} ({s.free_places}/{s.capacity} disponibles)"
         self.assertEqual(str(s), expected)
 
     def test_session_facility_str(self):
-        "Checks that the string format of the session facility is correct"
+        """Checks that the string format of the session facility is correct"""
         s = self.session_facility
         expected = f"{s.facility.name} - {s.date.strftime('%d/%m/%Y')} {s.start_time.strftime('%H:%M')}:{s.end_time.strftime('%H:%M')} ({s.free_places}/{s.capacity} disponibles)"
         self.assertEqual(str(s), expected)
@@ -254,36 +254,38 @@ class ReservationModelTest(TestCase):
         )
 
     def test_reservation_fields(self):
-        "Checks that the reservation fields are correct"
+        """Checks that the reservation fields are correct"""
         self.assertEqual(self.reservation.user.username, "ramon")
         self.assertEqual(
             self.reservation.session.activity.name, "Partido de Futbol")
         self.assertEqual(self.reservation.bonus.bonus.bonus_type, "single")
 
     def test_reservation_str(self):
-        "Checks that the string representation of a reservation is correct"
+        """Checks that the string representation of a reservation is correct"""
         expected_str = f"{self.reservation.user.username} - {self.reservation.session}"
         self.assertEqual(str(self.reservation), expected_str)
 
     def test_reservation_cancel_successful(self):
-        "Checks that the reservation is succesfully canceled"
+        """Checks that the reservation is succesfully canceled"""
         self.reservation.session.date = date.today() + timedelta(days=1)
         self.reservation.session.start_time = (
             datetime.now() + timedelta(hours=3)).time()
         self.reservation.session.save()
 
+        #Verify that the reservation was correctly cancelled
         was_cancelled = self.reservation.cancel()
         self.assertTrue(was_cancelled)
         self.assertFalse(Reservation.objects.filter(
             id=self.reservation.id).exists())
 
     def test_reservation_cancel_fails_due_to_time_limit(self):
-        "Checks that the reservation can't be cancelled when less that two hours from the start"
+        """Checks that the reservation can't be cancelled when less that two hours from the start"""
         self.reservation.session.date = date.today()
         self.reservation.session.start_time = (
             datetime.now() + timedelta(minutes=30)).time()
         self.reservation.session.save()
 
+        #Verify that the reservation isn't cancelled because of the time of cancellation
         was_cancelled = self.reservation.cancel()
         self.assertFalse(was_cancelled)
         self.assertTrue(Reservation.objects.filter(

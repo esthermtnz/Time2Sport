@@ -7,6 +7,6 @@ from datetime import timedelta
 
 @receiver(user_logged_in)
 def first_login_redirect(sender, request, user, **kwargs):
-
+    """Idetifies if it's the user was just created"""
     if user.is_authenticated and abs((user.date_joined - user.last_login).total_seconds()) < 5:
         request.session['first_login'] = True

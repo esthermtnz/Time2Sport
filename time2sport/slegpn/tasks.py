@@ -8,6 +8,7 @@ from src.models import Session, Reservation
 
 @shared_task
 def check_waiting_list_timeout(session_id):
+    """Verifies if the first user in the waiting list has made a reservation if not, notifies the next"""
     session = Session.objects.get(id=session_id)
     waiting_list = session.waiting_list.order_by('join_date')
     current_entry = waiting_list.filter(notified_at__isnull=False).first()

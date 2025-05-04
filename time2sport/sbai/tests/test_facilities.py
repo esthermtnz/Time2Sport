@@ -42,14 +42,14 @@ class AllFacilitiesViewTestCase(TestCase):
         )
 
     def test_redirect_for_unauthenticated_users(self):
-        "Verifies that the user is logged in if it is not, redirects to login"
+        """Verifies that the user is logged in if it is not, redirects to login"""
         response = self.client.get(reverse('all_facilities'))
         self.assertNotEqual(response.status_code, 200)
         self.assertRedirects(
             response, f"/accounts/login/?next={reverse('all_facilities')}")
 
     def test_all_facilities_view(self):
-        "Ensures that the facilities are viewed correctly in the all_facilities template"
+        """Ensures that the facilities are viewed correctly in the all_facilities template"""
         self.client.force_login(self.user)
 
         # -- View verification --
@@ -90,7 +90,7 @@ class AllFacilitiesViewTestCase(TestCase):
             self.assertContains(response, '/static/default-facility.png')
 
     def test_facility_without_schedule(self):
-        "Ensures that the facility without schedule is correctly displayed in the template"
+        """Ensures that the facility without schedule is correctly displayed in the template"""
         self.client.force_login(self.user)
 
         # -- View verification --
@@ -128,7 +128,7 @@ class AllFacilitiesViewTestCase(TestCase):
             self.assertContains(response, '/static/default-facility.png')
 
     def test_multiple_facilities(self):
-        "Ensures that the 2 facilities are displayed correctly"
+        """Ensures that the 2 facilities are displayed correctly"""
         self.client.force_login(self.user)
 
         # -- View verification --
@@ -185,7 +185,7 @@ class AllFacilitiesViewTestCase(TestCase):
             self.assertContains(response, '/static/default-facility.png')
 
     def test_facility_uses_default_image(self):
-        "Checks that if there is no image in the facility model, it loads the default one"
+        """Checks that if there is no image in the facility model, it loads the default one"""
         self.client.force_login(self.user)
         response = self.client.get(reverse('all_facilities'))
         self.assertContains(response, "/static/default-facility.png")
@@ -229,14 +229,14 @@ class FacilityDetailViewTestCase(TestCase):
         )
 
     def test_redirect_for_unauthenticated_users(self):
-        "Verifies that the user is logged in if it is not, redirects to login"
+        """Verifies that the user is logged in if it is not, redirects to login"""
         response = self.client.get(reverse('all_facilities'))
         self.assertNotEqual(response.status_code, 200)
         self.assertRedirects(
             response, f"/accounts/login/?next={reverse('all_facilities')}")
 
     def test_facility_detail_view(self):
-        "Ensures that the facility detail view template is correct"
+        """Ensures that the facility detail view template is correct"""
         self.client.force_login(self.user)
 
         # -- View verification --
@@ -276,7 +276,7 @@ class FacilityDetailViewTestCase(TestCase):
             self.assertNotContains(response, '<img src="', html=True)
 
     def test_facility_without_schedule_detail_view(self):
-        "Ensures that the facility without schedule detail view template is correct"
+        """Ensures that the facility without schedule detail view template is correct"""
         self.client.force_login(self.user)
 
         # -- View verification --

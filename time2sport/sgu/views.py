@@ -33,12 +33,14 @@ User = get_user_model()
 # -- Login and Logout
 
 def log_in(request):
+    """Load the login template"""
     context = {}
     return render(request, 'users/log_in.html', context)
 
 
 @login_required
 def log_out(request):
+    """Logsout the user and redircets to login page"""
     logout(request)
     return redirect('http://localhost:8000/')
 
@@ -46,16 +48,19 @@ def log_out(request):
 
 
 def aviso_legal(request):
+    """Load the Aviso Legal template"""
     context = {}
     return render(request, 'footer/aviso_legal.html', context)
 
 
 def politica_privacidad(request):
+    """Load the privacy polacy template"""
     context = {}
     return render(request, 'footer/politica_privacidad.html', context)
 
 
 def contacto(request):
+    """Allow the user to send an email to the admin"""
     contactForm = ContactForm()
 
     if request.method == "POST":
@@ -101,6 +106,7 @@ def contacto(request):
 
 @login_required
 def uam_verification(request):
+    """Allow the user to select user type and sends a code to the email in case of UAM"""
     form = UAMForm()
 
     # If user is already from UAM, redirect to home
@@ -168,6 +174,7 @@ def uam_verification(request):
 
 @login_required
 def verificar_codigo_uam(request):
+    """Verifies that the code sent is the same as the introduced and sets the user as UAM successfully"""
     # If user is already from UAM, redirect to home
     if request.user.is_uam:
         return redirect('index')
@@ -208,6 +215,7 @@ def verificar_codigo_uam(request):
 
 @login_required
 def index(request):
+    """Loads the home page and calls calls UAM verification if it's the first login"""
     if request.session.pop('first_login', False):
         return redirect('uam_verification')
 
@@ -217,7 +225,7 @@ def index(request):
 # Edit profile
 @login_required
 def profile(request):
-
+    """Loads the profile template and the user data"""
     user_types = {
         "notUAM": "No pertenece a la UAM",
         "student": "Estudiante UAM",
@@ -233,6 +241,7 @@ def profile(request):
 
 @login_required
 def edit_profile(request):
+    """Edit the user profile picture"""
     if request.method == 'POST' and request.FILES.get('profile_image'):
         request.user.editProfile(request.FILES['profile_image'])
     return redirect('profile')

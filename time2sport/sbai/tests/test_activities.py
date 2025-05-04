@@ -41,14 +41,14 @@ class AllActivitiesViewTestCase(TestCase):
         )
 
     def test_redirect_for_unauthenticated_users(self):
-        "Verifies that the users ared logged in before accessing the template"
+        """Verifies that the users ared logged in before accessing the template"""
         response = self.client.get(reverse('all_activities'))
         self.assertNotEqual(response.status_code, 200)
         self.assertRedirects(
             response, f"/accounts/login/?next={reverse('all_activities')}")
 
     def test_all_activities_view(self):
-        "Ensures that the all activities template is correctly displayed"
+        """Ensures that the all activities template is correctly displayed"""
         self.client.force_login(self.user)
 
         # -- View verification --
@@ -88,7 +88,7 @@ class AllActivitiesViewTestCase(TestCase):
             self.assertContains(response, '/static/default-activity.jpg')
 
     def test_activity_without_schedule(self):
-        "Ensures that the activity without schedule is showed in the content"
+        """Ensures that the activity without schedule is showed in the content"""
         self.client.force_login(self.user)
 
         response = self.client.get(reverse('all_activities'))
@@ -121,7 +121,7 @@ class AllActivitiesViewTestCase(TestCase):
             self.assertContains(response, '/static/default-activity.jpg')
 
     def test_multiple_activities(self):
-        "ENsures that the 2 activities are showed in the template"
+        """Ensures that the 2 activities are showed in the template"""
         self.client.force_login(self.user)
         response = self.client.get(reverse('all_activities'))
 
@@ -179,7 +179,7 @@ class AllActivitiesViewTestCase(TestCase):
             self.assertContains(response, '/static/default-activity.jpg')
 
     def test_activity_uses_default_image(self):
-        "Checks that if there is no image in the activity model, it loads the default one"
+        """Checks that if there is no image in the activity model, it loads the default one"""
         self.client.force_login(self.user)
         response = self.client.get(reverse('all_activities'))
         self.assertContains(response, "/static/default-activity.jpg")
@@ -233,7 +233,7 @@ class ActivityDetailViewTestCase(TestCase):
         )
 
     def test_redirect_for_unauthenticated_users(self):
-        "Verifies that the user is logged in before accessing the template"
+        """Verifies that the user is logged in before accessing the template"""
         response = self.client.get(
             reverse('activity_detail', args=[self.activity.id]))
 
@@ -242,7 +242,7 @@ class ActivityDetailViewTestCase(TestCase):
             response, f'/accounts/login/?next=/activities/{self.activity.id}/')
 
     def test_activity_detail_view(self):
-        "Ensures that the activity detail content is correct"
+        """Ensures that the activity detail content is correct"""
         self.client.force_login(self.user)
 
         # -- View verification --
@@ -289,7 +289,7 @@ class ActivityDetailViewTestCase(TestCase):
             self.assertNotContains(response, '<img src="', html=True)
 
     def test_activity_without_schedule_detail(self):
-        "Ensures that the details about the activity without schedule are correctly displayed"
+        """Ensures that the details about the activity without schedule are correctly displayed"""
         self.client.force_login(self.user)
         response = self.client.get(reverse('activity_detail', args=[
                                    self.activity_without_schedule.id]))
@@ -328,7 +328,7 @@ class ActivityDetailViewTestCase(TestCase):
             self.assertNotContains(response, '<img src="', html=True)
 
     def test_activity_with_multiple_bonuses(self):
-        "Ensures that the bonus selectors are correct"
+        """Ensures that the bonus selectors are correct"""
         self.client.force_login(self.user)
         response = self.client.get(
             reverse('activity_detail', args=[self.activity.id]))

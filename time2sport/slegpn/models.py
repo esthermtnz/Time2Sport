@@ -7,6 +7,7 @@ from django.utils import timezone
 
 
 class Notification(models.Model):
+    """Class representing a notification"""
     title = models.CharField(max_length=80)
     content = models.TextField()
     timestamp = models.DateTimeField(default=timezone.now)
@@ -19,6 +20,7 @@ class Notification(models.Model):
 
 
 class ProductBonus(models.Model):
+    """Class representing the bonus purchased after the inscription of an activity"""
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='bonuses')
     bonus = models.ForeignKey(
@@ -43,21 +45,24 @@ class ProductBonus(models.Model):
         return False
 
     def use_single_use(self):
+        """Sets the single use bonus to used"""
         if self.bonus.bonus_type == 'single':
             self.one_use_available = False
             self.save()
 
     def cancel_single_use(self):
+        """Cancels a single bonus"""
         if self.bonus.bonus_type == 'single':
             self.one_use_available = True
             self.save()
 
     def belongs_to_activity(self, activity):
+        """Verifies if the bonus belongs to an activity"""
         return self.bonus.activity == activity
 
 
 class WaitingList(models.Model):
-
+    """Class representing the waiting list for a full session"""
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='waiting_lists')
     session = models.ForeignKey(

@@ -70,7 +70,7 @@ class AuxiliarReservationFunctionsView(TestCase):
         )
 
     def test_is_conflict_reserved_sessions(self):
-        "Confirms that there is a conflict between two reserved sessions"
+        """Confirms that there is a conflict between two reserved sessions"""
         input_users_sessions = [self.reservation]
         requested_start = time(8, 30)
         requested_end = time(9, 30)
@@ -80,7 +80,7 @@ class AuxiliarReservationFunctionsView(TestCase):
         self.assertTrue(result)
 
     def test_no_conflict_reserved_sessions(self):
-        "Confirms that there is no conflict between two reserved sessions"
+        """Confirms that there is no conflict between two reserved sessions"""
         input_users_sessions = []
         requested_start = time(9, 0)
         requested_end = time(10, 0)
@@ -90,7 +90,7 @@ class AuxiliarReservationFunctionsView(TestCase):
         self.assertFalse(result)
 
     def test_is_conflict_chosen_sessions(self):
-        "Confirms that there is a conflict between two sessions"
+        """Confirms that there is a conflict between two sessions"""
         selected_sessions = [
             "1|09:00|10:00|April 21 2025",
             "1|09:30|10:30|April 21 2025"
@@ -100,7 +100,7 @@ class AuxiliarReservationFunctionsView(TestCase):
         self.assertTrue(result)
 
     def test_no_conflict_chosen_sessions(self):
-        "Confirms that there is no conflict between two sessions"
+        """Confirms that there is no conflict between two sessions"""
         selected_sessions = [
             "1|09:00|10:00|April 21 2025",
             "1|10:00|11:00|April 21 2025"
@@ -110,7 +110,7 @@ class AuxiliarReservationFunctionsView(TestCase):
         self.assertFalse(result)
 
     def test_get_session_split_data(self):
-        "Checks that the data is correctly splitted"
+        """Checks that the data is correctly splitted"""
         input_string = "1|09:00|10:00|April 21 2025"
         facility_id, day, start, end = _get_session_split_data(input_string)
         self.assertEqual(facility_id, "1")

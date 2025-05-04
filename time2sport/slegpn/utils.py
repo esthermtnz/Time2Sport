@@ -8,10 +8,12 @@ BONUS_TYPE_MAP = {
 
 
 def get_bonus_name(bonus_type):
+    """Gets the bonus name"""
     return BONUS_TYPE_MAP.get(bonus_type, "Bono Desconocido")
 
 
 def get_discount(price, is_uam):
+    """Verifies if the user has a discount depending on the user type"""
     if is_uam:
         return (price * Decimal('0.1')).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
     else:
@@ -19,4 +21,5 @@ def get_discount(price, is_uam):
 
 
 def get_total(precio, es_uam):
+    """Gets the total price"""
     return precio - get_discount(precio, es_uam)
