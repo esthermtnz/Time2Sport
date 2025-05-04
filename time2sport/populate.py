@@ -14,11 +14,13 @@ from sgu.models import User
 
 
 def get_images_from_folder(folder_path):
+    ''' Get all image files from a given folder path '''
     if not os.path.exists(folder_path):
         return []
     return [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
 
 def create_schedule(day, hour_ranges):
+    ''' Create schedules for a given day and hour ranges '''
     schedules = []
     for hour_begin, hour_end in hour_ranges:
         schedule = Schedule.objects.create(
@@ -31,6 +33,9 @@ def create_schedule(day, hour_ranges):
 
 
 def populate():
+    ''' Populate the database '''
+
+    # Activity schedules
     activity_schedules = {
         'Partido de Fútbol': {
             0: [('08:00:00', '09:00:00'), ('11:00:00', '12:00:00')],
@@ -57,6 +62,7 @@ def populate():
         }
     }
 
+    # Facility schedules
     facility_schedules = {
         'Campo de Fútbol': {
             DayOfWeek.LUNES: [('07:00:00', '10:00:00')],
@@ -70,6 +76,7 @@ def populate():
         }
     }
 
+    # Activities
     activities = [
         {'name': 'Partido de Fútbol', 'location': 'Campo de Fútbol', 'description': 'Un partido de fútbol con equipos.', 'activity_type': 'Terrestre'},
         {'name': 'Entrenamiento de Tenis', 'location': 'Pista de Tenis', 'description': 'Sesión de entrenamiento de tenis.', 'activity_type': 'Terrestre'},
@@ -78,11 +85,13 @@ def populate():
         {'name': 'Entrenamiento de Carrera', 'location': 'Pista de Atletismo', 'description': 'Sesión de entrenamiento cardiovascular.', 'activity_type': 'Terrestre'}
     ]
 
+    # Facilities
     facilities = [
         {'name': 'Campo de Fútbol', 'number_of_facilities': 2, 'description': 'Un gran campo de fútbol al aire libre.', 'hour_price': 50.0, 'facility_type': 'Exterior'},
         {'name': 'Pista de Tenis', 'number_of_facilities': 2, 'description': 'Una pista de tenis bien mantenida.', 'hour_price': 30.0, 'facility_type': 'Exterior'}
     ]
 
+    # Bonuses
     bonuses = [
         {'bonus_type': 'annual', 'price': 200.0},
         {'bonus_type': 'semester', 'price': 25.0},

@@ -16,7 +16,9 @@ from sbai.models import Activity, Schedule, DayOfWeek, Bonus
 
 User = get_user_model()
 
-
+'''
+Test cases for the Waiting List notification functionality.
+'''
 class WaitingListNotificationTestCase(TestCase):
     def setUp(self):
         # Create users
@@ -93,7 +95,9 @@ class WaitingListNotificationTestCase(TestCase):
         self.assertEqual(self.notification.status_code, 200)
         self.assertContains(self.notification, "Has sido eliminado de la lista de espera")
 
-
+'''
+Test cases for the Waiting List change status functionality.
+'''
 class ChangeWaitingListStatusTestCase(TestCase):
     def setUp(self):
         # Create users

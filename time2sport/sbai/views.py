@@ -30,13 +30,16 @@ from src.models import Session
 
 @login_required
 def all_activities(request):
+    ''' Function to get all activities. '''
     activities = Activity.objects.prefetch_related('photos').all()
     return render(request, 'activities/all_activities.html', {'activities': activities})
 
 @login_required
 def activity_detail(request, activity_id):
+    ''' Function to get the details of an activity. '''
     activity = get_object_or_404(Activity, pk=activity_id)
 
+    # Check if the user has a valid bonus for the activity
     has_bono = request.user.has_valid_bono_for_activity(activity)
 
     if not has_bono:
@@ -46,6 +49,7 @@ def activity_detail(request, activity_id):
             'bonuses': activity.bonuses.all()
         })
 
+    # Get the sessions for the activity (the user has a valid bonus)
     sessions = Session.objects.filter(activity_id=activity_id)
 
     ordered_sessions = sessions.order_by("date", "schedule__hour_begin")
@@ -74,6 +78,7 @@ def activity_detail(request, activity_id):
 
 @login_required
 def all_facilities(request):
+    ''' Function to get all sport facilities. '''
     all_facilities = SportFacility.objects.prefetch_related('photos')
     facilities = []
     # If a facility has more than one instance, show only one
@@ -90,6 +95,7 @@ def all_facilities(request):
 
 
 def divide_hours_into_blocks(schedule):
+    ''' Function to divide the hours of a schedule into blocks of 1 hour. '''
     blocks = []
     start = schedule.hour_begin
     end = schedule.hour_end
@@ -102,6 +108,7 @@ def divide_hours_into_blocks(schedule):
 
 @login_required
 def facility_detail(request, facility_id):
+    ''' Function to get the details of a sport facility. '''
     # Get the facility by id
     facility = get_object_or_404(SportFacility, pk=facility_id)
 
@@ -150,42 +157,45 @@ def facility_detail(request, facility_id):
 
 @login_required
 def schedules(request):
+    ''' Function to get the main schedules page. '''
     return render(request, 'schedules/schedules.html')
 
 @login_required
 def facilities_schedule(request):
+    ''' Function to get the schedules of all sport facilities. '''
     facilities = SportFacility.objects.prefetch_related('schedules').all()
     return render(request, 'schedules/facilities_schedule.html', {'facilities': facilities})
 
 @login_required
 def download_facilities_schedule(request):
+    ''' Function to download the schedules of all sport facilities as a PDF. '''
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="facilities_schedule.pdf"'
 
-    # Crear el documento
+    # Create the document
     doc = SimpleDocTemplate(response, pagesize=letter)
     elements = []
     styles = getSampleStyleSheet()
 
-    # Título del documento
+    # Document title
     elements.append(Paragraph("Horarios de Instalaciones", styles["Title"]))
     elements.append(Spacer(1, 12))
 
-    # Columnas de la tabla
+    # Table headers
     data = [["Instalación", "Horario"]]
 
     facilities = SportFacility.objects.prefetch_related('schedules').all()
 
-    # Recopilar los horarios de las instalaciones
+    # Get the schedules for each facility
     for facility in facilities:
         horarios = "\n".join(
             [f"{schedule.get_day_of_week_display()}: {schedule.hour_begin} - {schedule.hour_end}" for schedule in facility.schedules.all()]
         )
         data.append([facility.name, horarios])
 
-    # Crear la tabla
-    table = Table(data, colWidths=[200, 250])  # Ajuste de ancho de columnas
-    # Poner estilos a la tabla
+    # Create the table
+    table = Table(data, colWidths=[200, 250])
+    # Table style
     table.setStyle(TableStyle([
         ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
@@ -195,14 +205,15 @@ def download_facilities_schedule(request):
         ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
     ]))
 
-    # Añadir la tabla al documento
+    # Add the table to the document
     elements.append(table)
     doc.build(elements)
-    # Devolver el PDF
+    # Return the PDF
     return response
 
 @login_required
 def activities_schedule(request):
+    ''' Function to get the schedules of all activities. '''
     activities = Activity.objects.all()
 
     # If there are activities with several schedules, group them
@@ -236,49 +247,50 @@ def activities_schedule(request):
 
 @login_required
 def download_activities_schedule(request):
+    ''' Function to download the schedules of all activities as a PDF. '''
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="activities_schedule.pdf"'
 
-    # Crear el documento
+    # Create the document
     doc = SimpleDocTemplate(response, pagesize=letter)
     elements = []
     styles = getSampleStyleSheet()
 
-    # Título del documento
+    # Document title
     elements.append(Paragraph("Horarios de Actividades", styles["Title"]))
     elements.append(Spacer(1, 12))
 
-    # Encabezados de la tabla
+    # Table headers
     data = [["Actividad", "Día", "Horario"]]
-    merge_styles = [] # Aquí se guardan las actividades con varios horarios para luego combinar las celdas
+    merge_styles = []  # Here the activities with multiple schedules are stored to later merge the cells
 
     activities = Activity.objects.prefetch_related('schedules').all()
 
     for activity in activities:
         schedules_by_day = {}
 
-        # Agrupar horarios por día
+        # Group schedules by day of the week
         for schedule in activity.schedules.all():
             day = schedule.get_day_of_week_display()
             if day not in schedules_by_day:
                 schedules_by_day[day] = []
             schedules_by_day[day].append(f"{schedule.hour_begin.strftime('%I:%M')} - {schedule.hour_end.strftime('%I:%M')}")
 
-        activity_rows = [] # Filas de la misma actividad
+        activity_rows = [] # Rows for the same activity
         for day, hours in schedules_by_day.items():
             grouped_hours = "\n".join(hours)
             activity_rows.append(["", day, grouped_hours])
 
         if activity_rows:
-            # Poner el nombre de la actividad en la primera fila del grupo
+            # Put the name of the activity in the first row
             activity_rows[0][0] = activity.name
             data.extend(activity_rows)
 
-            # Agrupar las celdas de la columna de la actividad si hay más de una fila
+            # Group the cells of the activity column if there are more than one row
             if len(activity_rows) > 1:
                 merge_styles.append(('SPAN', (0, len(data) - len(activity_rows)), (0, len(data) - 1)))
 
-    # Poner estilos a la tabla
+    # Put the styles to the table
     table = Table(data, colWidths=[150, 100, 150])
     table.setStyle(TableStyle([
         ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
@@ -290,24 +302,28 @@ def download_activities_schedule(request):
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
     ] + merge_styles))
 
-    # Añadir la tabla al documento
+    # Add the table to the document
     elements.append(table)
-    # Crear el PDF
+    # Return the PDF
     doc.build(elements)
     return response
 
 
 @login_required
 def search_results(request):
+    ''' Function to search for sport facilities and activities. '''
     facilities = SportFacility.objects.all()
     activities = Activity.objects.all()
     category = None
     query = None
 
     if request.method == "POST":
+        # Get the search query and category from the form
         category = request.POST.get('category', '').strip()
         query = request.POST.get('q', '').strip()
 
+        # If the query is empty, show all facilities and activities
+        # Else filter the facilities and activities based on the query
         if query:
             facilities = facilities.filter(
                 Q(name__icontains=query)
@@ -316,6 +332,7 @@ def search_results(request):
                 Q(name__icontains=query)
             )
 
+        # If the category is selected, filter the facilities and activities based on the category
         if category:
             category = category.capitalize()
             if category in ['Interior', 'Exterior']:

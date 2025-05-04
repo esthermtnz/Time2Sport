@@ -19,6 +19,7 @@ class UAMFormTestCase(TestCase):
     def test_uam_option_without_email(self):
         """ Should fail if a UAM option is selected but no email is entered """
 
+        # Test all options except 'No soy de la UAM'
         form = UAMForm(data={"user_choice": "2", "email_uam": ""})
         self.assertFalse(form.is_valid())
         self.assertIn("email_uam", form.errors)

@@ -14,7 +14,7 @@ from datetime import datetime, date
 from django.utils.timezone import now
 
 def _is_conflict_reserved_sessions(users_sessions_day, requested_start, requested_end):
-    # Check if the user does not have another session at the same time
+    ''' Check if the user has another session at the same time '''
 
     for reserved in users_sessions_day:
         reserved_start = reserved.session.start_time
@@ -26,8 +26,10 @@ def _is_conflict_reserved_sessions(users_sessions_day, requested_start, requeste
     return False
 
 def _is_conflict_chosen_sessions(selected_sessions):
+    ''' Check if the user has chosen sessions that overlap each other '''
+
     session_times = []
-    # Check that there is no overlapping reservation for those who have just chosen
+
     for session in selected_sessions:
         facility_id, start, end, day = session.split('|')
         day = datetime.strptime(day, "%B %d %Y")
@@ -51,6 +53,7 @@ def _is_conflict_chosen_sessions(selected_sessions):
     return False
 
 def _get_session_split_data(session):
+    ''' Get the session data from the session string '''
     facility_id, start, end, day = session.split('|')
     day = datetime.strptime(day, "%B %d %Y")
     requested_start = datetime.strptime(start, '%H:%M').time()
@@ -60,6 +63,7 @@ def _get_session_split_data(session):
 
 @login_required
 def reserve_activity_session(request, session_id):
+    ''' Reserve an activity session '''
     session = get_object_or_404(Session, id=session_id)
     if session is None:
         return redirect('all_activities')
@@ -82,7 +86,7 @@ def reserve_activity_session(request, session_id):
         content = f"Has realizado una reserva de {session.activity} para el día {session.date.strftime('%d/%m/%Y')}."
         Notification.objects.create(user=user, title=title, content=content)
 
-        #If user was in the waiting list delete entry
+        # If user was in the waiting list delete entry
         WaitingList.objects.filter(user=user, session=session).delete()
     else:
         messages.error(request, "Error al realizar la reserva.")
@@ -91,14 +95,17 @@ def reserve_activity_session(request, session_id):
 
 @login_required
 def check_reserve_facility_session(request):
+    ''' Check if the user can reserve the facility session '''
     if request.method == 'POST':
         selected_sessions = [s for s in request.POST.get('selected_sessions', '').split(',') if s]
         request.session['selected_sessions'] = selected_sessions
 
+        # Check if the user has selected sessions
         if not selected_sessions:
             messages.error(request, 'No se ha seleccionado ninguna sesión.')
             return redirect('facility_detail', facility_id=request.POST.get('facility_id'))
 
+        # Check if the user has selected sessions that overlap each other
         if _is_conflict_chosen_sessions(selected_sessions):
             messages.error(request, "Las reservas seleccionadas se solapan.")
             return redirect('facility_detail', facility_id=request.POST.get('facility_id'))
@@ -117,6 +124,7 @@ def check_reserve_facility_session(request):
 
 @login_required
 def reserve_facility_session(request):
+    ''' Reserve the facility session '''
     selected_sessions = request.session['selected_sessions']
     
     for session in selected_sessions:
@@ -139,6 +147,7 @@ def reserve_facility_session(request):
                 user=request.user
             )
             
+            # Update session free places
             session.free_places -= 1
             session.save()
 
@@ -156,11 +165,13 @@ def reserve_facility_session(request):
             content = "Se ha producido un error. Intentelo más tarde"
             messages.error(request, f'La hora {start} - {end} ya está ocupada.')
     
+    # Notify the user
     Notification.objects.create(title=title, content=content, user=request.user)
     messages.success(request, 'Reserva realizada con éxito.')
 
 @login_required
 def reservations(request):
+    ''' List all reservations of the user '''
     user = request.user
 
     reservations = user.reservations.filter(session__date__gte=date.today()).order_by('session__date')
@@ -174,6 +185,7 @@ def reservations(request):
 
 @login_required
 def past_reservations(request):
+    ''' List all past reservations of the user '''
     user = request.user
 
     past_reservations = user.reservations.filter(session__date__lt=date.today()).order_by('-session__date')
@@ -187,13 +199,17 @@ def past_reservations(request):
 
 @login_required
 def cancel_reservation(request, reservation_id):
+    ''' Cancel a reservation '''
     reservation = get_object_or_404(Reservation, id=reservation_id, user=request.user)
     session = reservation.session
 
     is_cancelled = reservation.cancel()
+    # If the reservation was not cancelled, it means that the user tried to cancel it with less than 2 hours before the session
     if not is_cancelled:
         messages.error(request, "No puedes cancelar una reserva con menos de 2 horas de antelación.")
+    # The reservation was cancelled
     else:
+        # Update the waiting list
         waiting_list = session.waiting_list.order_by('join_date')
 
         # Find the first user who hasn't been notified
@@ -217,7 +233,8 @@ def cancel_reservation(request, reservation_id):
             content = f"Has cancelado tu reserva de {session.activity.name} correctamente."
         elif session.facility:
             content = f"Has cancelado tu reserva de {session.facility.name} correctamente."
-            
+        
+        # Notify the user
         title = "Reserva cancelada con éxito"
         Notification.objects.create(title=title, content=content, user=request.user)
 

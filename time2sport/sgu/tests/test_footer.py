@@ -4,6 +4,9 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+'''
+FooterTest class which contains the tests for the footer
+'''
 class FooterTest(TestCase):
     def setUp(self):
         """ Create a user and log in """

@@ -11,6 +11,9 @@ from sbai.models import Activity, Schedule, DayOfWeek, Bonus
 
 User = get_user_model()
 
+'''
+    Test cases for the WaitingList functionality.
+'''
 class WaitingListTestCase(TestCase):
     def setUp(self):
         # Create users

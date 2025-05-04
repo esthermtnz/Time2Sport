@@ -5,6 +5,9 @@ from django.urls import reverse
 
 User = get_user_model()
 
+'''
+Test cases for the Notification functionality.
+'''
 class NotificationTestCase(TestCase):
     def test_user_cannot_see_notifications_if_not_logged_in(self):
         """ Test that a user cannot see notifications if not logged in. """

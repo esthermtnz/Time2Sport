@@ -4,6 +4,9 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+'''
+AuthenticationTest class which contains the tests for the authentication feature
+'''
 class AuthenticationTest(TestCase):
     def test_logout_without_authentication(self):
         """ Verify that logout works even if no user is logged in """

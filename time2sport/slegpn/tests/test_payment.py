@@ -12,6 +12,9 @@ from sbai.models import Activity, Schedule, DayOfWeek, Bonus, SportFacility
 
 User = get_user_model()
 
+'''
+Test cases for the payment functionality.
+'''
 class TestPaymentWithNotification(TestCase):
     def setUp(self):
         # Create user

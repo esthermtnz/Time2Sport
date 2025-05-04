@@ -85,7 +85,7 @@ class UAMStatusTestCase(TestCase):
             self.assertRedirects(response, "/verificar-codigo-uam/")
 
             # Capture the verification code sent by email
-            self.assertEqual(len(mail.outbox), 1)
+            self.assertEqual(len(mail.outbox), 1)  # Check that an email was sent
             email_body = mail.outbox[0].body
             lineas = email_body.strip().split("\n")
             codigo_enviado = lineas[4].strip()
@@ -99,7 +99,7 @@ class UAMStatusTestCase(TestCase):
             self.assertEqual(response.status_code, 200)
 
             # Verify that the response contains the correct message
-            self.assertContains(response, "El código de verificación ha expirado. Solicita uno nuevo.")  # Ajusta según el mensaje en tu app
+            self.assertContains(response, "El código de verificación ha expirado. Solicita uno nuevo.")
 
             # Refresh the user from the database
             self.user.refresh_from_db()

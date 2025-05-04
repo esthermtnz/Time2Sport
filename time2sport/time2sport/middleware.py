@@ -1,6 +1,7 @@
 from django.shortcuts import render
 
 class Custom404:
+    ''' Middleware to handle 404 errors and render to a custom 404 template '''
     def __init__(self, get_response):
         self.get_response = get_response
     
