@@ -6,14 +6,17 @@ BONUS_TYPE_MAP = {
     "single": "Bono Sesión Única",
 }
 
+
 def get_bonus_name(bonus_type):
     return BONUS_TYPE_MAP.get(bonus_type, "Bono Desconocido")
+
 
 def get_discount(price, is_uam):
     if is_uam:
         return (price * Decimal('0.1')).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-    else: 
+    else:
         return Decimal('0.00')
+
 
 def get_total(precio, es_uam):
     return precio - get_discount(precio, es_uam)

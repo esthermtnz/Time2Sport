@@ -30,6 +30,6 @@ urlpatterns = [
     path('', include('src.urls')),
     path('', RedirectView.as_view(url='/', permanent=True)),
     path('accounts/', include('allauth.urls')),
-] 
+]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

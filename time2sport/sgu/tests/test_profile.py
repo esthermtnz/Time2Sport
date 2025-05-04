@@ -11,11 +11,15 @@ User = get_user_model()
 """
 ProfilePictureTestCase class which contains the tests for the profile picture feature
 """
-@override_settings(MEDIA_ROOT=tempfile.mkdtemp()) # Create a temporary media directory
+
+
+# Create a temporary media directory
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class ProfilePictureTestCase(TestCase):
     def setUp(self):
         """ Create a user and log in """
-        self.user = User.objects.create_user(username="testuser", password="testpassword")
+        self.user = User.objects.create_user(
+            username="testuser", password="testpassword")
         self.client.login(username="testuser", password="testpassword")
 
     def tearDown(self):
@@ -30,14 +34,16 @@ class ProfilePictureTestCase(TestCase):
 
         # Use UAM logo as a test image
         with open("static/images/uam.png", "rb") as image:
-            image = SimpleUploadedFile("uam_logo.png", image.read(), content_type="image/png")
+            image = SimpleUploadedFile(
+                "uam_logo.png", image.read(), content_type="image/png")
 
         # Upload the new image
-        response = self.client.post("/edit-profile/", {"profile_image": image}, format="multipart")
-        
+        response = self.client.post(
+            "/edit-profile/", {"profile_image": image}, format="multipart")
+
         # Refresh the user from the database
         self.user.refresh_from_db()
-        
+
         # Verify that the profile picture has changed
         self.assertNotEqual(self.user.profile.name, old_image)
 
@@ -51,9 +57,11 @@ class ProfilePictureTestCase(TestCase):
         old_image = self.user.profile.name
 
         # Try to upload an invalid file
-        invalid_file = SimpleUploadedFile("test_file.txt", b"invalid_file_content", content_type="text/plain")
+        invalid_file = SimpleUploadedFile(
+            "test_file.txt", b"invalid_file_content", content_type="text/plain")
 
-        response = self.client.post("/edit-profile/", {"profile_image": invalid_file}, format="multipart")
+        response = self.client.post(
+            "/edit-profile/", {"profile_image": invalid_file}, format="multipart")
 
         # Refresh the user from the database
         self.user.refresh_from_db()

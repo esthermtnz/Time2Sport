@@ -1,29 +1,34 @@
-from django import forms 
+from django import forms
 
 import re
 
+
 class ContactForm(forms.Form):
     asunto = forms.CharField(
-        label="Asunto", 
-        required=True, 
+        label="Asunto",
+        required=True,
         max_length=180,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el asunto del comunicado'})
+        widget=forms.TextInput(
+            attrs={'class': 'form-control', 'placeholder': 'Ingrese el asunto del comunicado'})
     )
     nombre = forms.CharField(
-        label="Nombre", 
+        label="Nombre",
         required=True,
         max_length=100,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese su nombre'})
+        widget=forms.TextInput(
+            attrs={'class': 'form-control', 'placeholder': 'Ingrese su nombre'})
     )
     email = forms.EmailField(
-        label="Email", 
+        label="Email",
         required=True,
-        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese su email'})
+        widget=forms.EmailInput(
+            attrs={'class': 'form-control', 'placeholder': 'Ingrese su email'})
     )
     contenido = forms.CharField(
-        label="Contenido", 
+        label="Contenido",
         required=True,
-        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Escriba su mensaje'})
+        widget=forms.Textarea(
+            attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Escriba su mensaje'})
     )
 
 
@@ -38,15 +43,17 @@ class UAMForm(forms.Form):
     ]
 
     user_choice = forms.ChoiceField(
-        choices=UAM_CHOICES, 
-        label="¿Eres de la UAM?", 
-        widget=forms.Select(attrs={'class': 'form-select', 'id':'user_choice'})
+        choices=UAM_CHOICES,
+        label="¿Eres de la UAM?",
+        widget=forms.Select(
+            attrs={'class': 'form-select', 'id': 'user_choice'})
     )
 
     email_uam = forms.EmailField(
-        required=False, 
+        required=False,
         label="Correo institucional de la UAM",
-        widget=forms.EmailInput(attrs={'class': 'form-control', 'id':'email_uam', 'placeholder': 'nombreapellido@uam.es'})
+        widget=forms.EmailInput(attrs={
+                                'class': 'form-control', 'id': 'email_uam', 'placeholder': 'nombreapellido@uam.es'})
     )
 
     def clean(self):
@@ -55,10 +62,12 @@ class UAMForm(forms.Form):
         email_uam = cleaned_data.get("email_uam")
 
         if user_choice == "0":
-            self.add_error("user_choice", "Debes seleccionar una opción válida.")
+            self.add_error(
+                "user_choice", "Debes seleccionar una opción válida.")
 
         if user_choice in ["2", "3", "4", "5"] and not email_uam:
-            self.add_error("email_uam", "Debes ingresar un correo institucional de la UAM.")
+            self.add_error(
+                "email_uam", "Debes ingresar un correo institucional de la UAM.")
 
         # Filtering if students and staff follow the uam email format
         student_pattern = r"^[a-zA-Z0-9._%+-]+@estudiante\.uam\.es$"
@@ -66,9 +75,11 @@ class UAMForm(forms.Form):
         staff_pattern = r"^[a-zA-Z0-9._%+-]+@uam\.es$"
 
         if user_choice == "2" and email_uam and not re.match(student_pattern, email_uam):
-            self.add_error("email_uam", "Los estudiantes deben usar un correo @estudiante.uam.es.")
+            self.add_error(
+                "email_uam", "Los estudiantes deben usar un correo @estudiante.uam.es.")
         elif user_choice == "5" and email_uam and not re.match(alumni_pattern, email_uam):
-            self.add_error("email_uam", "Los ex-alumnos deben usar un correo @alumni.uam.es.")
+            self.add_error(
+                "email_uam", "Los ex-alumnos deben usar un correo @alumni.uam.es.")
         elif user_choice in ["3", "4"] and email_uam and not re.match(staff_pattern, email_uam):
             self.add_error("email_uam", "Debes usar un correo @uam.es.")
 

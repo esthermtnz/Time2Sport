@@ -2,17 +2,18 @@ from django.db import models
 import os
 from enum import Enum
 
+
 def photo_upload_path(instance, filename):
     ''' Function to define the upload path for photos. '''
 
     # If the image belongs to an activity, save it in "activities/{id}"
     if instance.activity:
         return f"activities/{instance.activity.id}/{filename}"
-    
+
     # If the image belongs to a facility, save it in "facilities/{id}"
     elif instance.facility:
         return f"facilities/{instance.facility.id}/{filename}"
-    
+
     # If it doesn't belong to any, save it in "photos"
     return f"photos/{filename}"
 
@@ -27,6 +28,7 @@ class DayOfWeek(models.IntegerChoices):
     SABADO = 5, "Sabado"
     DOMINGO = 6, "Domingo"
 
+
 class Schedule(models.Model):
     """ Class to represent the schedule of a sport facility or activity. """
     day_of_week = models.IntegerField(choices=DayOfWeek.choices)
@@ -39,6 +41,7 @@ class Schedule(models.Model):
 
 class SportFacilityManager(models.Manager):
     ''' Custom manager for the SportFacility model used for overriding the create method. '''
+
     def create(self, name, number_of_facilities, description, hour_price, facility_type, schedules=None, **kwargs):
         instances = []
         # If the number of facilities is greater than 1, create a list of names
@@ -92,8 +95,10 @@ class SportFacility(models.Model):
     number_of_facilities = models.IntegerField()
     description = models.TextField()
     hour_price = models.DecimalField(max_digits=6, decimal_places=2)
-    facility_type = models.CharField(max_length=10, choices=FACILITY_TYPE_CHOICES)
-    schedules = models.ManyToManyField(Schedule, related_name="sport_facilities", blank=True)
+    facility_type = models.CharField(
+        max_length=10, choices=FACILITY_TYPE_CHOICES)
+    schedules = models.ManyToManyField(
+        Schedule, related_name="sport_facilities", blank=True)
 
     # Use the custom manager
     objects = SportFacilityManager()
@@ -114,8 +119,10 @@ class Activity(models.Model):
     name = models.CharField(max_length=255)
     location = models.CharField(max_length=255)
     description = models.TextField()
-    activity_type = models.CharField(max_length=15, choices=ACTIVITY_TYPE_CHOICES)
-    schedules = models.ManyToManyField(Schedule, related_name="activities", blank=True)
+    activity_type = models.CharField(
+        max_length=15, choices=ACTIVITY_TYPE_CHOICES)
+    schedules = models.ManyToManyField(
+        Schedule, related_name="activities", blank=True)
 
     def __str__(self):
         return self.name
@@ -123,8 +130,10 @@ class Activity(models.Model):
 
 class Photo(models.Model):
     """ Class to represent a photo. """
-    activity = models.ForeignKey("Activity", related_name='photos', on_delete=models.CASCADE, null=True, blank=True)
-    facility = models.ForeignKey("SportFacility", related_name='photos', on_delete=models.CASCADE, null=True, blank=True)
+    activity = models.ForeignKey(
+        "Activity", related_name='photos', on_delete=models.CASCADE, null=True, blank=True)
+    facility = models.ForeignKey(
+        "SportFacility", related_name='photos', on_delete=models.CASCADE, null=True, blank=True)
     image = models.ImageField(upload_to=photo_upload_path)
 
     def __str__(self):
@@ -142,7 +151,8 @@ class Bonus(models.Model):
     ]
 
     id = models.AutoField(primary_key=True)
-    activity = models.ForeignKey(Activity, on_delete=models.CASCADE, related_name="bonuses")
+    activity = models.ForeignKey(
+        Activity, on_delete=models.CASCADE, related_name="bonuses")
     bonus_type = models.CharField(max_length=10, choices=BONUS_TYPE_CHOICES)
     price = models.DecimalField(max_digits=6, decimal_places=2)
 

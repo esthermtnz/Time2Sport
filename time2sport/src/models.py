@@ -7,17 +7,19 @@ from datetime import timedelta
 from sbai.models import Bonus, Activity, SportFacility, Schedule
 from sgu.models import User
 
+
 class Session(models.Model):
     ''' Class representing a session of an activity or facility. '''
-    activity = models.ForeignKey(Activity, on_delete=models.CASCADE, related_name="sessions", null=True)
-    facility = models.ForeignKey(SportFacility, on_delete=models.CASCADE, related_name="sessions", null=True)
+    activity = models.ForeignKey(
+        Activity, on_delete=models.CASCADE, related_name="sessions", null=True)
+    facility = models.ForeignKey(
+        SportFacility, on_delete=models.CASCADE, related_name="sessions", null=True)
     schedule = models.ForeignKey(Schedule, on_delete=models.CASCADE)
     capacity = models.IntegerField(default=1)
     free_places = models.IntegerField(default=1)
     date = models.DateField()
     start_time = models.TimeField()
     end_time = models.TimeField()
-
 
     def is_full(self):
         ''' Method to check if the session is full. '''
@@ -41,7 +43,8 @@ class Session(models.Model):
         bonus_available = user.get_valid_bono_for_activity(self.activity)
 
         # Make reservation
-        reservation = Reservation.objects.create(user=user, session=self, bonus=bonus_available)
+        reservation = Reservation.objects.create(
+            user=user, session=self, bonus=bonus_available)
         self.free_places -= 1
 
         # If bonus is single-use, mark it as used
@@ -51,7 +54,6 @@ class Session(models.Model):
         reservation.save()
         self.save()
         return reservation
-
 
     @staticmethod
     def create_sessions(schedules, activity=None, facility=None, capacity=10):
@@ -100,7 +102,8 @@ class Session(models.Model):
                 else:
                     facility_name = ' '.join(facility.name.split(" ")[:-1])
 
-                instances = SportFacility.objects.filter(name__regex=f"^{facility_name}( [0-9]+)?$")
+                instances = SportFacility.objects.filter(
+                    name__regex=f"^{facility_name}( [0-9]+)?$")
             else:
                 instances = [facility]
 
@@ -108,7 +111,8 @@ class Session(models.Model):
 
             for schedule in schedules:
                 if schedule in facility_schedules:
-                    sch = facility_schedules.get(day_of_week=schedule.day_of_week, hour_begin=schedule.hour_begin, hour_end=schedule.hour_end)
+                    sch = facility_schedules.get(
+                        day_of_week=schedule.day_of_week, hour_begin=schedule.hour_begin, hour_end=schedule.hour_end)
 
                     day_of_week = schedule.day_of_week
                     target_day_index = int(day_of_week)
@@ -124,7 +128,8 @@ class Session(models.Model):
 
                     start_time = schedule.hour_begin
                     end_time = schedule.hour_end
-                    start_time = datetime.strptime(start_time, "%H:%M:%S").time()
+                    start_time = datetime.strptime(
+                        start_time, "%H:%M:%S").time()
                     end_time = datetime.strptime(end_time, "%H:%M:%S").time()
 
                     current_time = datetime.combine(today, start_time)
@@ -160,17 +165,21 @@ class Session(models.Model):
 
 class Reservation(models.Model):
     ''' Class representing a reservation for a session. '''
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reservations")
-    session = models.ForeignKey(Session, on_delete=models.CASCADE, related_name="reservations")
-    bonus = models.ForeignKey('slegpn.ProductBonus', on_delete=models.SET_NULL, null=True, related_name="reservations")
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="reservations")
+    session = models.ForeignKey(
+        Session, on_delete=models.CASCADE, related_name="reservations")
+    bonus = models.ForeignKey(
+        'slegpn.ProductBonus', on_delete=models.SET_NULL, null=True, related_name="reservations")
 
     def cancel(self):
         ''' Method to cancel a reservation. '''
         # Check if there are more than 2 hours in advance
         now = datetime.now()
-        session_date_time = datetime.combine(self.session.date, self.session.start_time)
+        session_date_time = datetime.combine(
+            self.session.date, self.session.start_time)
         time_difference = session_date_time - now
-        
+
         # If the session is in less than 2 hours, do not allow cancellation
         if time_difference < timedelta(hours=2):
             return False

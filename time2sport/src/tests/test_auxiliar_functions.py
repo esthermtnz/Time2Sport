@@ -13,21 +13,21 @@ class AuxiliarReservationFunctionsView(TestCase):
     def setUpTestData(cls):
         # Create the session for the activity schedule
         schedule_activity = Schedule.objects.create(
-            day_of_week = DayOfWeek.MARTES,
-            hour_begin = "08:00:00",
-            hour_end = "9:00:00"
+            day_of_week=DayOfWeek.MARTES,
+            hour_begin="08:00:00",
+            hour_end="9:00:00"
         )
 
         # Create an activity
         activity = Activity.objects.create(
-            name = "Partido de Futbol",
-            location = "Campo de Fútbol",
-            description = "Entrenamiento futbol sala para 5 jugadores",
-            activity_type = "Terrestre",
+            name="Partido de Futbol",
+            location="Campo de Fútbol",
+            description="Entrenamiento futbol sala para 5 jugadores",
+            activity_type="Terrestre",
         )
         activity.schedules.add(schedule_activity)
 
-        #Create a session
+        # Create a session
         session = Session.objects.create(
             activity=activity,
             facility=None,
@@ -39,44 +39,44 @@ class AuxiliarReservationFunctionsView(TestCase):
             end_time=time(9, 0)
         )
 
-        #Create a user
+        # Create a user
         user = User.objects.create(
             username="ramon",
             email="ramon@example.com",
             password="test1234",
-            is_uam = False,
-            user_type = 'notUAM',
+            is_uam=False,
+            user_type='notUAM',
         )
 
-        #Create a bonus
+        # Create a bonus
         bonus = Bonus.objects.create(
             activity=session.activity,
             bonus_type='single',
             price=10.0
         )
 
-        #Create a product bonus
+        # Create a product bonus
         product_bonus = ProductBonus.objects.create(
-            user=user,      
+            user=user,
             bonus=bonus,
             one_use_available=True
         )
 
-        #Create a reservation
+        # Create a reservation
         cls.reservation = Reservation.objects.create(
-            user = user,
-            session = session,
-            bonus = product_bonus
+            user=user,
+            session=session,
+            bonus=product_bonus
         )
-    
-    
+
     def test_is_conflict_reserved_sessions(self):
         "Confirms that there is a conflict between two reserved sessions"
         input_users_sessions = [self.reservation]
         requested_start = time(8, 30)
         requested_end = time(9, 30)
 
-        result = _is_conflict_reserved_sessions(input_users_sessions, requested_start, requested_end)
+        result = _is_conflict_reserved_sessions(
+            input_users_sessions, requested_start, requested_end)
         self.assertTrue(result)
 
     def test_no_conflict_reserved_sessions(self):
@@ -85,10 +85,10 @@ class AuxiliarReservationFunctionsView(TestCase):
         requested_start = time(9, 0)
         requested_end = time(10, 0)
 
-        result = _is_conflict_reserved_sessions(input_users_sessions, requested_start, requested_end)
+        result = _is_conflict_reserved_sessions(
+            input_users_sessions, requested_start, requested_end)
         self.assertFalse(result)
 
-    
     def test_is_conflict_chosen_sessions(self):
         "Confirms that there is a conflict between two sessions"
         selected_sessions = [
@@ -109,7 +109,6 @@ class AuxiliarReservationFunctionsView(TestCase):
         result = _is_conflict_chosen_sessions(selected_sessions)
         self.assertFalse(result)
 
-
     def test_get_session_split_data(self):
         "Checks that the data is correctly splitted"
         input_string = "1|09:00|10:00|April 21 2025"
@@ -118,5 +117,3 @@ class AuxiliarReservationFunctionsView(TestCase):
         self.assertEqual(start, time(9, 0))
         self.assertEqual(end, time(10, 0))
         self.assertEqual(day, datetime(2025, 4, 21))
-    
-    

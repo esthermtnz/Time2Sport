@@ -14,11 +14,15 @@ User = get_user_model()
 '''
     Test cases for the WaitingList functionality.
 '''
+
+
 class WaitingListTestCase(TestCase):
     def setUp(self):
         # Create users
-        self.user1 = User.objects.create_user(username="testuser", password="testpassword")
-        self.user2 = User.objects.create_user(username="testuser2", password="testpassword2")
+        self.user1 = User.objects.create_user(
+            username="testuser", password="testpassword")
+        self.user2 = User.objects.create_user(
+            username="testuser2", password="testpassword2")
 
         # Create a schedule
         self.schedule_1 = Schedule.objects.create(
@@ -47,8 +51,10 @@ class WaitingListTestCase(TestCase):
             capacity=1,
             free_places=0,
             date=timezone.now().date() + timedelta(days=1),
-            start_time=datetime.strptime(self.schedule_1.hour_begin, '%H:%M:%S').time(),
-            end_time=datetime.strptime(self.schedule_1.hour_end, '%H:%M:%S').time()
+            start_time=datetime.strptime(
+                self.schedule_1.hour_begin, '%H:%M:%S').time(),
+            end_time=datetime.strptime(
+                self.schedule_1.hour_end, '%H:%M:%S').time()
         )
 
         # Session with available places
@@ -58,17 +64,19 @@ class WaitingListTestCase(TestCase):
             capacity=1,
             free_places=1,
             date=timezone.now().date() + timedelta(days=1),
-            start_time=datetime.strptime(self.schedule_2.hour_begin, '%H:%M:%S').time(),
-            end_time=datetime.strptime(self.schedule_2.hour_end, '%H:%M:%S').time()
+            start_time=datetime.strptime(
+                self.schedule_2.hour_begin, '%H:%M:%S').time(),
+            end_time=datetime.strptime(
+                self.schedule_2.hour_end, '%H:%M:%S').time()
         )
 
         # Create a bonus
         self.bonus = Bonus.objects.create(
-            activity = self.activity,
-            bonus_type = 'semester',
-            price = 50.0,
+            activity=self.activity,
+            bonus_type='semester',
+            price=50.0,
         )
-        
+
         # Add the bonus to the user
         self.product_bonus_1 = ProductBonus.objects.create(
             user=self.user1,
@@ -96,17 +104,18 @@ class WaitingListTestCase(TestCase):
         response = self.client.get(reverse('waiting-list'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "En lista de espera")
-        self.assertContains(response, "No estás en ninguna lista de espera actualmente.")
+        self.assertContains(
+            response, "No estás en ninguna lista de espera actualmente.")
 
         # Add user to waiting list
-        self.client.post(reverse('join_waiting_list', args=[self.session_full.id]), follow=True)
+        self.client.post(reverse('join_waiting_list', args=[
+                         self.session_full.id]), follow=True)
 
         # Check if the user is in the waiting list
         response = self.client.get(reverse('waiting-list'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "En lista de espera")
         self.assertContains(response, "Example Activity")
-
 
     def test_add_to_waiting_list_when_full(self):
         """ A user can join the waiting list only if the session is full. """
@@ -115,20 +124,22 @@ class WaitingListTestCase(TestCase):
         self.client.login(username="testuser", password="testpassword")
 
         # Check if the session is full
-        response = self.client.get(reverse('activity_detail', args=[self.activity.id]))
+        response = self.client.get(
+            reverse('activity_detail', args=[self.activity.id]))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Apuntarse a lista de espera")
 
         # Add user to waiting list
-        response = self.client.post(reverse('join_waiting_list', args=[self.session_full.id]), follow=True)
+        response = self.client.post(reverse('join_waiting_list', args=[
+                                    self.session_full.id]), follow=True)
 
         # Redirect correctly
         self.assertEqual(response.status_code, 200)
 
         # Check if the user is in the waiting list
-        waiting_list = WaitingList.objects.filter(user=self.user1, session=self.session_full)
+        waiting_list = WaitingList.objects.filter(
+            user=self.user1, session=self.session_full)
         self.assertTrue(waiting_list.exists())
-
 
     def test_cannot_add_to_waiting_list_when_space_available(self):
         """ A user cannot be added to waiting list when there are free places. """
@@ -137,17 +148,19 @@ class WaitingListTestCase(TestCase):
         self.client.login(username="testuser", password="testpassword")
 
         # Check if the session is available
-        response = self.client.get(reverse('activity_detail', args=[self.activity.id]))
+        response = self.client.get(
+            reverse('activity_detail', args=[self.activity.id]))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Reservar")
 
         # Try to add user to waiting list
-        response = self.client.post(reverse('join_waiting_list', args=[self.session_available.id]), follow=True)
+        response = self.client.post(reverse('join_waiting_list', args=[
+                                    self.session_available.id]), follow=True)
 
         # Check if the user is not in the waiting list
-        waiting_list = WaitingList.objects.filter(user=self.user1, session=self.session_available)
+        waiting_list = WaitingList.objects.filter(
+            user=self.user1, session=self.session_available)
         self.assertFalse(waiting_list.exists())
-
 
     def test_waiting_list_ordering_by_join_date(self):
         """ Entries in the waiting list are ordered by join_date. """
@@ -156,21 +169,22 @@ class WaitingListTestCase(TestCase):
         self.client.login(username="testuser", password="testpassword")
 
         # Add first user to waiting list
-        self.client.post(reverse('join_waiting_list', args=[self.session_full.id]), follow=True)
+        self.client.post(reverse('join_waiting_list', args=[
+                         self.session_full.id]), follow=True)
 
         # Login second user
         self.client.logout()
         self.client.login(username="testuser2", password="testpassword2")
 
         # Add second user to waiting list
-        self.client.post(reverse('join_waiting_list', args=[self.session_full.id]), follow=True)
+        self.client.post(reverse('join_waiting_list', args=[
+                         self.session_full.id]), follow=True)
 
         # Check if the waiting list is ordered by join_date
         waiting_list = WaitingList.objects.filter(session=self.session_full)
         self.assertEqual(waiting_list.count(), 2)
         self.assertEqual(waiting_list.first().user, self.user1)
         self.assertEqual(waiting_list.last().user, self.user2)
-
 
     def test_remove_from_waiting_list(self):
         """ A user can remove themselves from the waiting list. """
@@ -179,11 +193,15 @@ class WaitingListTestCase(TestCase):
         self.client.login(username="testuser", password="testpassword")
 
         # Add user to waiting list and get the entry
-        self.client.post(reverse('join_waiting_list', args=[self.session_full.id]), follow=True)
-        waiting_entry = WaitingList.objects.get(user=self.user1, session=self.session_full)
+        self.client.post(reverse('join_waiting_list', args=[
+                         self.session_full.id]), follow=True)
+        waiting_entry = WaitingList.objects.get(
+            user=self.user1, session=self.session_full)
 
         # Remove user from waiting list using the correct ID
-        response = self.client.post(reverse('cancel_waiting_list', args=[waiting_entry.id]), follow=True)
+        response = self.client.post(
+            reverse('cancel_waiting_list', args=[waiting_entry.id]), follow=True)
 
         # Check if the user is removed from the waiting list
-        self.assertFalse(WaitingList.objects.filter(user=self.user1, session=self.session_full).exists())
+        self.assertFalse(WaitingList.objects.filter(
+            user=self.user1, session=self.session_full).exists())

@@ -6,4 +6,4 @@ class SguConfig(AppConfig):
     name = 'sgu'
 
     def ready(self):
-        import sgu.signals  
+        import sgu.signals

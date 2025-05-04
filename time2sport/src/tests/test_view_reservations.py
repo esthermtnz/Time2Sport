@@ -15,21 +15,21 @@ class ReservationsViewTest(TestCase):
 
         # Create the session for the activity schedule
         schedule_activity = Schedule.objects.create(
-            day_of_week = DayOfWeek.MARTES,
-            hour_begin = "08:00:00",
-            hour_end = "9:00:00"
+            day_of_week=DayOfWeek.MARTES,
+            hour_begin="08:00:00",
+            hour_end="9:00:00"
         )
 
         # Create an activity
         cls.activity = Activity.objects.create(
-            name = "Partido de Futbol",
-            location = "Campo de Fútbol",
-            description = "Entrenamiento futbol sala para 5 jugadores",
-            activity_type = "Terrestre",
+            name="Partido de Futbol",
+            location="Campo de Fútbol",
+            description="Entrenamiento futbol sala para 5 jugadores",
+            activity_type="Terrestre",
         )
         cls.activity.schedules.add(schedule_activity)
 
-        #Create a session
+        # Create a session
         cls.session = Session.objects.create(
             activity=cls.activity,
             facility=None,
@@ -41,7 +41,7 @@ class ReservationsViewTest(TestCase):
             end_time=time(9, 0)
         )
 
-        #Create a session
+        # Create a session
         cls.session_2 = Session.objects.create(
             activity=cls.activity,
             facility=None,
@@ -53,41 +53,42 @@ class ReservationsViewTest(TestCase):
             end_time=time(11, 0)
         )
 
-        #Create a user
+        # Create a user
         cls.user = User.objects.create(
             username="ramon",
             email="ramon@example.com",
             password="test1234",
-            is_uam = False,
-            user_type = 'notUAM',
+            is_uam=False,
+            user_type='notUAM',
         )
 
-        #Create a bonus
+        # Create a bonus
         bonus = Bonus.objects.create(
             activity=cls.session.activity,
             bonus_type='single',
             price=10.0
         )
 
-        #Create a product bonus
+        # Create a product bonus
         product_bonus = ProductBonus.objects.create(
-            user= cls.user,      
+            user=cls.user,
             bonus=bonus,
             one_use_available=True
         )
 
-        #Create a reservation
+        # Create a reservation
         cls.reservation = Reservation.objects.create(
-            user = cls.user,
-            session = cls.session,
-            bonus = product_bonus
+            user=cls.user,
+            session=cls.session,
+            bonus=product_bonus
         )
-    
+
     def test_redirect_for_unauthenticated_users(self):
         "Verifies that the users ared logged in before accessing the template"
         response = self.client.get(reverse('reservations'))
         self.assertNotEqual(response.status_code, 200)
-        self.assertRedirects(response, f"/accounts/login/?next={reverse('reservations')}")
+        self.assertRedirects(
+            response, f"/accounts/login/?next={reverse('reservations')}")
 
     def test_reservations(self):
         "Checks that the future reservations are correctly displayed"
@@ -106,12 +107,15 @@ class ReservationsViewTest(TestCase):
         self.assertEqual(reservations[0], self.reservation)
 
         self.assertContains(response, self.activity.name)
-        self.assertContains(response, self.reservation.session.date.strftime('%d/%m/%Y'))
-        self.assertContains(response, self.reservation.session.end_time.strftime('%H:%M'))
-        self.assertContains(response, self.reservation.session.date.strftime('%A'))
+        self.assertContains(
+            response, self.reservation.session.date.strftime('%d/%m/%Y'))
+        self.assertContains(
+            response, self.reservation.session.end_time.strftime('%H:%M'))
+        self.assertContains(
+            response, self.reservation.session.date.strftime('%A'))
         self.assertContains(response, self.activity.location)
 
-        #Check Cancelar button
+        # Check Cancelar button
         self.assertContains(response, 'class="btn btn-danger">Cancelar</a>')
 
     def test_any_future_reservations(self):
@@ -152,21 +156,27 @@ class ReservationsViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context['reservations']), 2)
 
-        #Session 1
+        # Session 1
         self.assertContains(response, self.activity.name)
-        self.assertContains(response, self.reservation.session.date.strftime('%d/%m/%Y'))
-        self.assertContains(response, self.reservation.session.end_time.strftime('%H:%M'))
-        self.assertContains(response, self.reservation.session.date.strftime('%A'))
+        self.assertContains(
+            response, self.reservation.session.date.strftime('%d/%m/%Y'))
+        self.assertContains(
+            response, self.reservation.session.end_time.strftime('%H:%M'))
+        self.assertContains(
+            response, self.reservation.session.date.strftime('%A'))
         self.assertContains(response, self.activity.location)
 
-        #Session 2
+        # Session 2
         self.assertContains(response, self.activity.name)
-        self.assertContains(response, reservation_2.session.date.strftime('%d/%m/%Y'))
-        self.assertContains(response, reservation_2.session.end_time.strftime('%H:%M'))
-        self.assertContains(response, reservation_2.session.date.strftime('%A'))
+        self.assertContains(
+            response, reservation_2.session.date.strftime('%d/%m/%Y'))
+        self.assertContains(
+            response, reservation_2.session.end_time.strftime('%H:%M'))
+        self.assertContains(
+            response, reservation_2.session.date.strftime('%A'))
         self.assertContains(response, self.activity.location)
 
-        #Check Cancelar button
+        # Check Cancelar button
         self.assertContains(response, 'class="btn btn-danger">Cancelar</a>')
 
     def test_reservations_are_ordered_by_date(self):
@@ -193,29 +203,28 @@ class ReservationsViewTest(TestCase):
         self.assertEqual(dates, sorted(dates))
 
 
-
 class PastReservationsViewTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        
+
         # Create the session for the activity schedule
         schedule_activity = Schedule.objects.create(
-            day_of_week = DayOfWeek.MARTES,
-            hour_begin = "08:00:00",
-            hour_end = "9:00:00"
+            day_of_week=DayOfWeek.MARTES,
+            hour_begin="08:00:00",
+            hour_end="9:00:00"
         )
 
         # Create an activity
         cls.activity = Activity.objects.create(
-            name = "Partido de Futbol",
-            location = "Campo de Fútbol",
-            description = "Entrenamiento futbol sala para 5 jugadores",
-            activity_type = "Terrestre",
+            name="Partido de Futbol",
+            location="Campo de Fútbol",
+            description="Entrenamiento futbol sala para 5 jugadores",
+            activity_type="Terrestre",
         )
         cls.activity.schedules.add(schedule_activity)
 
-        #Create a session
+        # Create a session
         cls.session = Session.objects.create(
             activity=cls.activity,
             facility=None,
@@ -227,7 +236,7 @@ class PastReservationsViewTest(TestCase):
             end_time=time(9, 0)
         )
 
-        #Create a session
+        # Create a session
         cls.session_2 = Session.objects.create(
             activity=cls.activity,
             facility=None,
@@ -239,41 +248,42 @@ class PastReservationsViewTest(TestCase):
             end_time=time(11, 0)
         )
 
-        #Create a user
+        # Create a user
         cls.user = User.objects.create(
             username="ramon",
             email="ramon@example.com",
             password="test1234",
-            is_uam = False,
-            user_type = 'notUAM',
+            is_uam=False,
+            user_type='notUAM',
         )
 
-        #Create a bonus
+        # Create a bonus
         bonus = Bonus.objects.create(
             activity=cls.session.activity,
             bonus_type='single',
             price=10.0
         )
 
-        #Create a product bonus
+        # Create a product bonus
         product_bonus = ProductBonus.objects.create(
-            user= cls.user,      
+            user=cls.user,
             bonus=bonus,
             one_use_available=True
         )
 
-        #Create a reservation
+        # Create a reservation
         cls.reservation = Reservation.objects.create(
-            user = cls.user,
-            session = cls.session,
-            bonus = product_bonus
+            user=cls.user,
+            session=cls.session,
+            bonus=product_bonus
         )
-    
+
     def test_redirect_for_unauthenticated_users(self):
         "Verifies that the users ared logged in before accessing the template"
         response = self.client.get(reverse('past-reservations'))
         self.assertNotEqual(response.status_code, 200)
-        self.assertRedirects(response, f"/accounts/login/?next={reverse('past-reservations')}")
+        self.assertRedirects(
+            response, f"/accounts/login/?next={reverse('past-reservations')}")
 
     def test_past_reservations(self):
         "Checks that the past reservation is correclty displayed in the view"
@@ -292,9 +302,12 @@ class PastReservationsViewTest(TestCase):
         self.assertEqual(past_reservations[0], self.reservation)
 
         self.assertContains(response, self.activity.name)
-        self.assertContains(response, self.reservation.session.date.strftime('%d/%m/%Y'))
-        self.assertContains(response, self.reservation.session.end_time.strftime('%H:%M'))
-        self.assertContains(response, self.reservation.session.date.strftime('%A'))
+        self.assertContains(
+            response, self.reservation.session.date.strftime('%d/%m/%Y'))
+        self.assertContains(
+            response, self.reservation.session.end_time.strftime('%H:%M'))
+        self.assertContains(
+            response, self.reservation.session.date.strftime('%A'))
         self.assertContains(response, self.activity.location)
 
     def test_any_past_reservations(self):
@@ -335,20 +348,25 @@ class PastReservationsViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context['past_reservations']), 2)
 
-        #Session 1
+        # Session 1
         self.assertContains(response, self.activity.name)
-        self.assertContains(response, self.reservation.session.date.strftime('%d/%m/%Y'))
-        self.assertContains(response, self.reservation.session.end_time.strftime('%H:%M'))
-        self.assertContains(response, self.reservation.session.date.strftime('%A'))
+        self.assertContains(
+            response, self.reservation.session.date.strftime('%d/%m/%Y'))
+        self.assertContains(
+            response, self.reservation.session.end_time.strftime('%H:%M'))
+        self.assertContains(
+            response, self.reservation.session.date.strftime('%A'))
         self.assertContains(response, self.activity.location)
 
-        #Session 2
+        # Session 2
         self.assertContains(response, self.activity.name)
-        self.assertContains(response, reservation_2.session.date.strftime('%d/%m/%Y'))
-        self.assertContains(response, reservation_2.session.end_time.strftime('%H:%M'))
-        self.assertContains(response, reservation_2.session.date.strftime('%A'))
+        self.assertContains(
+            response, reservation_2.session.date.strftime('%d/%m/%Y'))
+        self.assertContains(
+            response, reservation_2.session.end_time.strftime('%H:%M'))
+        self.assertContains(
+            response, reservation_2.session.date.strftime('%A'))
         self.assertContains(response, self.activity.location)
-
 
     def test_reservations_are_ordered_by_date(self):
         "Checks that the reservations are ordered as expected"

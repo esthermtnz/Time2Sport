@@ -11,7 +11,9 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-import os, random, string
+import os
+import random
+import string
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -113,11 +115,11 @@ SOCIALACCOUNT_PROVIDERS = {
     },
 
     "microsoft": {
-        "APP": 
+        "APP":
             {
-            "client_id": "9f1246d9-e550-4039-86b7-f4dfb8856278",
-            "secret": "nhA8Q~GkU3ehOpDsUzZbv-rPoowFep1wO2XVwbCU",
-            "settings": {
+                "client_id": "9f1246d9-e550-4039-86b7-f4dfb8856278",
+                "secret": "nhA8Q~GkU3ehOpDsUzZbv-rPoowFep1wO2XVwbCU",
+                "settings": {
                     "tenant": "consumers",
                     # Optional: override URLs (use base URLs without path)
                     "login_url": "https://login.microsoftonline.com",
@@ -212,7 +214,7 @@ EMAIL_HOST_USER = "time2sportuam@gmail.com"
 EMAIL_HOST_PASSWORD = "gdfh lewp qego shjm"
 
 
-#Django Allauth Configuration
+# Django Allauth Configuration
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 LOGIN_REDIRECT_URL = 'index'
 
@@ -221,14 +223,15 @@ ACCOUNT_EMAIL_REQUIRED = True
 
 ACCOUNT_UNIQUE_EMAIL = True
 
-SOCIALACCOUNT_LOGIN_ON_GET=True
+SOCIALACCOUNT_LOGIN_ON_GET = True
 
 # New user model
 AUTH_USER_MODEL = "sgu.User"
 
-#PayPal Configuration
+# PayPal Configuration
 PAYPAL_TEST = True
-PAYPAL_RECEIVER_EMAIL = 'sb-ruupa38090694@business.example.com' #Paypal Receiver Account
+# Paypal Receiver Account
+PAYPAL_RECEIVER_EMAIL = 'sb-ruupa38090694@business.example.com'
 PAYPAL_BUY_BUTTON_IMAGE = 'https://i.postimg.cc/tJwc9N6N/paypal-pay-button.png'
 
 # Celery configuration

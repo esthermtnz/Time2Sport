@@ -15,21 +15,21 @@ class ReserveActivitySessionViewTest(TestCase):
 
         # Create the session for the activity schedule
         schedule_activity = Schedule.objects.create(
-            day_of_week = DayOfWeek.MARTES,
-            hour_begin = "08:00:00",
-            hour_end = "9:00:00"
+            day_of_week=DayOfWeek.MARTES,
+            hour_begin="08:00:00",
+            hour_end="9:00:00"
         )
 
         # Create an activity
         cls.activity = Activity.objects.create(
-            name = "Partido de Futbol",
-            location = "Campo de Fútbol",
-            description = "Entrenamiento futbol sala para 5 jugadores",
-            activity_type = "Terrestre",
+            name="Partido de Futbol",
+            location="Campo de Fútbol",
+            description="Entrenamiento futbol sala para 5 jugadores",
+            activity_type="Terrestre",
         )
         cls.activity.schedules.add(schedule_activity)
 
-        #Create a session
+        # Create a session
         cls.session = Session.objects.create(
             activity=cls.activity,
             facility=None,
@@ -41,7 +41,7 @@ class ReserveActivitySessionViewTest(TestCase):
             end_time=time(9, 0)
         )
 
-        #Create a session
+        # Create a session
         cls.session_2 = Session.objects.create(
             activity=cls.activity,
             facility=None,
@@ -53,41 +53,43 @@ class ReserveActivitySessionViewTest(TestCase):
             end_time=time(11, 0)
         )
 
-        #Create a user
+        # Create a user
         cls.user = User.objects.create(
             username="ramon",
             email="ramon@example.com",
             password="test1234",
-            is_uam = False,
-            user_type = 'notUAM',
+            is_uam=False,
+            user_type='notUAM',
         )
 
-        #Create a bonus
+        # Create a bonus
         bonus = Bonus.objects.create(
             activity=cls.session.activity,
             bonus_type='single',
             price=10.0
         )
 
-        #Create a product bonus
+        # Create a product bonus
         product_bonus = ProductBonus.objects.create(
-            user= cls.user,      
+            user=cls.user,
             bonus=bonus,
             one_use_available=True
         )
 
-        #Create a reservation
+        # Create a reservation
         cls.reservation = Reservation.objects.create(
-            user = cls.user,
-            session = cls.session,
-            bonus = product_bonus
+            user=cls.user,
+            session=cls.session,
+            bonus=product_bonus
         )
 
     def test_redirect_for_unauthenticated_users(self):
         "Verifies that the users ared logged in before accessing the template"
-        response = self.client.get(reverse('activity_detail', args=[self.activity.id]))
+        response = self.client.get(
+            reverse('activity_detail', args=[self.activity.id]))
         self.assertNotEqual(response.status_code, 200)
-        self.assertRedirects(response, f'/accounts/login/?next=/activities/{self.activity.id}/')
+        self.assertRedirects(
+            response, f'/accounts/login/?next=/activities/{self.activity.id}/')
 
     def test_reserve_activity_session(self):
         "Makes a reservation of a session activity successfully"
@@ -96,12 +98,15 @@ class ReserveActivitySessionViewTest(TestCase):
         session_id = self.session_2.id
         self.user.has_valid_bono_for_activity = lambda actividad: True
 
-        response = self.client.get(reverse('reserve_activity_session', args=[session_id]))
+        response = self.client.get(
+            reverse('reserve_activity_session', args=[session_id]))
 
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse('activity_detail', args=[self.activity.id]))
+        self.assertRedirects(response, reverse(
+            'activity_detail', args=[self.activity.id]))
 
-        self.assertTrue(Reservation.objects.filter(user=self.user, session=self.session_2).exists())
+        self.assertTrue(Reservation.objects.filter(
+            user=self.user, session=self.session_2).exists())
 
         messages = list(response.wsgi_request._messages)
         self.assertEqual(len(messages), 1)
@@ -110,16 +115,19 @@ class ReserveActivitySessionViewTest(TestCase):
         notification = Notification.objects.filter(user=self.user).last()
         self.assertIsNotNone(notification)
         self.assertIn("Reserva realizada con éxito", notification.title)
-        self.assertIn(f"Has realizado una reserva de {self.session_2.activity} para el día {self.session_2.date.strftime('%d/%m/%Y')}.", notification.content)
+        self.assertIn(
+            f"Has realizado una reserva de {self.session_2.activity} para el día {self.session_2.date.strftime('%d/%m/%Y')}.", notification.content)
 
     def test_conflicting_reservation(self):
         "Attempts to make a reservation that has a schedule conflict with an already made reservation"
         self.client.force_login(self.user)
         self.user.has_valid_bono_for_activity = lambda actividad: True
 
-        response = self.client.get(reverse('reserve_activity_session', args=[self.session.id]))
+        response = self.client.get(
+            reverse('reserve_activity_session', args=[self.session.id]))
 
-        self.assertRedirects(response, reverse('activity_detail', args=[self.activity.id]))
+        self.assertRedirects(response, reverse(
+            'activity_detail', args=[self.activity.id]))
         messages = list(response.wsgi_request._messages)
         self.assertEqual(len(messages), 1)
         self.assertIn("Ya tienes una reserva para esa hora", str(messages[0]))
@@ -132,9 +140,11 @@ class ReserveActivitySessionViewTest(TestCase):
         self.session_2.free_places = 0
         self.session_2.save()
 
-        response = self.client.get(reverse('reserve_activity_session', args=[self.session_2.id]))
+        response = self.client.get(
+            reverse('reserve_activity_session', args=[self.session_2.id]))
 
-        self.assertRedirects(response, reverse('activity_detail', args=[self.activity.id]))
+        self.assertRedirects(response, reverse(
+            'activity_detail', args=[self.activity.id]))
         messages = list(response.wsgi_request._messages)
         self.assertEqual(len(messages), 1)
         self.assertIn("Error al realizar la reserva", str(messages[0]))
@@ -144,8 +154,10 @@ class ReserveActivitySessionViewTest(TestCase):
         self.client.force_login(self.user)
         invalid_id = 9999
 
-        response = self.client.get(reverse('reserve_activity_session', args=[invalid_id]))
+        response = self.client.get(
+            reverse('reserve_activity_session', args=[invalid_id]))
         self.assertEqual(response.status_code, 404)
+
 
 class CheckReserveFacilitySessionViewTest(TestCase):
 
@@ -154,38 +166,38 @@ class CheckReserveFacilitySessionViewTest(TestCase):
 
         # Create the session for the activity schedule
         schedule_activity = Schedule.objects.create(
-            day_of_week = DayOfWeek.MARTES,
-            hour_begin = "08:00:00",
-            hour_end = "9:00:00"
+            day_of_week=DayOfWeek.MARTES,
+            hour_begin="08:00:00",
+            hour_end="9:00:00"
         )
 
         # Create the session for the facility schedule
         schedule_facility = Schedule.objects.create(
-            day_of_week = DayOfWeek.JUEVES,
-            hour_begin = "09:00:00",
-            hour_end = "14:00:00"
+            day_of_week=DayOfWeek.JUEVES,
+            hour_begin="09:00:00",
+            hour_end="14:00:00"
         )
 
         # Create an activity
         cls.activity = Activity.objects.create(
-            name = "Partido de Futbol",
-            location = "Campo de Fútbol",
-            description = "Entrenamiento futbol sala para 5 jugadores",
-            activity_type = "Terrestre",
+            name="Partido de Futbol",
+            location="Campo de Fútbol",
+            description="Entrenamiento futbol sala para 5 jugadores",
+            activity_type="Terrestre",
         )
         cls.activity.schedules.add(schedule_activity)
 
         # Create a facility
         cls.facility = SportFacility.objects.create(
-            name = "Pista de Tenis",
-            number_of_facilities = 2,
-            description = "Una pista de tenis bien mantenida.",
-            hour_price = 30.0,
-            facility_type = "Exterior",
+            name="Pista de Tenis",
+            number_of_facilities=2,
+            description="Una pista de tenis bien mantenida.",
+            hour_price=30.0,
+            facility_type="Exterior",
         )
         cls.facility.schedules.add(schedule_facility)
 
-        #Create a session
+        # Create a session
         cls.session = Session.objects.create(
             activity=None,
             facility=cls.facility,
@@ -208,28 +220,30 @@ class CheckReserveFacilitySessionViewTest(TestCase):
             end_time=time(11, 0)
         )
 
-        #Create a user
+        # Create a user
         cls.user = User.objects.create(
             username="ramon",
             email="ramon@example.com",
             password="test1234",
-            is_uam = False,
-            user_type = 'notUAM',
+            is_uam=False,
+            user_type='notUAM',
         )
 
-        #Create a reservation
+        # Create a reservation
         cls.reservation = Reservation.objects.create(
-            user = cls.user,
-            session = cls.session,
-            bonus = None
+            user=cls.user,
+            session=cls.session,
+            bonus=None
         )
 
     def test_redirect_for_unauthenticated_users(self):
         "Verifies that the users ared logged in before accessing the template"
-        response = self.client.get(reverse('facility_detail', args=[self.facility.id]))
+        response = self.client.get(
+            reverse('facility_detail', args=[self.facility.id]))
         self.assertNotEqual(response.status_code, 200)
-        self.assertRedirects(response, f'/accounts/login/?next=/facilities/{self.facility.id}/')
-    
+        self.assertRedirects(
+            response, f'/accounts/login/?next=/facilities/{self.facility.id}/')
+
     def test_check_reserve_facility_session(self):
         "Checks that a valid selected session proceeds to invoice"
         self.client.force_login(self.user)
@@ -238,15 +252,15 @@ class CheckReserveFacilitySessionViewTest(TestCase):
         self.reservation.delete()
 
         selected = f"{self.facility.id}|09:00|10:00|{date.today().strftime('%B %d %Y')}"
-        
+
         response = self.client.post(reverse('check_reserve_facility_session'), {
             'facility_id': self.facility.id,
             'selected_sessions': f"{selected}"
         })
 
-        self.assertRedirects(response, reverse('invoice_facility', args=[self.facility.id]))
+        self.assertRedirects(response, reverse(
+            'invoice_facility', args=[self.facility.id]))
         self.assertEqual(self.client.session['selected_sessions'], [selected])
-
 
     def test_check_reserve_facility_multiple_sessions(self):
         "Checks that multiple valid sessions proceed to invoice"
@@ -263,9 +277,10 @@ class CheckReserveFacilitySessionViewTest(TestCase):
             'selected_sessions': f"{selected_1},{selected_2}"
         })
 
-        self.assertRedirects(response, reverse('invoice_facility', args=[self.facility.id]))
-        self.assertEqual(self.client.session['selected_sessions'], [selected_1, selected_2])
-
+        self.assertRedirects(response, reverse(
+            'invoice_facility', args=[self.facility.id]))
+        self.assertEqual(self.client.session['selected_sessions'], [
+                         selected_1, selected_2])
 
     def test_no_sessions_selected(self):
         "Checks that an error message is given when no sessions are selected"
@@ -276,26 +291,31 @@ class CheckReserveFacilitySessionViewTest(TestCase):
             'selected_sessions': ''
         })
 
-        self.assertRedirects(response, reverse('facility_detail', args=[self.facility.id]))
+        self.assertRedirects(response, reverse(
+            'facility_detail', args=[self.facility.id]))
         messages = list(response.wsgi_request._messages)
         self.assertEqual(len(messages), 1)
-        self.assertIn('No se ha seleccionado ninguna sesión.', str(messages[0]))
+        self.assertIn('No se ha seleccionado ninguna sesión.',
+                      str(messages[0]))
 
     def test_conflict_between_selected_sessions(self):
         "Checks that redirects in case of a schedule conflict"
         self.client.force_login(self.user)
 
         selected_1 = f"{self.facility.id}|09:00|10:00|{date.today().strftime('%B %d %Y')}"
-        selected_2 = f"{self.facility.id}|09:30|10:30|{date.today().strftime('%B %d %Y')}"  # solapa con la anterior
+        # solapa con la anterior
+        selected_2 = f"{self.facility.id}|09:30|10:30|{date.today().strftime('%B %d %Y')}"
 
         response = self.client.post(reverse('check_reserve_facility_session'), {
             'facility_id': self.facility.id,
             'selected_sessions': f"{selected_1},{selected_2}"
         })
 
-        self.assertRedirects(response, reverse('facility_detail', args=[self.facility.id]))
+        self.assertRedirects(response, reverse(
+            'facility_detail', args=[self.facility.id]))
         messages = list(response.wsgi_request._messages)
-        self.assertIn("Las reservas seleccionadas se solapan.", str(messages[0]))
+        self.assertIn("Las reservas seleccionadas se solapan.",
+                      str(messages[0]))
 
     def test_conflict_with_existing_user_reservation(self):
         "Checks that redirects in case of attempting making a reservation on a already reserved spot"
@@ -308,9 +328,11 @@ class CheckReserveFacilitySessionViewTest(TestCase):
             'selected_sessions': selected
         })
 
-        self.assertRedirects(response, reverse('facility_detail', args=[self.facility.id]))
+        self.assertRedirects(response, reverse(
+            'facility_detail', args=[self.facility.id]))
         messages = list(response.wsgi_request._messages)
         self.assertIn("Ya tienes una reserva para esa hora", str(messages[0]))
+
 
 class ReserveFacilitySessionViewTest(TestCase):
 
@@ -319,38 +341,38 @@ class ReserveFacilitySessionViewTest(TestCase):
 
         # Create the session for the activity schedule
         schedule_activity = Schedule.objects.create(
-            day_of_week = DayOfWeek.MARTES,
-            hour_begin = "08:00:00",
-            hour_end = "9:00:00"
+            day_of_week=DayOfWeek.MARTES,
+            hour_begin="08:00:00",
+            hour_end="9:00:00"
         )
 
         # Create the session for the facility schedule
         schedule_facility = Schedule.objects.create(
-            day_of_week = DayOfWeek.JUEVES,
-            hour_begin = "09:00:00",
-            hour_end = "14:00:00"
+            day_of_week=DayOfWeek.JUEVES,
+            hour_begin="09:00:00",
+            hour_end="14:00:00"
         )
 
         # Create an activity
         cls.activity = Activity.objects.create(
-            name = "Partido de Futbol",
-            location = "Campo de Fútbol",
-            description = "Entrenamiento futbol sala para 5 jugadores",
-            activity_type = "Terrestre",
+            name="Partido de Futbol",
+            location="Campo de Fútbol",
+            description="Entrenamiento futbol sala para 5 jugadores",
+            activity_type="Terrestre",
         )
         cls.activity.schedules.add(schedule_activity)
 
         # Create a facility
         cls.facility = SportFacility.objects.create(
-            name = "Pista de Tenis",
-            number_of_facilities = 2,
-            description = "Una pista de tenis bien mantenida.",
-            hour_price = 30.0,
-            facility_type = "Exterior",
+            name="Pista de Tenis",
+            number_of_facilities=2,
+            description="Una pista de tenis bien mantenida.",
+            hour_price=30.0,
+            facility_type="Exterior",
         )
         cls.facility.schedules.add(schedule_facility)
 
-        #Create a session
+        # Create a session
         cls.session = Session.objects.create(
             activity=None,
             facility=cls.facility,
@@ -373,20 +395,20 @@ class ReserveFacilitySessionViewTest(TestCase):
             end_time=time(11, 0)
         )
 
-        #Create a user
+        # Create a user
         cls.user = User.objects.create(
             username="ramon",
             email="ramon@example.com",
             password="test1234",
-            is_uam = False,
-            user_type = 'notUAM',
+            is_uam=False,
+            user_type='notUAM',
         )
 
-        #Create a reservation
+        # Create a reservation
         cls.reservation = Reservation.objects.create(
-            user = cls.user,
-            session = cls.session,
-            bonus = None
+            user=cls.user,
+            session=cls.session,
+            bonus=None
         )
 
     def test_redirect_if_not_authenticated(self):
@@ -396,8 +418,10 @@ class ReserveFacilitySessionViewTest(TestCase):
         session.save()
 
         self.client.logout()
-        response = self.client.get(reverse('payment-facility-success', args=[self.facility.id]))
-        self.assertRedirects(response, f'/accounts/login/?next=/payment-facility-success/{self.facility.id}/')
+        response = self.client.get(
+            reverse('payment-facility-success', args=[self.facility.id]))
+        self.assertRedirects(
+            response, f'/accounts/login/?next=/payment-facility-success/{self.facility.id}/')
 
     def test_reserve_facility_session(self):
         "Creates the reservation of the facility"
@@ -408,15 +432,18 @@ class ReserveFacilitySessionViewTest(TestCase):
         session['selected_sessions'] = [selected]
         session.save()
 
-        response = self.client.get(reverse('payment-facility-success', args=[self.facility.id]))
+        response = self.client.get(
+            reverse('payment-facility-success', args=[self.facility.id]))
 
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(Reservation.objects.filter(user=self.user, session=self.session_2).exists())
+        self.assertTrue(Reservation.objects.filter(
+            user=self.user, session=self.session_2).exists())
 
         notification = Notification.objects.filter(user=self.user).last()
         self.assertIsNotNone(notification)
         self.assertIn("Reserva realizada correctamente", notification.title)
-        self.assertIn(self.session_2.date.strftime('%d/%m/%Y'), notification.content)
+        self.assertIn(self.session_2.date.strftime(
+            '%d/%m/%Y'), notification.content)
 
         session_2_updated = Session.objects.get(pk=self.session_2.pk)
         self.assertEqual(session_2_updated.free_places, 1)
@@ -428,18 +455,22 @@ class ReserveFacilitySessionViewTest(TestCase):
         selected_1 = f"{self.facility.id}|09:00|10:00|{date.today().strftime('%B %d %Y')}"
         selected_2 = f"{self.facility.id}|10:00|11:00|{date.today().strftime('%B %d %Y')}"
 
-        Reservation.objects.filter(user=self.user, session=self.session).delete()  # limpieza
+        Reservation.objects.filter(
+            user=self.user, session=self.session).delete()  # limpieza
 
         session = self.client.session
         session['selected_sessions'] = [selected_1, selected_2]
         session.save()
 
-        response = self.client.get(reverse('payment-facility-success', args=[self.facility.id]))
+        response = self.client.get(
+            reverse('payment-facility-success', args=[self.facility.id]))
 
         self.assertEqual(response.status_code, 200)
 
-        self.assertTrue(Reservation.objects.filter(user=self.user, session=self.session).exists())
-        self.assertTrue(Reservation.objects.filter(user=self.user, session=self.session_2).exists())
+        self.assertTrue(Reservation.objects.filter(
+            user=self.user, session=self.session).exists())
+        self.assertTrue(Reservation.objects.filter(
+            user=self.user, session=self.session_2).exists())
 
         notification = Notification.objects.filter(user=self.user).last()
         self.assertIn("Reserva realizada correctamente", notification.title)
@@ -456,12 +487,15 @@ class ReserveFacilitySessionViewTest(TestCase):
         session['selected_sessions'] = [selected]
         session.save()
 
-        response = self.client.get(reverse('payment-facility-success', args=[self.facility.id]))
+        response = self.client.get(
+            reverse('payment-facility-success', args=[self.facility.id]))
 
-        self.assertEqual(Reservation.objects.filter(user=self.user, session=self.session).count(), 1)  # solo la del setUp
+        self.assertEqual(Reservation.objects.filter(
+            user=self.user, session=self.session).count(), 1)  # solo la del setUp
 
         messages = list(response.wsgi_request._messages)
         self.assertTrue(
-            any("La hora 09:00 - 10:00 ya está ocupada." in str(message) for message in messages),
+            any("La hora 09:00 - 10:00 ya está ocupada." in str(message)
+                for message in messages),
             "No se encontró el mensaje de error esperado en messages"
         )

@@ -28,11 +28,13 @@ from django.db.models import Q
 
 from src.models import Session
 
+
 @login_required
 def all_activities(request):
     ''' Function to get all activities. '''
     activities = Activity.objects.prefetch_related('photos').all()
     return render(request, 'activities/all_activities.html', {'activities': activities})
+
 
 @login_required
 def activity_detail(request, activity_id):
@@ -76,6 +78,7 @@ def activity_detail(request, activity_id):
         'sessions': ordered_sessions
     })
 
+
 @login_required
 def all_facilities(request):
     ''' Function to get all sport facilities. '''
@@ -100,7 +103,8 @@ def divide_hours_into_blocks(schedule):
     start = schedule.hour_begin
     end = schedule.hour_end
     while start < end:
-        siguiente = (datetime.combine(datetime.today(), start) + timedelta(hours=1)).time()
+        siguiente = (datetime.combine(datetime.today(), start) +
+                     timedelta(hours=1)).time()
         blocks.append({'start': start, 'end': siguiente})
         start = siguiente
     return blocks
@@ -121,7 +125,8 @@ def facility_detail(request, facility_id):
             name = ' '.join(facility.name.split(" ")[:-1])
         else:
             name = facility.name
-        facilities = SportFacility.objects.filter(name__regex=f"^{name}( [0-9]+)?$").prefetch_related('photos')
+        facilities = SportFacility.objects.filter(
+            name__regex=f"^{name}( [0-9]+)?$").prefetch_related('photos')
 
     # Get the next 7 days
     today = timezone.now().date()
@@ -130,7 +135,7 @@ def facility_detail(request, facility_id):
     # Get the schedules for the next 7 days
     sessions_next_7_days = []
     for day in next_7_days:
-        day_of_week = day.weekday() # Get the day of the week (0 is Monday ... 6 is Sunday)
+        day_of_week = day.weekday()  # Get the day of the week (0 is Monday ... 6 is Sunday)
 
         # Sessions for each facility on the current day
         all_sessions_of_the_day = []
@@ -155,16 +160,19 @@ def facility_detail(request, facility_id):
         'sessions_next_7_days': sessions_next_7_days
     })
 
+
 @login_required
 def schedules(request):
     ''' Function to get the main schedules page. '''
     return render(request, 'schedules/schedules.html')
+
 
 @login_required
 def facilities_schedule(request):
     ''' Function to get the schedules of all sport facilities. '''
     facilities = SportFacility.objects.prefetch_related('schedules').all()
     return render(request, 'schedules/facilities_schedule.html', {'facilities': facilities})
+
 
 @login_required
 def download_facilities_schedule(request):
@@ -211,6 +219,7 @@ def download_facilities_schedule(request):
     # Return the PDF
     return response
 
+
 @login_required
 def activities_schedule(request):
     ''' Function to get the schedules of all activities. '''
@@ -245,6 +254,7 @@ def activities_schedule(request):
 
     return render(request, "schedules/activities_schedule.html", {"activities": grouped_schedules})
 
+
 @login_required
 def download_activities_schedule(request):
     ''' Function to download the schedules of all activities as a PDF. '''
@@ -262,7 +272,8 @@ def download_activities_schedule(request):
 
     # Table headers
     data = [["Actividad", "Día", "Horario"]]
-    merge_styles = []  # Here the activities with multiple schedules are stored to later merge the cells
+    # Here the activities with multiple schedules are stored to later merge the cells
+    merge_styles = []
 
     activities = Activity.objects.prefetch_related('schedules').all()
 
@@ -274,9 +285,10 @@ def download_activities_schedule(request):
             day = schedule.get_day_of_week_display()
             if day not in schedules_by_day:
                 schedules_by_day[day] = []
-            schedules_by_day[day].append(f"{schedule.hour_begin.strftime('%I:%M')} - {schedule.hour_end.strftime('%I:%M')}")
+            schedules_by_day[day].append(
+                f"{schedule.hour_begin.strftime('%I:%M')} - {schedule.hour_end.strftime('%I:%M')}")
 
-        activity_rows = [] # Rows for the same activity
+        activity_rows = []  # Rows for the same activity
         for day, hours in schedules_by_day.items():
             grouped_hours = "\n".join(hours)
             activity_rows.append(["", day, grouped_hours])
@@ -288,7 +300,8 @@ def download_activities_schedule(request):
 
             # Group the cells of the activity column if there are more than one row
             if len(activity_rows) > 1:
-                merge_styles.append(('SPAN', (0, len(data) - len(activity_rows)), (0, len(data) - 1)))
+                merge_styles.append(
+                    ('SPAN', (0, len(data) - len(activity_rows)), (0, len(data) - 1)))
 
     # Put the styles to the table
     table = Table(data, colWidths=[150, 100, 150])

@@ -25,15 +25,12 @@ from .forms import ContactForm, UAMForm
 from django.core.mail import EmailMessage
 
 
-
-
-
 __version__ = "0.5.0"
 
 User = get_user_model()
 
 
-#-- Login and Logout
+# -- Login and Logout
 
 def log_in(request):
     context = {}
@@ -43,16 +40,20 @@ def log_in(request):
 @login_required
 def log_out(request):
     logout(request)
-    return redirect('http://localhost:8000/')  
+    return redirect('http://localhost:8000/')
 
-#-- Footer Views
+# -- Footer Views
+
+
 def aviso_legal(request):
     context = {}
     return render(request, 'footer/aviso_legal.html', context)
 
+
 def politica_privacidad(request):
     context = {}
     return render(request, 'footer/politica_privacidad.html', context)
+
 
 def contacto(request):
     contactForm = ContactForm()
@@ -83,7 +84,8 @@ def contacto(request):
                 </html>
             """
 
-            emailMessage = EmailMessage(asunto, mensaje_html, "", ["time2sportuam@gmail.com"], reply_to=[email])
+            emailMessage = EmailMessage(asunto, mensaje_html, "", [
+                                        "time2sportuam@gmail.com"], reply_to=[email])
             emailMessage.content_subtype = "html"
 
             try:
@@ -95,7 +97,7 @@ def contacto(request):
     return render(request, 'footer/contacto.html', {"contactForm": contactForm})
 
 
-#-- Home page
+# -- Home page
 
 @login_required
 def uam_verification(request):
@@ -126,10 +128,11 @@ def uam_verification(request):
                 usuario.is_uam = False
                 usuario.save()
                 return redirect('index')
-            else: 
+            else:
                 # usuario.save()
 
-                codigo = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+                codigo = ''.join(random.choices(
+                    string.ascii_uppercase + string.digits, k=6))
                 expiration_time = now() + timedelta(minutes=10)
 
                 request.session["codigo_verificacion"] = codigo
@@ -160,8 +163,8 @@ def uam_verification(request):
                 except:
                     return redirect("/uam-verification/?invalido")
 
-
     return render(request, 'users/uam_verification.html', {"form": form})
+
 
 @login_required
 def verificar_codigo_uam(request):
@@ -179,7 +182,7 @@ def verificar_codigo_uam(request):
 
         if not codigo_correcto or not tiempo_expiracion:
             return redirect("/uam-verification/?expirado")
-        
+
         if now().timestamp() > tiempo_expiracion:
             del request.session["codigo_verificacion"]
             del request.session["codigo_expiracion"]
@@ -188,7 +191,7 @@ def verificar_codigo_uam(request):
 
         if codigo_form == codigo_correcto:
             usuario = request.user
-            usuario.is_uam = True  
+            usuario.is_uam = True
             usuario.user_type = user_type
             usuario.save()
 
@@ -202,15 +205,16 @@ def verificar_codigo_uam(request):
 
     return render(request, "users/verificar_codigo_uam.html")
 
+
 @login_required
 def index(request):
-    if request.session.pop('first_login', False): 
-        return redirect('uam_verification') 
-    
+    if request.session.pop('first_login', False):
+        return redirect('uam_verification')
+
     return render(request, 'home.html')
 
 
-#Edit profile
+# Edit profile
 @login_required
 def profile(request):
 
@@ -222,7 +226,7 @@ def profile(request):
         "alumni": "Antiguo Alumno de la UAM",
     }
     user_type = user_types.get(request.user.user_type, "Desconocido")
-    
+
     context = {"user": request.user, "user_type": user_type}
     return render(request, 'users/profile.html', context)
 
@@ -231,4 +235,4 @@ def profile(request):
 def edit_profile(request):
     if request.method == 'POST' and request.FILES.get('profile_image'):
         request.user.editProfile(request.FILES['profile_image'])
-    return redirect('profile') 
+    return redirect('profile')

@@ -6,18 +6,17 @@ from datetime import datetime, timedelta
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'time2sport.settings')
 django.setup()
 
-
-from slegpn.models import Notification, ProductBonus
-from sbai.models import SportFacility, Activity, Schedule, Photo, Bonus, DayOfWeek
-from src.models import Session, Reservation
 from sgu.models import User
-
+from src.models import Session, Reservation
+from sbai.models import SportFacility, Activity, Schedule, Photo, Bonus, DayOfWeek
+from slegpn.models import Notification, ProductBonus
 
 def get_images_from_folder(folder_path):
     ''' Get all image files from a given folder path '''
     if not os.path.exists(folder_path):
         return []
     return [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
+
 
 def create_schedule(day, hour_ranges):
     ''' Create schedules for a given day and hour ranges '''
@@ -78,17 +77,24 @@ def populate():
 
     # Activities
     activities = [
-        {'name': 'Partido de Fútbol', 'location': 'Campo de Fútbol', 'description': 'Un partido de fútbol con equipos.', 'activity_type': 'Terrestre'},
-        {'name': 'Entrenamiento de Tenis', 'location': 'Pista de Tenis', 'description': 'Sesión de entrenamiento de tenis.', 'activity_type': 'Terrestre'},
-        {'name': 'Entrenamiento de Baloncesto', 'location': 'Cancha de Baloncesto', 'description': 'Entrenamiento de habilidades de baloncesto.', 'activity_type': 'Terrestre'},
-        {'name': 'Clases de Natación', 'location': 'Piscina', 'description': 'Clases de natación para todos los niveles.', 'activity_type': 'Acuática'},
-        {'name': 'Entrenamiento de Carrera', 'location': 'Pista de Atletismo', 'description': 'Sesión de entrenamiento cardiovascular.', 'activity_type': 'Terrestre'}
+        {'name': 'Partido de Fútbol', 'location': 'Campo de Fútbol',
+            'description': 'Un partido de fútbol con equipos.', 'activity_type': 'Terrestre'},
+        {'name': 'Entrenamiento de Tenis', 'location': 'Pista de Tenis',
+            'description': 'Sesión de entrenamiento de tenis.', 'activity_type': 'Terrestre'},
+        {'name': 'Entrenamiento de Baloncesto', 'location': 'Cancha de Baloncesto',
+            'description': 'Entrenamiento de habilidades de baloncesto.', 'activity_type': 'Terrestre'},
+        {'name': 'Clases de Natación', 'location': 'Piscina',
+            'description': 'Clases de natación para todos los niveles.', 'activity_type': 'Acuática'},
+        {'name': 'Entrenamiento de Carrera', 'location': 'Pista de Atletismo',
+            'description': 'Sesión de entrenamiento cardiovascular.', 'activity_type': 'Terrestre'}
     ]
 
     # Facilities
     facilities = [
-        {'name': 'Campo de Fútbol', 'number_of_facilities': 2, 'description': 'Un gran campo de fútbol al aire libre.', 'hour_price': 50.0, 'facility_type': 'Exterior'},
-        {'name': 'Pista de Tenis', 'number_of_facilities': 2, 'description': 'Una pista de tenis bien mantenida.', 'hour_price': 30.0, 'facility_type': 'Exterior'}
+        {'name': 'Campo de Fútbol', 'number_of_facilities': 2,
+            'description': 'Un gran campo de fútbol al aire libre.', 'hour_price': 50.0, 'facility_type': 'Exterior'},
+        {'name': 'Pista de Tenis', 'number_of_facilities': 2,
+            'description': 'Una pista de tenis bien mantenida.', 'hour_price': 30.0, 'facility_type': 'Exterior'}
     ]
 
     # Bonuses
@@ -118,18 +124,20 @@ def populate():
         image_files = get_images_from_folder(activity_images_folder)
 
         for image_file in image_files:
-            photo = Photo.objects.create(activity=activity, image=f"activities/{activity.id}/{image_file}")
+            photo = Photo.objects.create(
+                activity=activity, image=f"activities/{activity.id}/{image_file}")
             print(f'Added image {photo.image} to activity {activity.name}')
 
         for bon in bonuses:
             bonus = Bonus.objects.create(
-                activity = activity,
-                bonus_type = bon['bonus_type'],
-                price = bon['price'],
+                activity=activity,
+                bonus_type=bon['bonus_type'],
+                price=bon['price'],
             )
             print(bonus)
 
-        sessions_act = Session.create_sessions(schedules, activity=activity, capacity=1)
+        sessions_act = Session.create_sessions(
+            schedules, activity=activity, capacity=1)
 
     # Create facilities and assign schedules
     for fac in facilities:
@@ -151,16 +159,17 @@ def populate():
         image_files = get_images_from_folder(facility_images_folder)
 
         for image_file in image_files:
-            photo = Photo.objects.create(facility=facility, image=f"facilities/{facility.id}/{image_file}")
+            photo = Photo.objects.create(
+                facility=facility, image=f"facilities/{facility.id}/{image_file}")
             print(f'Added image {photo.image} to facility {facility.name}')
 
         sesions_fac = Session.create_sessions(schedules, facility=facility)
-
 
     print(sessions_act)
     print(sesions_fac)
 
     print("Population completed!")
+
 
 if __name__ == '__main__':
     print("Starting application population script...")
